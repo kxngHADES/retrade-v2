@@ -10,9 +10,14 @@
 
 ---
 **Author/Student:** Ndaedzo Rudzani Brandon Mudau
+
 **Lecture:** Sakafuku Tshink
+
 **Module:** ITECA3-12
+
 **Institute:** Eduvos
+
 **Stuent Number:** MD.2022.G4C7J5
+
 **Private Email:** [![Email](https://img.shields.io/badge/-ndaedzomu101%40gmail.com-000?style=flat&logo=gmail&logoColor=white)](mailto:ndaedzomu101@gmail.com)
 
