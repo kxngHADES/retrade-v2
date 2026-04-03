@@ -13,7 +13,7 @@
 			"Api\\": "api",
 			"Components\\": "components",
 			"Assets\\": "assets",
-			"Templates\\": "templates",
+			"Templates\\": "templates"
 		}
 	},
 	"authors": [
