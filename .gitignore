@@ -1,0 +1,130 @@
+# =========================
+# OS / General
+# =========================
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.swp
+*.bak
+
+# =========================
+# Python (uv)
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# uv-specific
+.uv/
+uv.lock
+
+# Python build / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Type checking
+.mypy_cache/
+.pyright/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment variables
+.env
+.env.pr*
+.env.de*
+
+# =========================
+# PHP (Composer)
+# =========================
+/vendor/
+vendor/
+
+# Composer lock (decide based on project type)
+# Keep for apps, ignore for libraries
+# composer.lock
+
+# PHPStorm / IDE
+.idea/
+*.iml
+
+# PHPUnit
+.phpunit.result.cache
+
+# PHP logs
+logs/
+*.log
+
+# =========================
+# Docker (optional)
+# =========================
+docker-compose.override.yml
+
+# =========================
+# Misc
+# =========================
+node_modules/
+
+tmp/
+
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# UV
+.env
+!.env.example
+uv.lock
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+cookie.txt
+cookies.txt
