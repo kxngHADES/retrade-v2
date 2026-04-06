@@ -124,3 +124,9 @@ Thumbs.db
 # Logs
 *.log
 logs/
+
+
+
+
+# Tasks
+TODO.md
