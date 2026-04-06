@@ -1,0 +1,109 @@
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+  
+  php:
+    build: ./docker/php
+    volumes:
+      - ./frontend:/var/www/html
+    depends_on:
+      - redis
+      - db
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+      - 1.1.1.1
+  
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+  
+  db:
+    image: mysql:8.0
+    ports:
+      - "3311:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: retrade_exp
+      MYSQL_USER: retrade_user
+      MYSQL_PASSWORD: retrade_pass
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minio_admin
+      MINIO_ROOT_PASSWORD: minio_secure_password_123
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+    depends_on:
+      - db
+  
+  mongodb:
+    image: mongo:7.0
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: retrade_admin
+      MONGO_INITDB_ROOT_PASSWORD: mongo_secure_pass_123
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  fastapi:
+    build:
+      context: .
+      dockerfile: ./docker/fastapi/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./backend/.env:/app/.env:ro
+      - fastapi_venv:/app/.venv
+    env_file:
+      - ./backend/.env
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    command: uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+  
+volumes:
+  db_data:
+  minio_data:
+  mongodb_data:
+  fastapi_venv:
