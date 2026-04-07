@@ -125,6 +125,19 @@ class Redis {
 		}
 		return false;
 	}
+
+
+
+	// Store user data temporarily
+	public function storeUserTemp(array $userData, int $ttl = (60*15)): bool {
+		$result = $this->client->hmset($userData['phoneNumber'], $userData);
+		if ($result == 'ok') {
+			$this->client->expire($userData['phoneNumber'], $ttl);
+			return true;
+		}
+
+		return false;
+	}
 	
 	// Publish message to channel
 	public function publish(string $channel, string $message): int {

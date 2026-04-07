@@ -4,7 +4,7 @@
 define('APP_ROOT', __DIR__);
 session_start();
 
-if (!define('BASE_URL')){
+if (!defined('BASE_URL')){
 	$script_name = str_replace('\\', '/', $_SERVER['SCRIPT_NAME']);
     $doc_root = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']);
     
