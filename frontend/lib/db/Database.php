@@ -1,8 +1,6 @@
 <?php
-
-require_once __DIR__ . '/../../config/bootstrap.php';
-
 namespace Lib\db;
+require_once __DIR__ . '/../../config/bootstrap.php';
 
 use PDO;
 use PDOException;

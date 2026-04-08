@@ -1,10 +1,15 @@
 <?php
 
+error_log("bootstrap.php loaded from: " . (debug_backtrace()[1]['file'] ?? 'direct call'));
+
 require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../config.php';
 
-define('PROJECT_ROOT', dirname(__DIR__));
+if (session_status() === PHP_SESSION_NONE){
+	session_start();
+}
 
-$logsDir = PROJECT_ROOT . '/logs';
+$logsDir =  __DIR__ . '/../logs';
 
 if (!is_dir($logsDir)) {
 	mkdir($logsDir, 0755, true);
@@ -27,4 +32,27 @@ date_default_timezone_set('Africa/Johannesburg');
 if (file_exists(__DIR__ . '/../.env')) {
 	$dotenv = \Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
 	$dotenv->load();
+}
+
+
+//Languages
+if (!function_exists('trans')) {
+	function trans($key) {
+			static $translations = [];
+
+			if (empty($translations)) {
+					$lang = $_SESSION['lang'] ?? 'en';
+
+
+					$file_path = __DIR__ . '/../lang/' . $lang . '.php';
+
+					if (!file_exists($file_path)) {
+							$file_path = __DIR__ . '/../lang/en.php';
+					}
+
+					$translations = include $file_path;
+			}
+
+			return $translations[$key] ?? $key;
+	}
 }

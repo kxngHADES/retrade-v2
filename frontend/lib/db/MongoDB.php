@@ -1,8 +1,8 @@
 <?php
-
+namespace Lib\db;
 declare(strict_types=1);
 
-namespace Lib\db;
+
 
 use MongoDB\Client;
 use MongoDB\Database;

@@ -39,6 +39,10 @@ app.include_router(auth_router)
 async def root():
 	return {"messgae": "ReTrade Backend is running"}
 
+@app.get("/health" , tags=["health"])
+async def health():
+	return {"engine": "fastAPI"}
+
 @app.on_event("startup")
 async def startup_events():
 	print("Starting up....")

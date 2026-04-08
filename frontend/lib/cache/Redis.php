@@ -129,14 +129,34 @@ class Redis {
 
 
 	// Store user data temporarily
-	public function storeUserTemp(array $userData, int $ttl = (60*15)): bool {
-		$result = $this->client->hmset($userData['phoneNumber'], $userData);
-		if ($result == 'ok') {
-			$this->client->expire($userData['phoneNumber'], $ttl);
-			return true;
-		}
+	public function storeUserTemp(array $userData, int $ttl = (60*20)): bool {
+    $key = $userData['phoneNumber'];
+    $result = $this->client->hmset($key, $userData);
 
-		return false;
+    if ($result == true) {
+        $this->client->expire($key, $ttl);
+        return true;
+    }
+
+    return false;
+}
+
+	//verify user
+	public function verifyUserTemp(string $phoneNumber, string $otp): bool {
+		$storedOTP = $this->client->hget($phoneNumber, 'otp');
+		return $storedOTP === $otp;
+	}
+
+	// get all user data stored and return as array
+	public function getUserTemp(string $phoneNumber): ?array {
+		$data = $this->client->hgetall($phoneNumber);
+		return empty($data) ? null : $data;
+	}
+
+
+	//Delete temporary user data
+	public function deleteUserTemp(string $phoneNumber): int {
+		return $this->client->del($phoneNumber);
 	}
 	
 	// Publish message to channel
