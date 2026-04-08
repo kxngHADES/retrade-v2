@@ -1,5 +1,6 @@
 <?php
 
+require_once __DIR__ . '/config/bootstrap.php';
 
 echo "<pre>";
 echo "Session ID: " . session_id() . "\n\n";
