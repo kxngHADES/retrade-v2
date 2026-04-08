@@ -1,6 +1,19 @@
 <?php
 
 require_once __DIR__ . '/../../config/bootstrap.php';
+use Lib\services\Auth_flow;
+
+$error = "";
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+	$auth = new Auth_flow;
+
+	$result = $auth->login($_POST);
+
+	if (!$result['success']) {
+		$error = $result['error'];
+	}
+}
 
 ?>
 <!DOCTYPE html>
@@ -14,6 +27,7 @@ require_once __DIR__ . '/../../config/bootstrap.php';
 	<form action="" method="post">
 		<legend>Login</legend>
 
+		<label><?= $error; ?></label>
 		<label>Email:</label><br/>
 		<input type="email" name="email" placeholder="user@example.com"><br/><br/>
 
