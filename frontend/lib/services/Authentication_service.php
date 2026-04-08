@@ -1,8 +1,7 @@
 <?php
-
+namespace Lib\services;
 require __DIR__ . '/../../config/bootstrap.php';
 
-namespace Lib\services;
 
 use Lib\db\Database;
 use PDO;
@@ -89,6 +88,11 @@ class Authentication_service {
 	}
 
 	public function login(string $email, string $password): array {
+		
+		if (session_status() === PHP_SESSION_NONE){
+			session_start();
+		}
+
 		$user = $this->findByEmail($email);
 
 		if (!$user) {

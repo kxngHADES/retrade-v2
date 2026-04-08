@@ -1,8 +1,7 @@
 <?php
 
-require_once __DIR__ . '/../../config/bootstrap.php';
-
 namespace Lib\services;
+require_once __DIR__ . '/../../config/bootstrap.php';
 
 use Dotenv\Dotenv;
 
@@ -10,7 +9,7 @@ class sms_services {
 
 	public function __construct()
 	{
-		if (empty($_ENV['API_BASE_URL'])) {
+		if (empty($_ENV['BACKEND_INTERNAL_URL'])) {
 			$dotenv = Dotenv::createImmutable(dirname(__DIR__, 2));
 			$dotenv->load();
 	 	}
@@ -19,11 +18,11 @@ class sms_services {
 	public function send_otp(string $phone, int $otp){
 		$normal_phone_number = $this->normalizePhoneNumber($phone);
 
-		$apiUrl = $_ENV['API_BASE_URL'] . '/api/send-otp';
+		$apiUrl = $_ENV['BACKEND_INTERNAL_URL'] . '/auth/send-otp';
 
 		$payload = [
-			'phoneNumber' => $normal_phone_number,
-			'otp' => $otp
+    	'phone' => $normal_phone_number,
+    	'otp' => $otp
 		];
 
 		$ch = curl_init($apiUrl);

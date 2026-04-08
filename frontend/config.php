@@ -1,8 +1,10 @@
 <?php
 
-
-define('APP_ROOT', __DIR__);
-session_start();
+defined('APP_ROOT') or define('APP_ROOT', __DIR__ . '/..');
+defined('PROJECT_ROOT') or define('PROJECT_ROOT', APP_ROOT);
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
 
 if (!defined('BASE_URL')){
 	$script_name = str_replace('\\', '/', $_SERVER['SCRIPT_NAME']);
