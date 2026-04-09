@@ -153,6 +153,11 @@ class Redis {
 		return empty($data) ? null : $data;
 	}
 
+	public function verifyEmailOTP(string $email, int $otp): bool {
+    $storedOTP = $this->client->get($email);
+    return $storedOTP == $otp;
+	}
+
 
 	//Delete temporary user data
 	public function deleteUserTemp(string $phoneNumber): int {
