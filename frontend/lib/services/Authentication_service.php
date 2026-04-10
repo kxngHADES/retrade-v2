@@ -153,4 +153,20 @@ class Authentication_service {
 	public function verifyPassword(string $password, string $hashedPassword): bool {
 		return password_verify($password, $hashedPassword);
 	}
+
+	public function update_email(string $email, string $uid) {
+		if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+			return false;
+		}
+		$sql = "UPDATE users SET email = :email, is_email_verified = 1 WHERE uid = UUID_TO_BIN(:uid)";
+
+		try{
+			$stmt = $this->db->prepare($sql);
+			$stmt->execute(["email" => $email, "uid" => $uid]);
+			return $stmt->rowCount() >= 0;
+		} catch (\PDOException $e){
+			error_log("Update email error: " . $e->getMessage());
+			return false;
+		}
+	}
 }

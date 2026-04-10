@@ -3,10 +3,12 @@
 namespace Lib\services;
 require_once __DIR__ . '/../../config/bootstrap.php';
 
+use Exception;
 use Lib\db\Database;
 use PDO;
 use PDOException;
 use Lib\services\email_service;
+use Lib\services\Authentication_service;
 
 class profile_services {
 	private PDO $db;
@@ -68,31 +70,33 @@ class profile_services {
 		$email_service = new email_service();
 
 		$redis = \Lib\cache\Redis::getInstance();
-		$otp = rand(100000, 999999);
-		if ($redis->setEx($email, $otp, (60*20))) {
-			if ($email_service->send_otp($email, $otp)) {
-				header('Location: /pages/profile/verify_email');
-				exit;
-			} else {
-				return false;
-			}
-		} else {
-			return false;
+		try {
+			$otp = rand(100000, 999999);
+			$redis->setEx($email, $otp, (60*20));
+			$email_service->send_otp($email, $otp);
+			header('Location: /pages/profile/verify_email');
+			exit;
+		} catch (Exception $e){
+			error_log("Email verification error: " . $e->getMessage());
 		}
 		
 	}
 
-	public function validate_email_otp(string $email, int $otp): string|bool {
+	public function validate_email_otp(string $email, int $otp, string $uid): string|bool {
 		$redis = \Lib\cache\Redis::getInstance();
 
-		if ($redis->verifyEmailOTP($email, $otp)) {
+		try {
+			$redis->verifyEmailOTP($email, $otp);
 			//Update is_email_verified
+			$auth = new Authentication_service();
+			$auth->update_email($email, $uid);
 
 			//delete cache
 			$redis->deleteUserTemp($email);
 			header('Location: /pages/profile');
 			exit;
-		} else {
+		} catch (Exception $e) {
+			error_log("Verify emauk error: " . $e->getMessage());
 			return "Invalid OTP";
 		}
 	}

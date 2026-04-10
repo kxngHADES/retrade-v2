@@ -16,7 +16,7 @@ class email_service {
 	}
 
 	public function send_otp(string $email, int $otp){
-		$apiUrl = $_ENV['BACKEND_INTERNAL_URL'] . '/auth/send-otp';
+		$apiUrl = $_ENV['BACKEND_INTERNAL_URL'] . '/auth/validate-email';
 
 		$payload = [
 			'email' => $email,
@@ -31,7 +31,7 @@ class email_service {
 			'Content-Type: application/json',
 			'Accept: application/json'
 		]);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 1);
 
 		$response = curl_exec($ch);
 		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);

@@ -5,6 +5,7 @@ use Lib\services\profile_services;
 
 $profile_service = new profile_services();
 
+$error = "";
 
 $firstName = $_SESSION['firstName'] ?? null;
 $lastName = $_SESSION['lastName'] ?? null;
@@ -14,6 +15,18 @@ $phoneNumber = $_SESSION['phoneNumber'] ?? null;
 $email_verifiection = $profile_service->is_email_verified($_SESSION['uid']) ? "Verified" : "Unverified";
 $phone_verifiecation = $profile_service->is_phone_verified($_SESSION['uid']) ? "Verified" : "Unverified";
 $id_verified = $profile_service->is_id_verified($_SESSION['uid']) ? "Verified" : "Unverified";
+
+
+if ($_SERVER['REQUEST_METHOD'] === "POST") {
+	if(isset($_POST['email_form'])){
+		$email = $_POST['email'];
+		try{
+			$profile_service->send_verification_email($email);
+		} catch (Exception $e) {
+			$error = "Failed to send email";
+		}
+	}
+}
 
 ?>
 <!DOCTYPE html>
@@ -38,14 +51,18 @@ $id_verified = $profile_service->is_id_verified($_SESSION['uid']) ? "Verified" :
 	</form>
 	<br/><br/><br/><br/><br/><br/>
 
-	<!--Verification info-->
-	<form action="" method="post">
-		<legend>Verification Info</legend><br/>
-		<label>Email:</label>&emsp;&emsp;&emsp;<label><?= $email_verifiection ?></label><br/>
-		<input type="email" value="<?= $email ?>" name="email"><br/><br/>
 
+	<form action="" method="post">
 		<label>Phone Number</label>&emsp;&emsp;&emsp;<label><?= $phone_verifiecation ?></label><br/>
 		<input type="text" value="<?= $phoneNumber ?>" name="phoneNumber">
+	</form>
+
+	<br/><br/><br/><br/><br/><br/>
+	<!--Email Verification-->
+	<form action="" method="post">
+		<label>Email:</label>&emsp;&emsp;&emsp;<label><?= $email_verifiection ?></label><br/>
+		<input type="email" value="<?= $email ?>" name="email">
+		<button type="submit" name="email_form">Verify email</button>
 	</form>
 
 	<h3>ID: <?= $id_verified ?></h3>

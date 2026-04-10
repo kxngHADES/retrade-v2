@@ -114,6 +114,7 @@ class Auth_flow {
 		$_SESSION['email'] = $user['email'];
 		$_SESSION['firstName'] = $user['firstName'];
 		$_SESSION['lastName'] = $user['lastName'];
+		$_SESSION['phoneNumber'] = $user['phoneNumber'];
 
 		header('Location: /');
 		exit;
