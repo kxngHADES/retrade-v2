@@ -8,3 +8,6 @@ class OTP_model(BaseModel):
 class Email_verification(BaseModel):
 	email: EmailStr
 	otp: int
+
+class UploadPayload(BaseModel):
+	filename: str

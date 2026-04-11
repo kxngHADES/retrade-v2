@@ -9,6 +9,7 @@ use PDO;
 use PDOException;
 use Lib\services\email_service;
 use Lib\services\Authentication_service;
+use Lib\services\sms_services;
 
 class profile_services {
 	private PDO $db;
@@ -48,19 +49,65 @@ class profile_services {
 
 
 	// Updaete personal information
+	public function change_user_info(string $firstName, string $lastName, string $uid) {
+		if (session_status() === PHP_SESSION_NONE) {
+			session_start();
+		}
+
+		$auth = new Authentication_service();
+
+		$auth->update_user_info($firstName, $lastName, $uid);
+		header('Location: /pages/profile');
+		exit;
+
+	}
 
 
 	// Update profile image URL
 
 
-	// Update email
-
 
 	// Update Phone number
+	public function change_phone_number(string $phoneNumber, string $uid) {
+		if (session_status() === PHP_SESSION_NONE) {
+			session_status();
+		}
+
+		$auth = new Authentication_service();
+
+		$auth->update_phone_number($phoneNumber, $uid);
+
+		//send otp and store in redis session
+		$redis = \Lib\cache\Redis::getInstance();
+		$otp = rand(100000, 999999);
+		$redis->setEx($phoneNumber, $otp, (60*20));
+
+		$sms = new sms_services();
+		$success = $sms->send_otp($phoneNumber, $otp);
+		header('Location: /pages/profile/verify_phone');
+		exit;
+	}
+
+	public function verify_phone_number(string $uid, $otp, string $phoneNumber) {
+		$redis = \Lib\cache\Redis::getInstance();
+		
+		try {
+			$redis->verifyEmailOTP($phoneNumber, $otp); //similar logic so just reused emailOTP verification with just a differnt key value
+			$auth = new Authentication_service();
+			$auth->verify_phone($uid);
+
+			$redis->deleteUserTemp($phoneNumber);
+			header('Location: /pages/profile');
+			exit;
+		} catch (Exception $e) {
+			error_log("Verify phone number error: " . $e->getMessage());
+			return "Invalid OTP";
+		}
+	}
 
 
-	// Verify email
-	public function send_verification_email(string $email) :string|bool {
+	// Verify/Update email
+	public function send_verification_email(string $email) {
 		if (session_status() === PHP_SESSION_NONE){
 			session_start();
 		}
@@ -82,7 +129,7 @@ class profile_services {
 		
 	}
 
-	public function validate_email_otp(string $email, int $otp, string $uid): string|bool {
+	public function validate_email_otp(string $email, int $otp, string $uid) {
 		$redis = \Lib\cache\Redis::getInstance();
 
 		try {

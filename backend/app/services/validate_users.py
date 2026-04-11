@@ -1,6 +1,8 @@
 from app.core.config import settings
 from app.utils.email_helper import send_email, send_sms
 from pydantic import EmailStr
+from app.services.verify_id import IDExtractor
+from pathlib import Path
 
 
 # Validate Email
@@ -17,18 +19,21 @@ async def validate_email(to_email: EmailStr, otp: int):
 
 
 # Validate ID
-def validate_sa_id(id_number: str) -> bool:
-	if not id_number.isdigit() or len(id_number) != 13:
-		return False
-		
-	digits = [int(d) for d in id_number]
-	checksum = digits.pop()
+async def validate_id(file_name: str):
+	extractor = IDExtractor(gpu=False)
+
+	img_path = Path(__file__).parent.parent / f"images/{file_name}"
+	try:
+		texts = extractor.extract_text(img_path)
+		id_result = extractor.find_id_number(texts)
+		id_num = id_result[0]
+		is_id = extractor.validate_sa_id(id_num)
+		if (is_id):
+			# Update is_id_verified
+			# delete the image
+			pass
+		else:
+			pass
 	
-	for i in range(len(digits) - 1, -1, -1):
-		if (len(digits) - i) % 2 == 1:
-			doubled = digits[i] * 2
-			digits[i] = doubled if doubled < 10 else (doubled // 10) + (doubled % 10)
-		
-		total = sum(digits)
-		expected = (10 - (total % 10)) % 10
-		return checksum == expected
+	except FileNotFoundError as e:
+		print(f"Error: {e}")

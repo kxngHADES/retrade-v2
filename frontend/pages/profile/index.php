@@ -17,6 +17,33 @@ $phone_verifiecation = $profile_service->is_phone_verified($_SESSION['uid']) ? "
 $id_verified = $profile_service->is_id_verified($_SESSION['uid']) ? "Verified" : "Unverified";
 
 
+
+// Change user information
+if ($_SERVER['REQUEST_METHOD'] === "POST") {
+	if (isset($_POST['user_info'])){
+		$firstName = $_POST["firstName"];
+		$lastName = $_POST["lastName"];
+		try {
+			// $profile_service->change_user_info($firstName, $lastName);
+		} catch (Exception $e) {
+			$error = "Failed to change First/Last name";
+		}
+	}
+}
+
+// Change Phone Number
+if ($_SERVER['REQUEST_METHOD'] === "POST") {
+	if(isset($_POST['phone_form'])){
+		$phoneNumber = $_POST['phoneNumber'];
+		try{
+			//$profile_service->change_phone_number($phoneNumber);
+		} catch (Exception $e) {
+			$error = "Failed to send OTP";
+		}
+	}
+}
+
+// Change Email address/Verify email address
 if ($_SERVER['REQUEST_METHOD'] === "POST") {
 	if(isset($_POST['email_form'])){
 		$email = $_POST['email'];
@@ -48,6 +75,8 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
 		<label>Last Name:</label><br/>
 		<input type="text" value="<?= $lastName ?>" name="lastName"><br/><br/>
+
+		<button name="user_info" value="Save changes" type="submit">Save changes</button>
 	</form>
 	<br/><br/><br/><br/><br/><br/>
 
@@ -55,6 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 	<form action="" method="post">
 		<label>Phone Number</label>&emsp;&emsp;&emsp;<label><?= $phone_verifiecation ?></label><br/>
 		<input type="text" value="<?= $phoneNumber ?>" name="phoneNumber">
+		<button type="submit" name="phone_form">Save Change</button>
 	</form>
 
 	<br/><br/><br/><br/><br/><br/>
