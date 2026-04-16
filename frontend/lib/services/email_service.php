@@ -31,7 +31,7 @@ class email_service {
 			'Content-Type: application/json',
 			'Accept: application/json'
 		]);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 
 		$response = curl_exec($ch);
 		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);

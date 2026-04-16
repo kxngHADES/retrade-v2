@@ -1,10 +1,27 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.auth_routes import router as auth_router
 from app.core.config import settings
 import uvicorn
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.db.session import engine, get_db
+from contextlib import asynccontextmanager
+import app.schemas
+from app.db.base import Base
+from sqlalchemy import text
+
+
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+	async with engine.begin() as conn:
+		await conn.run_sync(Base.metadata.create_all)
+	yield
+	await engine.dispose()
 
 app = FastAPI(
+	lifespan=lifespan,
 	title="ReTrade Authentication API and engine",
 	description="API/Engine for ReTrade",
 	version="0.0.1"
@@ -31,9 +48,13 @@ else:
 
 
 
-
 # Routes
 app.include_router(auth_router)
+
+@app.get("/ping")
+async def ping_db(db: AsyncSession = Depends(get_db)):
+	result = await db.execute(text("SELECT 1"))
+	return {"status": "ok", "result": result.scalar_one()}
 
 @app.get("/", tags=["health"])
 async def root():
@@ -42,14 +63,6 @@ async def root():
 @app.get("/health" , tags=["health"])
 async def health():
 	return {"engine": "fastAPI"}
-
-@app.on_event("startup")
-async def startup_events():
-	print("Starting up....")
-
-@app.on_event("shutdown")
-async def shutdown_event():
-	print("Shutting down")
 
 
 if __name__ == "__main__":

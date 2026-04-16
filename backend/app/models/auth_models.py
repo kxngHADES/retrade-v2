@@ -11,3 +11,4 @@ class Email_verification(BaseModel):
 
 class UploadPayload(BaseModel):
 	filename: str
+	uid: str

@@ -14,7 +14,8 @@ class ApiService {
 
     $payload = [
         'filename' => $uid,
-        'file' => $cFile
+        'file' => $cFile,
+        'uid' => $uid
     ];
 
     $ch = curl_init($apiUrl);
@@ -26,7 +27,7 @@ class ApiService {
         'Accept: application/json'
     ]);
 
-    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
