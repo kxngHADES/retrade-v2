@@ -44,6 +44,8 @@ class Auth_flow {
 		}
 	}
 
+	
+
 
 	public function finish_registration(string $phoneNumber ,int $otp) {
 		$redis = \Lib\cache\Redis::getInstance();
@@ -114,6 +116,7 @@ class Auth_flow {
 		$_SESSION['email'] = $user['email'];
 		$_SESSION['firstName'] = $user['firstName'];
 		$_SESSION['lastName'] = $user['lastName'];
+		$_SESSION['phoneNumber'] = $user['phoneNumber'];
 
 		header('Location: /');
 		exit;

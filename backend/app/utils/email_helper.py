@@ -4,6 +4,7 @@ from app.core.config import settings
 import smtplib
 from email.message import EmailMessage
 
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 async def send_sms(phone: str, message: str):
@@ -32,7 +33,7 @@ async def send_email(to_email: EmailStr, template_name: str, subject: str,**cont
 	msg['From'] = settings.SMTP_USER
 	msg['To'] = to_email
 
-	template_path = Path("templates/email") / f"{template_name}.html"
+	template_path = BASE_DIR / "templates" / "email" / f"{template_name}.html"
 
 	if not template_path.exists():
 		raise FileNotFoundError(f"Email templaye `{template_name}.html` NOT FOUND")

@@ -2,10 +2,11 @@
 namespace Lib\services;
 require __DIR__ . '/../../config/bootstrap.php';
 
-
+use Dotenv\Util\Str;
 use Lib\db\Database;
 use PDO;
 use PDOException;
+use Stringable;
 
 class Authentication_service {
 	private PDO $db;
@@ -153,4 +154,71 @@ class Authentication_service {
 	public function verifyPassword(string $password, string $hashedPassword): bool {
 		return password_verify($password, $hashedPassword);
 	}
+
+	public function update_email(string $email, string $uid) {
+		if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+			return false;
+		}
+		$sql = "UPDATE users SET email = :email, is_email_verified = 1 WHERE uid = UUID_TO_BIN(:uid)";
+
+		try{
+			$stmt = $this->db->prepare($sql);
+			$stmt->execute(["email" => $email, "uid" => $uid]);
+			return $stmt->rowCount() >= 0;
+		} catch (\PDOException $e){
+			error_log("Update email error: " . $e->getMessage());
+			return false;
+		}
+	}
+
+	public function update_user_info(string $firstName, string $lastName, string $uid) {
+		$sql = "UPDATE users SET firstName = :firstName, lastName = :lastName WHERE uid = UUID_TO_BIN(:uid)";
+
+		try {
+			$stmt = $this->db->prepare($sql);
+			$stmt->execute(['firstName' => $firstName, 'lastName' => $lastName, 'uid' => $uid]);
+			return $stmt->rowCount() >= 0;
+		} catch (\PDOException $e) {
+			error_log("Update user info: " . $e->getMessage());
+			return false;
+		}
+	}
+
+	public function update_phone_number(string $phoneNumber, string $uid) {
+		$sql = "UPDATE users SET phoneNumber = :phoneNumber, is_phone_verified = 0 WHERE uid = UUID_TO_BIN(:uid)";
+
+		try {
+			$stmt = $this->db->prepare($sql);
+			$stmt->execute(['phoneNumber' => $phoneNumber, 'uid' => $uid]);
+			return $stmt->rowCount() >= 0;
+		} catch (\PDOException $e) {
+			error_log("Update user info: " . $e->getMessage());
+			return false;
+		}
+	}
+
+	public function verify_phone(string $uid) {
+		$sql = "UPDATE users SET is_phone_verified = 1 WHERE uid = UUID_TO_BIN(:uid)";
+		try {
+			$stmt = $this->db->prepare($sql);
+			$stmt->execute(['uid' => $uid]);
+			return $stmt->rowCount() >= 0;
+		} catch (\PDOException $e) {
+			error_log("Update user info: " . $e->getMessage());
+			return false;
+		}
+	}
+
+	// set ID to pending
+	public function set_id_to_pending(string $uid) {
+		$sql = "UPDATE users SET is_id_verified = 2 WHERE uid = UUID_TO_BIN(:uid)";
+		try {
+			$stmt = $this->db->prepare($sql);
+			$stmt->execute(['uid' => $uid]);
+		} catch (\PDOException $e) {
+			error_log("Update user info error: " . $e->getMessage());
+		}
+	}
+
+	
 }

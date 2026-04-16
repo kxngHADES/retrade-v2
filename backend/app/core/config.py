@@ -12,6 +12,21 @@ class Settings(BaseSettings):
 	ENVIRONMENT: str
 	Domains: str
 
-	model_config = SettingsConfigDict(env_file=".env")
+	DB_HOST: str
+	DB_PORT: int
+	DB_NAME: str
+	DB_USER: str
+	DB_PASS: str
+	DB_CHARSET: str
+
+	@property
+	def DATABASE_URL(self) -> str:
+		return (
+			f"mysql+asyncmy://{self.DB_USER}:{self.DB_PASS}"
+			f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+			f"?charset={self.DB_CHARSET}"
+		)
+
+	model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 settings = Settings()
