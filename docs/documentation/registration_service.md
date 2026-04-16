@@ -163,11 +163,3 @@ The user table at least has these columns:
 | phoneNumber | VARCHAR | Unique, NOT NULL |
 | password | VARCHAR | NOT NULL (hashed) |
 | is_phone_verified | TINYINT | DEFAULT 1 |
-
-
-
-
-## Change log
-| Version | Description |
-| ---- | ---- |
-| 1.0 | Initial release with atomic registration |

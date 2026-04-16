@@ -154,8 +154,8 @@ class Redis {
 	}
 
 	public function verifyEmailOTP(string $email, int $otp): bool {
-    $storedOTP = $this->client->get($email);
-    return $storedOTP == $otp;
+    	$storedOTP = $this->client->get($email);
+    	return $storedOTP == $otp;
 	}
 
 

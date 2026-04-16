@@ -44,6 +44,8 @@ class Auth_flow {
 		}
 	}
 
+	
+
 
 	public function finish_registration(string $phoneNumber ,int $otp) {
 		$redis = \Lib\cache\Redis::getInstance();

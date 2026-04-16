@@ -1,6 +1,8 @@
 <?php
 
 require_once __DIR__ . '/../../config/bootstrap.php';
+require_once __DIR__ . '/../../utils/protected_route.php';
+
 use Lib\services\profile_services;
 
 $profile_service = new profile_services();
@@ -16,6 +18,10 @@ $email_verifiection = $profile_service->is_email_verified($_SESSION['uid']) ? "V
 $phone_verifiecation = $profile_service->is_phone_verified($_SESSION['uid']) ? "Verified" : "Unverified";
 $id_verified = $profile_service->is_id_verified($_SESSION['uid']) ? "Verified" : "Unverified";
 
+if ($id_verified == "Unverified") {
+	$id_verified = $profile_service->is_id_pending($_SESSION['uid']) ? "Pending" : "Unverified";
+}
+
 
 
 // Change user information
@@ -24,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 		$firstName = $_POST["firstName"];
 		$lastName = $_POST["lastName"];
 		try {
-			// $profile_service->change_user_info($firstName, $lastName);
+			$profile_service->change_user_info($firstName, $lastName, $_SESSION['uid']);
 		} catch (Exception $e) {
 			$error = "Failed to change First/Last name";
 		}
@@ -36,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 	if(isset($_POST['phone_form'])){
 		$phoneNumber = $_POST['phoneNumber'];
 		try{
-			//$profile_service->change_phone_number($phoneNumber);
+			$profile_service->change_phone_number($phoneNumber, $_SESSION['uid']);
 		} catch (Exception $e) {
 			$error = "Failed to send OTP";
 		}
@@ -96,5 +102,10 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 	</form>
 
 	<h3>ID: <?= $id_verified ?></h3>
+	<?php if ($id_verified == "Unverified"): ?>
+		<a href="verify_id/">
+			<button>Verify ID</button>
+		</a>
+	<?php endif; ?>
 </body>
 </html>

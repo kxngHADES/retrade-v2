@@ -208,4 +208,17 @@ class Authentication_service {
 			return false;
 		}
 	}
+
+	// set ID to pending
+	public function set_id_to_pending(string $uid) {
+		$sql = "UPDATE users SET is_id_verified = 2 WHERE uid = UUID_TO_BIN(:uid)";
+		try {
+			$stmt = $this->db->prepare($sql);
+			$stmt->execute(['uid' => $uid]);
+		} catch (\PDOException $e) {
+			error_log("Update user info error: " . $e->getMessage());
+		}
+	}
+
+	
 }

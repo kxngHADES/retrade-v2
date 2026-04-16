@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
 	password VARCHAR(255) NOT NULL,
 	is_phone_verified TINYINT(1) NOT NULL DEFAULT 0,
 	is_email_verified TINYINT(1) NOT NULL DEFAULT 0,
-	is_id_verified TINYINT(1) NOT NULL DEFAULT 0,
+	is_id_verified TINYINT(2) NOT NULL DEFAULT 0,
 	profile_image_url VARCHAR(2048) NULL,
 	rbac_role TINYINT(3) NOT NULL DEFAULT 0 COMMENT '0=buy only, 1=byt/sell, 2=admin, 3=superAdmin',
 	is_banned TINYINT(1) NOT NULL DEFAULT 0,

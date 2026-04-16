@@ -47,6 +47,13 @@ class profile_services {
 		return (bool) $stmt->fetch(PDO::FETCH_ASSOC);
 	}
 
+	public function is_id_pending(string $uid): bool {
+		$query = "SELECT is_id_verified FROM users WHERE uid = UUID_TO_BIN(:uid) AND is_id_verified = 2 LIMIT 1";
+		$stmt = $this->db->prepare($query);
+		$stmt->execute(["uid" => $uid]);
+		return (bool) $stmt->fetch(PDO::FETCH_ASSOC);
+	}
+
 
 	// Updaete personal information
 	public function change_user_info(string $firstName, string $lastName, string $uid) {
@@ -84,10 +91,15 @@ class profile_services {
 
 		$sms = new sms_services();
 		$success = $sms->send_otp($phoneNumber, $otp);
-		header('Location: /pages/profile/verify_phone');
-		exit;
+		if ($success){
+			$_SESSION['phoneNumber'] = $phoneNumber;
+			header('Location: /pages/profile/verify_phone');
+			exit;
+		}
+		
 	}
 
+	// Verify Phone
 	public function verify_phone_number(string $uid, $otp, string $phoneNumber) {
 		$redis = \Lib\cache\Redis::getInstance();
 		
@@ -148,8 +160,6 @@ class profile_services {
 		}
 	}
 
-
-	// Verify Phone
 
 
 	// Verify ID
