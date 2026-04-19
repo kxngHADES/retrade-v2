@@ -7,6 +7,7 @@ echo "Session ID: " . session_id() . "\n\n";
 echo "All session data:\n";
 print_r($_SESSION);
 echo "</pre>";
+var_dump($_ENV['MONGO_URI']);
 ?>
 
 <!DOCTYPE html>

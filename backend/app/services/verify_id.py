@@ -1,68 +1,78 @@
-import easyocr
 import cv2
-import time
 import re
-from typing import List, Tuple, Optional
+import pytesseract
+import numpy as np
+from collections import Counter
+from pathlib import Path
+from typing import Optional, Tuple
 
 
 class IDExtractor:
-	def __init__(self, gpu: bool = False):
-		self.reader = easyocr.Reader(['en'], gpu=gpu)
+    def __init__(self):
+        pass
 
-	def extract_text(self, img_path: str, max_dimension:int = 1500, min_confidence: float = 0.4) -> List[Tuple[str, float]]:
-		img = cv2.imread(img_path)
+    def _get_candidates(self, img) -> list[str]:
+        """Run multiple preprocessing + PSM combos and collect all 13-digit hits."""
+        # Upscale first — tiny images (<500px wide) fail badly without this
+        h, w = img.shape[:2]
+        if w < 1000:
+            scale = max(2, 1000 // w)
+            img = cv2.resize(img, (w * scale, h * scale), interpolation=cv2.INTER_CUBIC)
 
-		if img is None:
-			raise FileNotFoundError(f"Could not load image at {img_path}")
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-		original_height, original_width = img.shape[:2]
+        pipelines = [
+            gray,
+            cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1],
+            cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 31, 10),
+            cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8)).apply(gray),
+        ]
 
-		if original_width > max_dimension or original_height > max_dimension:
-			scale = max_dimension / max(original_width, original_height)
-			new_width = int(original_width * scale)
-			new_height = int(original_height * scale)
-			img = cv2.resize(img, (new_width, new_height))
+        candidates = []
+        for processed in pipelines:
+            for psm in [3, 6, 11, 12]:
+                config = f'--oem 3 --psm {psm} -c tessedit_char_whitelist=0123456789'
+                raw = pytesseract.image_to_string(processed, config=config)
+                for token in re.split(r'\s+', raw):
+                    clean = re.sub(r'[^0-9]', '', token)
+                    if len(clean) == 13:
+                        candidates.append(clean)
+                    elif len(clean) > 13:
+                        # Sliding window — catches cases where digits are merged
+                        for i in range(len(clean) - 12):
+                            candidates.append(clean[i:i + 13])
 
-		results = self.reader.readtext(img)
+        return candidates
 
-		filtered = [
-			(detection[1], detection[2])
-			for detection in results
-			if detection[2] >= min_confidence
-		]
+    def extract_id_number(self, img_path: str) -> Optional[Tuple[str, float]]:
+        """Returns (id_number, confidence) or None. Confidence = fraction of pipelines that agreed."""
+        img = cv2.imread(str(img_path))
+        if img is None:
+            raise FileNotFoundError(f"Could not load image at {img_path}")
 
-		return filtered
+        candidates = self._get_candidates(img)
+        if not candidates:
+            return None
 
-	def find_id_number(self, texts: List[Tuple[str, float]]) -> Optional[Tuple[str, float]]:
-		id_patterns = [
-			r'^\d{13}$',
-		]
+        counts = Counter(candidates)
+        best, freq = counts.most_common(1)[0]
+        confidence = freq / len(candidates)
 
-		for text, confidence in texts:
-			clean_text = text.replace(" ", "").replace("-", "")
+        return (best, confidence)
 
-			for pattern in id_patterns:
-				if re.match(pattern, clean_text):
-					return (clean_text, confidence)
-		
-		return None
+    @staticmethod
+    def validate_sa_id(id_number: str) -> bool:
+        if not id_number.isdigit() or len(id_number) != 13:
+            return False
 
-	def process_image_for_id(self, img_path: str, max_dimension: int = 1500, min_confidence: float = 0.4) -> Optional[Tuple[str, float]]:
-		texts = self.extract_text(img_path, max_dimension, min_confidence)
-		return self.find_id_number(texts)
+        digits = [int(d) for d in id_number]
+        checksum = digits.pop()
 
-	def validate_sa_id(id_number: str) -> bool:
-		if not id_number.isdigit() or len(id_number) != 13:
-			return False
+        for i in range(len(digits) - 1, -1, -1):
+            if (len(digits) - i) % 2 == 1:
+                doubled = digits[i] * 2
+                digits[i] = doubled if doubled < 10 else (doubled // 10) + (doubled % 10)
 
-		digits = [int(d) for d in id_number]
-		checksum = digits.pop()
-
-		for i in range(len(digits) - 1, -1, -1):
-			if (len(digits) - i) % 2 == 1:
-				doubled = digits[i] * 2
-				digits[i] = doubled if doubled < 10 else (doubled // 10) + (doubled % 10)
-
-		total = sum(digits)
-		expected = (10 - (total % 10)) % 10
-		return checksum == expected
+        total = sum(digits)
+        expected = (10 - (total % 10)) % 10
+        return checksum == expected

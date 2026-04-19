@@ -2,6 +2,14 @@ FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 
 WORKDIR /app
 
+# System dependencies
+RUN apt-get update && apt-get install -y \
+    tesseract-ocr \
+    tesseract-ocr-eng \
+    libgl1 \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy pyproject.toml first for better caching
 COPY backend/pyproject.toml backend/uv.lock ./
 

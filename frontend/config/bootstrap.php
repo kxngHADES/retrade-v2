@@ -4,6 +4,10 @@ error_log("bootstrap.php loaded from: " . (debug_backtrace()[1]['file'] ?? 'dire
 
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../config.php';
+use Dotenv\Dotenv;
+
+$dotenv = Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv->load();
 
 if (session_status() === PHP_SESSION_NONE){
 	session_start();

@@ -19,6 +19,9 @@ class Settings(BaseSettings):
 	DB_PASS: str
 	DB_CHARSET: str
 
+	MONGO_URI: SecretStr
+	MONGO_DB_NAME: str
+
 	@property
 	def DATABASE_URL(self) -> str:
 		return (

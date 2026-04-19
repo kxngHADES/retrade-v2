@@ -9,6 +9,7 @@ from contextlib import asynccontextmanager
 import app.schemas
 from app.db.base import Base
 from sqlalchemy import text
+from app.db.mongodb import init_db
 
 
 
@@ -17,6 +18,7 @@ from sqlalchemy import text
 async def lifespan(app: FastAPI):
 	async with engine.begin() as conn:
 		await conn.run_sync(Base.metadata.create_all)
+	await init_db()
 	yield
 	await engine.dispose()
 
