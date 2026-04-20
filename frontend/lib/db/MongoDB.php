@@ -1,6 +1,7 @@
 <?php
-namespace Lib\db;
 declare(strict_types=1);
+namespace Lib\db;
+
 
 
 
@@ -14,7 +15,7 @@ class MongoDB {
 	private function __construct() {}
 	private function __clone() {}
 
-	private static function getDatabase(): Database {
+	public static function getDatabase(): Database {
 		if (self::$db === null) {
 			$uri = $_ENV['MONGO_URI'];
 
