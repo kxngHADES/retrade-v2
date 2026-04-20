@@ -1,5 +1,5 @@
 from motor.motor_asyncio import AsyncIOMotorClient
-from core.config import settings
+from app.core.config import settings
 
 class MongoConnection:
 	_client = None
@@ -67,7 +67,7 @@ individual_listings_collection = None
 async def init_db():
 	global db, individual_listings_collection
 
-	await MongoConnection.connect()
+	await MongoConnection.get_db()
 
 	db = MongoConnection._db
 	individual_listings_collection = db.individual_listings

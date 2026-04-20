@@ -9,10 +9,7 @@ $uid = $_SESSION['uid'];
 $listing_service = new listing_service();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = $_POST['name'];
-    $des = $_POST['description'];
-
-    $listing_service->createListing($uid, $name, $des);
+    $listing_service->createListing($uid, $_POST);
 }
 
 
@@ -25,16 +22,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Document</title>
 </head>
 <body>
-    <form action="" method="post">
-        <fieldset>
-            <legend>Create listing</legend>
-            <label>Name: </label><input type="text" name="name" required placeholder="Product Name">
-            <br/><br/>
-            <label>Description:</label><br/>
-            <textarea name="description" rows="4" cols="30" placeholder="Write a description of the product"></textarea>
-            <br/><br/>
-            <input type="submit" value="Create Listing">
-        </fieldset>
-    </form>
+	<form action="" method="post" enctype="multipart/form-data">
+		<fieldset>
+			<legend>Create listing</legend>
+
+			<label>Name:</label>
+			<input type="text" name="name" required>
+			<br/><br/>
+
+			<label>Description:</label><br/>
+			<textarea name="description" rows="4" cols="30"></textarea>
+			<br/><br/>
+
+			<label>Price:</label>
+			<input type="number" name="price" step="0.01" required>
+			<br/><br/>
+
+			<label>Stock:</label>
+			<input type="number" name="stock" required>
+			<br/><br/>
+
+			<label>Condition:</label>
+			<input type="text" name="condition">
+			<br/><br/>
+
+			<label>Category:</label>
+			<input type="text" name="category">
+			<br/><br/>
+
+			<label>Location:</label>
+			<input type="text" name="location">
+			<br/><br/>
+
+			<label>Delivery Method:</label>
+			<input type="text" name="delivery_method">
+			<br/><br/>
+
+			<label>Tags (comma separated):</label>
+			<input type="text" name="tags">
+			<br/><br/>
+
+			<label>Thumbnail:</label>
+			<input type="file" id="thumbnail" accept="image/*" required>
+			<br/><br/>
+
+			<label>Images:</label>
+			<input type="file" id="images" accept="image/*" multiple>
+			<br/><br/>
+
+			<input type="hidden" name="thumbnail_url" id="thumbnail_url">
+			<input type="hidden" name="list_of_image_url" id="list_of_image_url">
+
+			<input type="submit" value="Create Listing">
+		</fieldset>
+	</form>
+
+	<script>
+		window.UID = "<?= $_SESSION['uid'] ?>";
+	</script>
+
+	<script src="/assets/js/upload.js" defer></script>
 </body>
 </html>

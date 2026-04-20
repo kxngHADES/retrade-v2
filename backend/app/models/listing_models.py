@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Lis, Optional
+from typing import List, Optional
 
 class individual(BaseModel):
     uid: str
@@ -10,7 +10,7 @@ class IndividualListing(BaseModel):
     description: str
 
     thumbnail_url: Optional[str] = None
-    list_of_image_url: Optional[str] = []
+    list_of_image_url: List[str] = []
 
     price: float
     stock: int

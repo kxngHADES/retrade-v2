@@ -11,6 +11,7 @@ from app.models.auth_models import UploadPayload
 from app.db.session import AsyncSessionLocal
 import asyncio
 from functools import partial
+from app.db.neo4j import Neo4jConnection
 
 
 
@@ -42,6 +43,7 @@ async def update_id_verification_status(uid_str: str, status: int, db: AsyncSess
 	await db.commit()
 	return result.rowcount > 0
 
+
 async def update_rbac(uid_str: str, status:int, db: AsyncSession) -> bool:
      try:
           uid_bytes = uuid.UUID(uid_str).bytes
@@ -53,6 +55,14 @@ async def update_rbac(uid_str: str, status:int, db: AsyncSession) -> bool:
      await db.commit()
      return result.rowcount > 0
 
+async def add_user_to_graph(uid: str):
+     driver = await Neo4jConnection.get_driver()
+
+     async with driver.session() as session:
+          await session.run(
+               "CREATE (u:User {uid: $uid})",
+               uid=uid
+          )
 
 async def validate_id(file_name: str, data: UploadPayload):
     async with AsyncSessionLocal() as db:
@@ -80,6 +90,7 @@ async def validate_id(file_name: str, data: UploadPayload):
             if is_valid:
                 img_path.unlink(missing_ok=True)
                 await update_rbac(data.uid, 1, db)
+                await add_user_to_graph(data.uid)
 
         except FileNotFoundError as e:
             print(f"Image not found: {e}")

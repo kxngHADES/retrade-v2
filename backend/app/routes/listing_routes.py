@@ -13,4 +13,4 @@ async def get_user_listings(data: individual):
 
 @router.post("/create_user_listing")
 async def create_user_listings(data: IndividualListing):
-    return create_listing(data)
+    return await create_listing(data)

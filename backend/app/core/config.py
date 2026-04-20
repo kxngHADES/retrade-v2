@@ -22,6 +22,21 @@ class Settings(BaseSettings):
 	MONGO_URI: SecretStr
 	MONGO_DB_NAME: str
 
+	NEO4J_URI: str
+	NEO4J_USER: str
+	NEO4J_PASSWORD: SecretStr
+
+	QDRANT_HOST: str
+	QDRANT_PORT: int
+	QDRANT_API_KEY: SecretStr
+	QDRANT_COLLECTION: str
+	QDRANT_VECTOR_SIZE: int
+	QDRANT_DISTANCE: str
+
+	OLLAMA_BASE_URL: str
+	OLLAMA_MODEL: str
+
+
 	@property
 	def DATABASE_URL(self) -> str:
 		return (
@@ -29,6 +44,10 @@ class Settings(BaseSettings):
 			f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 			f"?charset={self.DB_CHARSET}"
 		)
+	
+	@property
+	def QDRANT_URL(self) -> str:
+		return f"http://{self.QDRANT_HOST}:{self.QDRANT_PORT}"
 
 	model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
