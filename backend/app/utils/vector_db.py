@@ -33,7 +33,7 @@ async def get_async_qdrant_client() -> AsyncQdrantClient:
     return AsyncQdrantClient(
         url=settings.QDRANT_URL,
         api_key=settings.QDRANT_API_KEY.get_secret_value(),
-        prefer_grpc=False
+        prefer_grpc=True
     )
 
 # Collection setup
@@ -55,24 +55,30 @@ def ensure_collection_exists(client: QdrantClient, collection_name: str, vector_
 
 
 # Insert Listing embedding
-async def add_listing_to_vector_db(listing_id: str, text_to_embed: str, payload: dict) -> str:
+async def add_listing_to_vector_db(mongo_listing_id: str, text_to_embed: str, payload: dict) -> str:
     vector = await get_embedding(text_to_embed)
     client = await get_async_qdrant_client()
 
+    qdrant_point_id = str(uuid.uuid4())
+
+    payload_with_ref = {**payload, "mongo_id": mongo_listing_id}
+
     point = PointStruct(
-        id=listing_id,
+        id=qdrant_point_id,
         vector=vector,
-        payload=payload
+        payload=payload_with_ref
     )
 
     await client.upsert(
         collection_name=settings.QDRANT_COLLECTION,
         points=[point],
-        wait=True 
+        wait=True
     )
 
     await client.close()
-    return listing_id
+    return qdrant_point_id
+
+
 
 
 # Searh similar listings

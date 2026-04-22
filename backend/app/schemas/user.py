@@ -2,7 +2,7 @@ from sqlalchemy import (
 	String, LargeBinary, Integer, Boolean, DateTime, func,
 	SmallInteger, Index
 )
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from geoalchemy2 import Geometry
 from datetime import datetime
 from app.db.base import Base
@@ -61,6 +61,12 @@ class User(Base):
 		onupdate=func.current_timestamp()
 	)
 	last_login: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+	shops: Mapped[list["Shop"]] = relationship(
+		"Shop",
+		back_populates="user",
+		cascade="all, delete-orphan"
+	)
 
 	__table_args__ = (
 		Index('idx_users_location_point', 'location_point', postgresql_using='gist'),

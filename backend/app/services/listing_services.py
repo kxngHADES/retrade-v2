@@ -2,12 +2,55 @@ from app.db.mongodb import individual_listings_collection, MongoConnection
 from app.models.listing_models import individual, IndividualListing
 from app.db.neo4j import Neo4jConnection
 from app.utils.vector_db import add_listing_to_vector_db
+import redis.asyncio as redis
+from app.core.config import settings
+import json
+from motor.motor_asyncio import AsyncIOMotorCollection
+
+redis_client: redis.Redis | None = None
 
 
-async def get_users_listings(data: individual):
-    listings = await individual_listings_collection.find({"uid": data.uid}).to_list(length=20)
+async def get_users_listings(uid: str, collection: AsyncIOMotorCollection) -> list[dict]:
+    global redis_client
+    cache_key = f"user_listings:{uid}"
+
+    if redis_client:
+        cached = await redis_client.get(cache_key)
+        if cached:
+            return json.loads(cached)
+
+    listings = await collection.find({"uid": uid}).to_list(length=20)
+
+    for doc in listings:
+        if "_id" in doc and hasattr(doc["_id"], "__str__"):
+            doc["_id"] = str(doc["_id"])
+
+    if redis_client and listings:
+        await redis_client.setex(
+            cache_key,
+            settings.REDIS_CACHE_TTL,
+            json.dumps(listings)
+        )
 
     return listings
+
+"""
+async def get_users_listings(uid: str, collection: AsyncIOMotorCollection) -> list[dict]:
+    cache_key = f"user_listings:{uid}"
+    
+    # 🔍 TEMP: Bypass Redis to see raw DB data
+    print(f"🔍 Querying MongoDB for uid='{uid}'")
+    
+    listings_cursor = collection.find({"uid": uid})
+    listings = await listings_cursor.to_list(length=20)
+    
+    print(f"📦 MongoDB returned {len(listings)} documents")
+    if listings:
+        print(f"👀 First doc structure: {listings[0].keys()}")
+        print(f"👀 Stored UID in DB: '{listings[0].get('uid')}'")
+        
+    return listings
+"""
 
 async def link_user_to_listing(uid: str, listing_id: str):
     driver = await Neo4jConnection.get_driver()
@@ -48,7 +91,7 @@ async def create_listing(data: IndividualListing):
 
     try:
         await add_listing_to_vector_db(
-            listing_id=listing_id,
+            mongo_listing_id=listing_id,
             text_to_embed=text_to_embed,
             payload=payload
         )
@@ -58,3 +101,20 @@ async def create_listing(data: IndividualListing):
     return {
         "inserted_id": listing_id
     }
+
+
+
+def clean_mongo_doc(doc: dict) -> dict:
+    if isinstance(doc, dict):
+        return {
+            key: clean_mongo_doc(value) 
+            for key, value in doc.items()
+        }
+    elif isinstance(doc, list):
+        return [clean_mongo_doc(item) for item in doc]
+    elif hasattr(doc, "__str__") and type(doc).__name__ == "ObjectId":
+        return str(doc)
+    return doc
+
+
+#listings = [clean_mongo_doc(doc) for doc in raw_listings]
