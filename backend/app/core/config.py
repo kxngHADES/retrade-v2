@@ -36,6 +36,11 @@ class Settings(BaseSettings):
 	OLLAMA_BASE_URL: str
 	OLLAMA_MODEL: str
 
+	REDIS_HOST: str
+	REDIS_PORT: int
+	REDIS_DB: int
+	REDIS_CACHE_TTL: int
+
 
 	@property
 	def DATABASE_URL(self) -> str:
@@ -48,6 +53,10 @@ class Settings(BaseSettings):
 	@property
 	def QDRANT_URL(self) -> str:
 		return f"http://{self.QDRANT_HOST}:{self.QDRANT_PORT}"
+	
+	@property
+	def REDIS_URL(self) -> str:
+		return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
 	model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 

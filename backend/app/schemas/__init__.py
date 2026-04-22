@@ -1,3 +1,4 @@
 from .user import User
+from .shop import Shop
 
-__all__ = ["User"]
+__all__ = ["User", "Shop"]

@@ -1,15 +1,15 @@
 # ReTrade
 
-<center><img src="https://skillicons.dev/icons?i=php,html,css,fastapi,mysql,mongodb,redis" /></center>
+<center><img src="https://skillicons.dev/icons?i=php,html,css,javascript,fastapi,mysql,mongodb,redis,python" /></center>
 
  <center>
  
- ![NLP](https://img.shields.io/badge/NLP-4B8BBE) ![AI/ML](https://img.shields.io/badge/AI--ML-FF6F00) ![MySQL](https://img.shields.io/badge/MySQL-4479A1?logo=mysql&logoColor=white) ![Neo4j](https://img.shields.io/badge/Neo4j-008CC1?logo=neo4j&logoColor=white) ![Twilio](https://img.shields.io/badge/Twilio-F22F46?logo=twilio&logoColor=white) ![Stripe](https://img.shields.io/badge/Stripe-635BFF?logo=stripe&logoColor=white)
+ ![NLP](https://img.shields.io/badge/NLP-4B8BBE) ![AI/ML](https://img.shields.io/badge/AI--ML-FF6F00) ![MySQL](https://img.shields.io/badge/MySQL-4479A1?logo=mysql&logoColor=white) ![Neo4j](https://img.shields.io/badge/Neo4j-008CC1?logo=neo4j&logoColor=white)![Qdrant](https://img.shields.io/badge/Qdrant-DC244C?logo=qdrant&logoColor=white) ![Elasticsearch](https://img.shields.io/badge/Elasticsearch-005571?logo=elasticsearch&logoColor=white)
 
  </center>
 
 ---
-**Author/Student:** Ndaedzo Rudzani Brandon Mudau
+**Author:** Ndaedzo Rudzani Brandon Mudau
 
 **Lecture:** Sakafuku Tshink
 
