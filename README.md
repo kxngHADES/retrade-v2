@@ -1,4 +1,8 @@
+<center>
+
 # ReTrade
+
+</center>
 
 <center><img src="https://skillicons.dev/icons?i=php,html,css,javascript,fastapi,mysql,mongodb,redis,python" /></center>
 

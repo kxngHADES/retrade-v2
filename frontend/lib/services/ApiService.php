@@ -136,4 +136,74 @@ class ApiService {
         error_log("Get User Listings API ERROR $httpCode: $response");
         return [];
     }
+
+    public function get_listing(string $id): ?array {
+        $apiUrl = $_ENV['BACKEND_INTERNAL_URL'] . '/listings/get_listing/' . urlencode($id);
+        
+        $ch = curl_init($apiUrl);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Accept: application/json'
+        ]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+
+        if ($httpCode >= 200 && $httpCode < 300) {
+            $decode = json_decode($response, true);
+            return $decode['listing'] ?? null;
+        }
+
+        error_log("Get Listing API ERROR $httpCode: $response");
+        return null;
+    }
+
+    public function update_listing(string $id, array $data): bool {
+        $apiUrl = $_ENV['BACKEND_INTERNAL_URL'] . '/listings/update_listing/' . urlencode($id);
+        
+        $payload = [];
+        $allow_keys = ['name', 'description', 'thumbnail_url', 'list_of_image_url', 'price', 'stock', 'condition', 'category', 'location', 'delivery_method', 'tags'];
+        
+        foreach ($allow_keys as $key) {
+            if (isset($data[$key]) && $data[$key] !== '') {
+                // handle price and stock specific conversions if needed
+                if ($key === 'price') $payload[$key] = (float)$data[$key];
+                elseif ($key === 'stock') $payload[$key] = (int)$data[$key];
+                else $payload[$key] = $data[$key];
+            }
+        }
+
+        if (empty($payload)) return true;
+
+        $ch = curl_init($apiUrl);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PATCH");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Accept: application/json'
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+
+        if ($curlError) {
+            error_log("Update Listing API Error: $curlError");
+            return false;
+        }
+
+        if ($httpCode >= 200 && $httpCode < 300) {
+            return true;
+        }
+
+        error_log("Update Listing API ERROR $httpCode: $response");
+        return false;
+    }
 }
