@@ -77,7 +77,6 @@ async def validate_id(file_name: str, data: UploadPayload):
             img_path.unlink(missing_ok=True)
 
             if id_result is None:
-                print(f"No ID number found in image: {file_name}")
                 await update_id_verification_status(data.uid, 3, db)
                 return
 
@@ -92,9 +91,7 @@ async def validate_id(file_name: str, data: UploadPayload):
                 await update_rbac(data.uid, 1, db)
                 await add_user_to_graph(data.uid)
 
-        except FileNotFoundError as e:
-            print(f"Image not found: {e}")
+        except FileNotFoundError:
             await update_id_verification_status(data.uid, 3, db)
-        except Exception as e:
-            print(f"Unexpected error during ID validation: {e}")
+        except Exception:
             await update_id_verification_status(data.uid, 3, db)

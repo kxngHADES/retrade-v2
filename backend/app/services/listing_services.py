@@ -16,8 +16,7 @@ async def get_listing(listing_id: str, collection: AsyncIOMotorCollection) -> di
         if listing:
             listing = clean_mongo_doc(listing)
         return listing
-    except Exception as e:
-        print(f"Error fetching listing {listing_id}: {e}")
+    except Exception:
         return None
 
 async def update_listing(listing_id: str, update_data: IndividualListingUpdate, collection: AsyncIOMotorCollection) -> bool:
@@ -31,8 +30,7 @@ async def update_listing(listing_id: str, update_data: IndividualListingUpdate, 
             {"$set": update_dict}
         )
         return result.modified_count > 0
-    except Exception as e:
-        print(f"Error updating listing {listing_id}: {e}")
+    except Exception:
         return False
 
 
@@ -59,24 +57,6 @@ async def get_users_listings(uid: str, collection: AsyncIOMotorCollection) -> li
         )
 
     return listings
-
-"""
-async def get_users_listings(uid: str, collection: AsyncIOMotorCollection) -> list[dict]:
-    cache_key = f"user_listings:{uid}"
-    
-    # 🔍 TEMP: Bypass Redis to see raw DB data
-    print(f"🔍 Querying MongoDB for uid='{uid}'")
-    
-    listings_cursor = collection.find({"uid": uid})
-    listings = await listings_cursor.to_list(length=20)
-    
-    print(f"📦 MongoDB returned {len(listings)} documents")
-    if listings:
-        print(f"👀 First doc structure: {listings[0].keys()}")
-        print(f"👀 Stored UID in DB: '{listings[0].get('uid')}'")
-        
-    return listings
-"""
 
 async def link_user_to_listing(uid: str, listing_id: str):
     driver = await Neo4jConnection.get_driver()
@@ -121,8 +101,8 @@ async def create_listing(data: IndividualListing):
             text_to_embed=text_to_embed,
             payload=payload
         )
-    except Exception as e:
-        print(f"⚠️ Warning: Failed to embed listing {listing_id}: {e}")
+    except Exception:
+        pass
 
     return {
         "inserted_id": listing_id
