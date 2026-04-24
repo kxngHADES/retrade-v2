@@ -39,6 +39,23 @@ if (!$path) {
 	exit;
 }
 
+// Sanitize path to prevent directory traversal
+$path = str_replace('\\', '/', $path);
+// Remove any ".." segments
+$path = preg_replace('#\.*//+#', '/', $path); // handle ....//
+$segments = explode('/', $path);
+$safeSegments = array_filter($segments, function($segment) {
+	return $segment !== '.' && $segment !== '..';
+});
+$path = implode('/', $safeSegments);
+$path = ltrim($path, '/');
+
+if (empty($path)) {
+	http_response_code(400);
+	echo json_encode(["error" => "Invalid path"]);
+	exit;
+}
+
 $file = $_FILES['file']['tmp_name'];
 if (!is_readable($file)) {
 	http_response_code(400);
