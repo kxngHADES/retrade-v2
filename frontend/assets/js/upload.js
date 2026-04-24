@@ -33,17 +33,17 @@ async function uploadToMinio(blob, path) {
 		body: formData
 	});
 
-	// Debug: log raw response if not JSON
-	const contentType = res.headers.get("content-type");
-	if (!contentType || !contentType.includes("application/json")) {
-		const raw = await res.text();
+	const raw = await res.text();
+	let data;
+	try {
+		data = JSON.parse(raw);
+	} catch (e) {
 		console.error("Non-JSON response from upload.php:", raw);
-		throw new Error("Server returned invalid response");
+		throw new Error(`Server returned invalid response (HTTP ${res.status})`);
 	}
 
-	const data = await res.json();
 	if (!res.ok) {
-		throw new Error(data.details || data.error || "Upload failed");
+		throw new Error(data.details || data.error || `Upload failed (HTTP ${res.status})`);
 	}
 	return data.url;
 }
