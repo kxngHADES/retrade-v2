@@ -22,6 +22,8 @@
 * [System Requirements](#system-requirements)
 * [Create an Account](#creating-an-account)
 * [Login to Account](#login-to-existing-account)
+**2. [Identity Verification](#2-identity-verification)**
+**3. [Managing Listings](#3-managing-listings)**
 
 
 
@@ -88,3 +90,29 @@ Welcome to ReTrade a C2C platform, before you begin grab a drink Just cause you 
 ---
 
 ### Login to existing account
+## 2. Identity Verification
+To ensure a safe trading environment, users can verify their identity.
+
+### Uploading ID Document
+* Navigate to the Identity Verification section in your profile.
+* You will be prompted to upload a clear image of your identification document.
+* Select the file (e.g., .jpg) and click `Upload`.
+* The system will automatically validate your identity.
+
+
+## 3. Managing Listings
+As a C2C platform, ReTrade allows you to create and manage listings for items you want to trade.
+
+### Creating a Listing
+* From the dashboard, click on `Create Listing`.
+* Fill out the listing details (title, description, price/trade value, images, etc.).
+* Submit the form to publish your listing.
+
+### Viewing Your Listings
+* Navigate to `My Listings` or your profile to view all your active and past listings.
+* Click on a specific listing to view its full details.
+
+### Updating a Listing
+* From the `My Listings` page, select the listing you wish to update.
+* Click on the `Edit` or `Update` button.
+* Modify the necessary details and save your changes.

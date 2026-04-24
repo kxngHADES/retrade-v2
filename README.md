@@ -25,3 +25,14 @@
 
 **Private Email:** [![Email](https://img.shields.io/badge/-ndaedzomu101%40gmail.com-000?style=flat&logo=gmail&logoColor=white)](mailto:ndaedzomu101@gmail.com)
 
+
+## Overview
+
+ReTrade is a robust Customer-to-Customer (C2C) trading platform. It provides users with a seamless and secure environment to trade items directly with one another.
+
+Key functionalities include:
+- **User Authentication:** Secure registration and login featuring OTP (One-Time Password) verification and email validation.
+- **Identity Verification:** Ensures a trustworthy environment by allowing users to upload and validate their identification documents.
+- **Listing Management:** Users can easily create, view, and update their individual listings on the platform.
+
+The system is built on a modern microservices-style architecture utilizing FastAPI for the backend, supported by diverse data stores including MySQL, MongoDB, Redis, Neo4j, Qdrant, and Elasticsearch for handling varied data, caching, and vector search requirements.
