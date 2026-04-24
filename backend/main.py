@@ -12,7 +12,7 @@ from app.db.base import Base
 from sqlalchemy import text
 from app.db.mongodb import init_db
 from app.db.neo4j import Neo4jConnection
-from app.utils.vector_db import get_qdrant_client, ensure_collection_exists
+from app.utils.vector_db import get_qdrant_client, ensure_collection_exists, close_qdrant_clients
 from app.db.redis_db import init_redis, close_redis
 
 
@@ -39,6 +39,7 @@ async def lifespan(app: FastAPI):
 	await engine.dispose()
 	await Neo4jConnection.close()
 	await close_redis()
+	await close_qdrant_clients()
 
 app = FastAPI(
 	lifespan=lifespan,

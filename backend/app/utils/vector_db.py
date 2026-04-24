@@ -21,20 +21,38 @@ async def get_embedding(text: str) -> list[float]:
         return res.json()["embedding"]
 
 
-# Qdrant Client
+# Qdrant Clients (Singleton instances)
+_qdrant_client: QdrantClient | None = None
+_async_qdrant_client: AsyncQdrantClient | None = None
+
 def get_qdrant_client() -> QdrantClient:
-    return QdrantClient(
-        url=settings.QDRANT_URL,
-        api_key=settings.QDRANT_API_KEY.get_secret_value(),
-        prefer_grpc=False
-    )
+    global _qdrant_client
+    if _qdrant_client is None:
+        _qdrant_client = QdrantClient(
+            url=settings.QDRANT_URL,
+            api_key=settings.QDRANT_API_KEY.get_secret_value(),
+            prefer_grpc=False
+        )
+    return _qdrant_client
 
 async def get_async_qdrant_client() -> AsyncQdrantClient:
-    return AsyncQdrantClient(
-        url=settings.QDRANT_URL,
-        api_key=settings.QDRANT_API_KEY.get_secret_value(),
-        prefer_grpc=True
-    )
+    global _async_qdrant_client
+    if _async_qdrant_client is None:
+        _async_qdrant_client = AsyncQdrantClient(
+            url=settings.QDRANT_URL,
+            api_key=settings.QDRANT_API_KEY.get_secret_value(),
+            prefer_grpc=True
+        )
+    return _async_qdrant_client
+
+async def close_qdrant_clients():
+    global _qdrant_client, _async_qdrant_client
+    if _qdrant_client is not None:
+        _qdrant_client.close()
+        _qdrant_client = None
+    if _async_qdrant_client is not None:
+        await _async_qdrant_client.close()
+        _async_qdrant_client = None
 
 # Collection setup
 def ensure_collection_exists(client: QdrantClient, collection_name: str, vector_size: int, distance: str):
@@ -75,7 +93,6 @@ async def add_listing_to_vector_db(mongo_listing_id: str, text_to_embed: str, pa
         wait=True
     )
 
-    await client.close()
     return qdrant_point_id
 
 
@@ -109,7 +126,5 @@ async def search_similar_listings(
         with_payload=True,
         limit=limit
     )
-    
-    await client.close()
     
     return [point.payload for point in results.points]
