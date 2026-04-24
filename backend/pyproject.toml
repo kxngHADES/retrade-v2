@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "aiofiles>=25.1.0",
     "asyncio>=4.0.0",
     "asyncmy>=0.2.11",
     "cryptography>=46.0.7",
