@@ -71,3 +71,9 @@ class User(Base):
 	__table_args__ = (
 		Index('idx_users_location_point', 'location_point', postgresql_using='gist'),
 	)
+	
+	carts: Mapped[list["Cart"]] = relationship(
+		"Cart",
+		back_populates="user",
+		cascade="all, delete-orphan"
+	)

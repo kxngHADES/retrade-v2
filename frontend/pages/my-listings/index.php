@@ -49,9 +49,9 @@ $listings = $apiService->get_user_listings($_SESSION['uid']);
                             <?php endif; ?>
                             
                             <!-- Actions -->
-                            <div class="listing-actions">
-                                <a href="/pages/listing-detail/index.php?id=<?= $listing['_id'] ?>" class="btn btn-sm btn-outline">View</a>
-                                <a href="/pages/edit-listing/index.php?id=<?= $listing['_id'] ?>" class="btn btn-sm btn-primary">Edit</a>
+                            <div>
+                                <a href="/pages/my-listings/view-listing/?id=<?= $listing['_id'] ?>">View</a>
+                                <a href="/pages/my-listings/edit-listing/?id=<?= $listing['_id'] ?>">Edit</a>
                             </div>
                         </div>
                     </div>

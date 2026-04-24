@@ -129,6 +129,7 @@ class Authentication_service {
 			'user' => $user,
 			'action' => 'login_success'
 		];
+		
 	}
 
 	public function findByEmail(string $email): ?array {

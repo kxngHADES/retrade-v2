@@ -5,8 +5,12 @@ CREATE TABLE IF NOT EXISTS shops (
 	status TINYINT(1) NOT NULL,
 
 	CONSTRAINT pk_shops PRIMARY KEY (shop_id),
-	CONSTRAINT fk_uid FOREIGN KEY (uid)
+
+	CONSTRAINT fk_shops_uid FOREIGN KEY (uid)
 		REFERENCES users(uid)
 		ON DELETE CASCADE
-		ON UPDATE CASCADE
+		ON UPDATE CASCADE,
+
+	CONSTRAINT uq_uid UNIQUE (uid),
+	CONSTRAINT uq_shop_name UNIQUE (shop_name)
 ) ENGINE=InnoDB;

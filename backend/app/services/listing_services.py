@@ -1,13 +1,39 @@
 from app.db.mongodb import individual_listings_collection, MongoConnection
-from app.models.listing_models import individual, IndividualListing
+from app.models.listing_models import individual, IndividualListing, IndividualListingUpdate
 from app.db.neo4j import Neo4jConnection
 from app.utils.vector_db import add_listing_to_vector_db
 import redis.asyncio as redis
 from app.core.config import settings
 import json
 from motor.motor_asyncio import AsyncIOMotorCollection
+from bson import ObjectId
 
 redis_client: redis.Redis | None = None
+
+async def get_listing(listing_id: str, collection: AsyncIOMotorCollection) -> dict | None:
+    try:
+        listing = await collection.find_one({"_id": ObjectId(listing_id)})
+        if listing:
+            listing = clean_mongo_doc(listing)
+        return listing
+    except Exception as e:
+        print(f"Error fetching listing {listing_id}: {e}")
+        return None
+
+async def update_listing(listing_id: str, update_data: IndividualListingUpdate, collection: AsyncIOMotorCollection) -> bool:
+    try:
+        update_dict = {k: v for k, v in update_data.dict(exclude_unset=True).items() if v is not None}
+        if not update_dict:
+            return False
+            
+        result = await collection.update_one(
+            {"_id": ObjectId(listing_id)},
+            {"$set": update_dict}
+        )
+        return result.modified_count > 0
+    except Exception as e:
+        print(f"Error updating listing {listing_id}: {e}")
+        return False
 
 
 async def get_users_listings(uid: str, collection: AsyncIOMotorCollection) -> list[dict]:
