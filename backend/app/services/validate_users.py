@@ -74,7 +74,7 @@ async def validate_id(file_name: str, data: UploadPayload):
                 partial(extractor.extract_id_number, img_path)
             )
 
-            img_path.unlink(missing_ok=True)
+            await asyncio.to_thread(img_path.unlink, missing_ok=True)
 
             if id_result is None:
                 await update_id_verification_status(data.uid, 3, db)
@@ -87,7 +87,7 @@ async def validate_id(file_name: str, data: UploadPayload):
             await update_id_verification_status(data.uid, status, db)
 
             if is_valid:
-                img_path.unlink(missing_ok=True)
+                await asyncio.to_thread(img_path.unlink, missing_ok=True)
                 await update_rbac(data.uid, 1, db)
                 await add_user_to_graph(data.uid)
 

@@ -31,12 +31,16 @@ mock_module('app.models.auth_models', {'UploadPayload': MagicMock})
 mock_module('app.db.session', {'AsyncSessionLocal': MagicMock})
 mock_module('app.db.neo4j', {'Neo4jConnection': MagicMock})
 
+import pytest
+
+@pytest.mark.asyncio
 async def test_update_rbac_invalid_uuid():
     from app.services.validate_users import update_rbac
     # Should return False for invalid UUID string without hitting DB
     result = await update_rbac("not-a-uuid", 1, MagicMock())
     assert result is False
 
+@pytest.mark.asyncio
 async def test_update_id_verification_status_invalid_uuid():
     from app.services.validate_users import update_id_verification_status
     # Should return False for invalid UUID string without hitting DB
