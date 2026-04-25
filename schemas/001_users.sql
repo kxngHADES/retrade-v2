@@ -18,7 +18,10 @@ CREATE TABLE IF NOT EXISTS users (
 	created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	last_login DATETIME NULL,
+
 	CONSTRAINT pk_users PRIMARY KEY (uid),
 	CONSTRAINT uq_users_email UNIQUE (email),
-	CONSTRAINT uq_users_phone UNIQUE (phoneNumber)
+	CONSTRAINT uq_users_phone UNIQUE (phoneNumber),
+
+	SPATIAL INDEX idx_location (location_point)
 ) ENGINE=InnoDB;

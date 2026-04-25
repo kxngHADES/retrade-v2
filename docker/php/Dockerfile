@@ -22,6 +22,9 @@ RUN apt-get update && apt-get install -y \
 # Install Composer globally
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# PHP-FPM config
+COPY www.conf /usr/local/etc/php-fpm.d/www.conf
+
 # Copy custom entrypoint script
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh

@@ -206,4 +206,44 @@ class ApiService {
         error_log("Update Listing API ERROR $httpCode: $response");
         return false;
     }
+
+    public function get_recommendations_or_latest(?string $uid, int $page = 1): array {
+        $endpoint = $uid ? "/listings/recommendations/" . urlencode($uid) . "?page=" . $page : "/listings/latest";
+        $apiUrl = $_ENV['BACKEND_INTERNAL_URL'] . $endpoint;
+        
+        $ch = curl_init($apiUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/json']);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode >= 200 && $httpCode < 300) {
+            $data = json_decode($response, true);
+            return $data['listings'] ?? [];
+        }
+        return [];
+    }
+
+    public function record_user_view(string $uid, string $listingId): bool {
+        $apiUrl = $_ENV['BACKEND_INTERNAL_URL'] . '/listings/record_view';
+        
+        $ch = curl_init($apiUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(['uid' => $uid, 'listing_id' => $listingId]));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Accept: application/json'
+        ]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5); // Short timeout for background task
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        return ($httpCode >= 200 && $httpCode < 300);
+    }
 }
