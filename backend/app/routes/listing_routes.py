@@ -1,10 +1,37 @@
-from fastapi import APIRouter, Depends, HTTPException
-from app.services.listing_services import create_listing, get_users_listings, get_listing, update_listing
+from fastapi import APIRouter, Depends, HTTPException, Query
+from app.services.listing_services import create_listing, get_users_listings, get_listing, update_listing, get_latest_listings, get_recommendations, record_user_view
 from app.models.listing_models import IndividualListing, individual, IndividualListingUpdate
+from pydantic import BaseModel
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from app.db.mongodb import MongoConnection
 
 router = APIRouter(prefix="/listings", tags=["Listings"])
+
+class ViewRequest(BaseModel):
+    uid: str
+    listing_id: str
+
+@router.get("/latest")
+async def latest_listings():
+    db: AsyncIOMotorDatabase = await MongoConnection.get_db()
+    listings = await get_latest_listings(db.individual_listings)
+    return {"listings": listings}
+
+
+@router.get("/recommendations/{uid}")
+async def fetch_recommendations(uid: str, page: int = Query(1, alias="page")):
+    db: AsyncIOMotorDatabase = await MongoConnection.get_db()
+    # returns 50 recs per page
+    listings = await get_recommendations(uid, db.individual_listings, page)
+    return {"listings": listings}
+
+
+@router.post("/record_view")
+async def record_view(data: ViewRequest):
+    db: AsyncIOMotorDatabase = await MongoConnection.get_db()
+    collection = db.user_views
+    await record_user_view(data.uid, data.listing_id, collection)
+    return {"success": True}
 
 @router.get("/get_listing/{id}")
 async def get_listing_endpoint(id: str):

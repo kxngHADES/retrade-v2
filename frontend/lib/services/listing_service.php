@@ -50,4 +50,45 @@ class listing_service{
         header('Location: /pages/my-listings');
         exit();
     }
+
+    public function handleViewListingProcess(?string $uid, ?string $listingId): array {
+        if (!$listingId) {
+            header("Location: /");
+            exit;
+        }
+
+        $apiService = new ApiService();
+
+        // 1. Record the view if logged in
+        if ($uid) {
+            $apiService->record_user_view($uid, $listingId);
+        }
+
+        // 2. Fetch Listing details
+        $listing = $apiService->get_listing($listingId);
+
+        if (!$listing) {
+            echo "<h1>Listing not found</h1>";
+            exit;
+        }
+
+        $isOwner = ($uid && $listing['uid'] === $uid);
+
+        // Start chat logic
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['start_chat'])) {
+            if (!$uid) {
+                header("Location: /pages/login/");
+                exit;
+            }
+            
+            $chatService = new \Lib\services\Chat_services();
+            $chatService->createChatRoom($uid, $listing['uid']);
+            exit;
+        }
+
+        return [
+            'listing' => $listing,
+            'isOwner' => $isOwner
+        ];
+    }
 }

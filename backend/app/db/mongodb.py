@@ -44,10 +44,28 @@ class MongoConnection:
 			}
 		}
 
+		user_views_schema = {
+			"bsonType": "object",
+			"required": ["uid", "listing_id", "viewed_at"],
+			"properties": {
+				"uid": {"bsonType": "string"},
+				"listing_id": {"bsonType": "string"},
+				"viewed_at": {"bsonType": "date"}
+			}
+		}
+
 		try:
 			await cls._db.create_collection(
 				"individual_listings",
 				validator={"$jsonSchema": listing_schema}
+			)
+		except Exception:
+			pass
+
+		try:
+			await cls._db.create_collection(
+				"user_views",
+				validator={"$jsonSchema": user_views_schema}
 			)
 		except Exception:
 			pass
@@ -57,6 +75,8 @@ class MongoConnection:
 		await cls._db["individual_listings"].create_index("price")
 		await cls._db["individual_listings"].create_index("location")
 		await cls._db["individual_listings"].create_index("tags")
+		await cls._db["user_views"].create_index("uid")
+		await cls._db["user_views"].create_index("listing_id")
 		
 
 db = None

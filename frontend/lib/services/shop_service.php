@@ -11,7 +11,7 @@ use PDO;
 use PDOException;
 use Stringable;
 
-class shop_service{
+class shop_service {
     private PDO $db;
     private $profile_service;
 
