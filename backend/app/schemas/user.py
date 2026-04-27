@@ -77,3 +77,9 @@ class User(Base):
 		back_populates="user",
 		cascade="all, delete-orphan"
 	)
+
+	escrows: Mapped[list["Escrow"]] = relationship(
+		"Escrow",
+		back_populates="user",
+		cascade="all, delete-orphan"
+	)

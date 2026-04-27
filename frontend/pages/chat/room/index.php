@@ -22,8 +22,13 @@ if (!$roomExists) {
 $otherUser = $chatService->getRoomOtherUser($roomId, $uid);
 $fullName = "Unknown User";
 if ($otherUser) {
+    // Determine who is the buyer/seller logically or just load current user's listings to propose
     $fullName = htmlspecialchars($otherUser['firstName'] . " " . $otherUser['lastName']);
 }
+
+require_once __DIR__ . '/../../../lib/services/ApiService.php';
+$apiService = new \Lib\services\ApiService();
+$myListings = $apiService->get_user_listings($uid);
 
 $messages = $chatService->getRoomMessages($roomId);
 ?>
@@ -49,7 +54,14 @@ $messages = $chatService->getRoomMessages($roomId);
         .input-area button { background: #128C7E; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; }
         .input-area button:hover { background: #075E54; }
         .file-btn { background: #bbb; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-weight: bold; font-size: 20px; }
+        .order-btn { background: #ff9800; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-weight: bold; font-size: 20px; border: none; }
         #file-input { display: none; }
+        .order-modal { display: none; position: fixed; bottom: 80px; left: 10px; width: 300px; background: white; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); padding: 15px; }
+        .order-modal h3 { margin-top: 0; }
+        .order-modal select { width: 100%; padding: 10px; border-radius: 5px; margin-bottom: 10px; }
+        .order-modal button { background: #ff9800; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: 100%; }
+        .order-prompt { border: 1px solid #ccc; background: #fff3e0; padding: 10px; border-radius: 5px; margin-top: 5px; text-align: center; }
+        .order-prompt button { margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -74,7 +86,21 @@ $messages = $chatService->getRoomMessages($roomId);
                 <?php endif; ?>
                 
                 <?php if ($msg['message_text']): ?>
-                    <span><?= htmlspecialchars($msg['message_text']) ?></span>
+                    <?php if (strpos($msg['message_text'], '[ORDER_PROPOSAL:') === 0): ?>
+                        <?php 
+                        $parts = explode(':', rtrim($msg['message_text'], ']'));
+                        $listingId = $parts[1] ?? '';
+                        $price = $parts[2] ?? '';
+                        $listingName = isset($parts[3]) ? urldecode($parts[3]) : 'Item';
+                        ?>
+                        <?php if ($isSent): ?>
+                            <div class="order-prompt"><b>Order Proposal Sent</b><br>Item: <?= htmlspecialchars($listingName) ?><br>Price: R<?= htmlspecialchars($price) ?></div>
+                        <?php else: ?>
+                            <div class="order-prompt"><b>Order Proposal Received</b><br>Item: <?= htmlspecialchars($listingName) ?><br>Price: R<?= htmlspecialchars($price) ?><br><button onclick="window.location.href='/pages/pay/initiate.php?amount=<?= urlencode($price) ?>&listing_id=<?= urlencode($listingId) ?>&order_type=marketplace&seller_uid=<?= urlencode($msg['sender_id']) ?>'">Pay Now</button></div>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <span><?= htmlspecialchars($msg['message_text']) ?></span>
+                    <?php endif; ?>
                 <?php endif; ?>
                 
                 <span class="time"><?= date('H:i', strtotime($msg['sent_at'])) ?></span>
@@ -83,10 +109,37 @@ $messages = $chatService->getRoomMessages($roomId);
     </div>
 
     <div class="input-area">
+        <button class="order-btn" id="show-order-modal">
+            <i data-lucide="package" width="20" height="20"></i>
+        </button>
         <label class="file-btn" for="file-input">+</label>
         <input type="file" id="file-input" />
         <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off">
         <button id="send-btn">Send</button>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Order Modal -->
+    <div class="order-modal" id="order-modal">
+        <h3>Create Order for Listing</h3>
+        <?php if (!empty($myListings['listings'] ?? $myListings)): ?>
+        <select id="listing-select">
+            <?php 
+            $listArr = $myListings['listings'] ?? $myListings;
+            foreach ($listArr as $listing): 
+            ?>
+                <option value="<?= htmlspecialchars($listing['_id']) ?>" data-price="<?= htmlspecialchars($listing['price']) ?>" data-name="<?= htmlspecialchars($listing['name']) ?>">
+                    <?= htmlspecialchars($listing['name']) ?> (R<?= htmlspecialchars($listing['price']) ?>)
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <input type="number" id="custom-price" placeholder="Set Price" min="0" step="0.01" style="width: 100%; padding: 10px; border-radius: 5px; margin-bottom: 10px; border: 1px solid #ccc; box-sizing: border-box;" />
+        <button id="create-order-btn">Send Order Proposal</button>
+        <?php else: ?>
+        <p>You have no listings to sell.</p>
+        <button onclick="document.getElementById('order-modal').style.display='none'">Close</button>
+        <?php endif; ?>
     </div>
 
     <script>
@@ -120,11 +173,23 @@ $messages = $chatService->getRoomMessages($roomId);
             }
             
             if (msg.message_text) {
-                // Escape text simply
-                const text = document.createTextNode(msg.message_text);
-                const span = document.createElement('span');
-                span.appendChild(text);
-                html += span.outerHTML;
+                if (msg.message_text.startsWith('[ORDER_PROPOSAL:')) {
+                    const parts = msg.message_text.replace(']', '').split(':');
+                    const listingId = parts[1];
+                    const price = parts[2];
+                    const listingName = parts[3] ? decodeURIComponent(parts[3]) : 'Item';
+                    
+                    if (isSent) {
+                        html += `<div class="order-prompt"><b>Order Proposal Sent</b><br>Item: ${listingName}<br>Price: R${price}</div>`;
+                    } else {
+                        html += `<div class="order-prompt"><b>Order Proposal Received</b><br>Item: ${listingName}<br>Price: R${price}<br><button onclick="window.location.href='/pages/pay/initiate.php?amount=${price}&listing_id=${listingId}&order_type=marketplace&seller_uid=${msg.sender_id}'">Pay Now</button></div>`;
+                    }
+                } else {
+                    const textNode = document.createTextNode(msg.message_text);
+                    const wrapper = document.createElement('span');
+                    wrapper.innerText = msg.message_text;
+                    html += wrapper.outerHTML;
+                }
             }
             
             let timeStr = new Date(msg.sent_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -151,6 +216,66 @@ $messages = $chatService->getRoomMessages($roomId);
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'Upload failed');
             return data.url;
+        }
+
+        const showOrderModalBtn = document.getElementById('show-order-modal');
+        const orderModal = document.getElementById('order-modal');
+        const createOrderBtn = document.getElementById('create-order-btn');
+        const listingSelect = document.getElementById('listing-select');
+        const customPriceInput = document.getElementById('custom-price');
+
+        if (showOrderModalBtn) {
+            showOrderModalBtn.addEventListener('click', () => {
+                orderModal.style.display = orderModal.style.display === 'block' ? 'none' : 'block';
+                if (orderModal.style.display === 'block' && listingSelect && listingSelect.options.length > 0 && customPriceInput) {
+                    customPriceInput.value = listingSelect.options[listingSelect.selectedIndex].getAttribute('data-price');
+                }
+            });
+        }
+
+        if (listingSelect && customPriceInput) {
+            listingSelect.addEventListener('change', () => {
+                customPriceInput.value = listingSelect.options[listingSelect.selectedIndex].getAttribute('data-price');
+            });
+        }
+
+        if (createOrderBtn) {
+            createOrderBtn.addEventListener('click', async () => {
+                if (!listingSelect) return;
+                const option = listingSelect.options[listingSelect.selectedIndex];
+                const listingId = option.value;
+                const listingName = option.getAttribute('data-name');
+                const price = customPriceInput ? customPriceInput.value : option.getAttribute('data-price');
+
+                if (!price || price < 0) {
+                    alert("Please enter a valid price.");
+                    return;
+                }
+
+                const proposalText = `[ORDER_PROPOSAL:${listingId}:${price}:${encodeURIComponent(listingName)}]`;
+
+                createOrderBtn.disabled = true;
+                try {
+                    // Send message via existing endpoint
+                    const res = await fetch('/pages/chat/api/send_message.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            room_id: roomId,
+                            message_text: proposalText
+                        })
+                    });
+                    if (res.ok) {
+                        orderModal.style.display = 'none';
+                    } else {
+                        alert('Failed to send order proposal');
+                    }
+                } catch(e) {
+                    alert('Error: ' + e);
+                } finally {
+                    createOrderBtn.disabled = false;
+                }
+            });
         }
 
         async function sendMessage() {
@@ -219,6 +344,8 @@ $messages = $chatService->getRoomMessages($roomId);
             }
         };
 
+        // Initialize Lucide icons
+        lucide.createIcons();
     </script>
 </body>
 </html>
