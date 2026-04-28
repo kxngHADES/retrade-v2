@@ -164,7 +164,7 @@ class PaymentGatewaysServices
     /**
      * Webhook Escrow Integration
      */
-    public function generatePaymentRecord(string $orderIdBytes, float $amount, int $status): bool 
+    public function generatePaymentRecord(string $orderIdBytes, float $amount, int $status): ?array 
     {
         $reference = 'REF-' . strtoupper(substr(bin2hex(random_bytes(4)), 0, 8));
         $pin = str_pad(random_int(0, 99999), 5, '0', STR_PAD_LEFT);
@@ -172,13 +172,16 @@ class PaymentGatewaysServices
         $sql = "INSERT INTO payment (order_id, status, amount, reference, pin, paid_at) 
                 VALUES (:order_id, :status, :amount, :reference, :pin, NOW())";
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute([
+        if ($stmt->execute([
             ':order_id' => $orderIdBytes,
             ':status' => $status,
             ':amount' => $amount,
             ':reference' => $reference,
             ':pin' => $pin
-        ]);
+        ])) {
+            return ['reference' => $reference, 'pin' => $pin];
+        }
+        return null;
     }
 
     public function processWebhookPayload(string $signature, string $payloadJson): bool
@@ -230,7 +233,54 @@ class PaymentGatewaysServices
                     ]);
 
                     // Generate Payment Record mapping straight back to the new order
-                    $this->generatePaymentRecord($orderIdBytes, $payload['amount'], 1); // 1 = success
+                    $paymentInfo = $this->generatePaymentRecord($orderIdBytes, $payload['amount'], 1); // 1 = success
+
+                    if ($paymentInfo) {
+                        $stmtEmail = $this->db->prepare("SELECT BIN_TO_UUID(uid) as uid, email FROM users WHERE uid IN (:b_uid, :s_uid)");
+                        $stmtEmail->execute([':b_uid' => $buyerUidBytes, ':s_uid' => $sellerUidBytes]);
+                        $users = $stmtEmail->fetchAll(PDO::FETCH_ASSOC);
+                        
+                        $b_email = null;
+                        $s_email = null;
+                        foreach ($users as $u) {
+                            $u_hex = strtolower(str_replace('-', '', $u['uid']));
+                            if ($u_hex === strtolower(bin2hex($buyerUidBytes))) $b_email = $u['email'];
+                            if ($u_hex === strtolower(bin2hex($sellerUidBytes))) $s_email = $u['email'];
+                        }
+
+                        if ($b_email && $s_email) {
+                            require_once __DIR__ . '/ApiService.php';
+                            $apiService = new \Lib\services\ApiService();
+                            $apiService->send_escrow_notifications($b_email, $s_email, $paymentInfo['reference'], $paymentInfo['pin']);
+                        }
+                    }
+
+                    // Decrease listing stock if this is a marketplace order
+                    if (isset($payload['order_type']) && $payload['order_type'] === 'marketplace' && !empty($payload['listing_id'])) {
+                        require_once __DIR__ . '/ApiService.php';
+                        $apiService = new \Lib\services\ApiService();
+                        $listingData = $apiService->get_listing($payload['listing_id']);
+                        $listing = $listingData['listing'] ?? $listingData; 
+                        if ($listing && isset($listing['stock']) && $listing['stock'] > 0) {
+                            $apiService->update_listing($payload['listing_id'], ['stock' => $listing['stock'] - 1]);
+                        }
+                    }
+
+                    // For shop orders, reduce stock and clear the cart
+                    if (isset($payload['cart_id']) && !empty($payload['cart_id'])) {
+                        $cartIdBytes = hex2bin(str_replace('-', '', $payload['cart_id']));
+                        $stmtGetCartItems = $this->db->prepare("SELECT product_id, quantity FROM cart_items WHERE cart_id = :cart_id");
+                        $stmtGetCartItems->execute([':cart_id' => $cartIdBytes]);
+                        $cartItems = $stmtGetCartItems->fetchAll(PDO::FETCH_ASSOC);
+
+                        $stmtUpdateStock = $this->db->prepare("UPDATE shop_products SET stock_quantity = GREATEST(0, stock_quantity - :qty) WHERE product_id = :product_id");
+                        foreach ($cartItems as $item) {
+                            $stmtUpdateStock->execute([':qty' => $item['quantity'], ':product_id' => $item['product_id']]);
+                        }
+
+                        $stmtDeleteCart = $this->db->prepare("DELETE FROM carts WHERE cart_id = :cart_id");
+                        $stmtDeleteCart->execute([':cart_id' => $cartIdBytes]);
+                    }
 
                     $this->db->commit();
                 } catch (\Exception $e) {
@@ -271,20 +321,73 @@ class PaymentGatewaysServices
             $orderIdBytes = random_bytes(16);
 
             // Insert into Orders (status 1 = paid)
-            $sqlOrder = "INSERT INTO orders (order_id, buyer_uid, seller_uid, listing_id, order_type, total_amount, status) 
-                         VALUES (:order_id, :buyer_uid, :seller_uid, :listing_id, :order_type, :amount, 1)";
+            $sqlOrder = "INSERT INTO orders (order_id, buyer_uid, seller_uid, shop_id, cart_id, listing_id, order_type, total_amount, status) 
+                         VALUES (:order_id, :buyer_uid, :seller_uid, :shop_id, :cart_id, :listing_id, :order_type, :amount, 1)";
             $stmtOrder = $this->db->prepare($sqlOrder);
+            
+            $shopIdBytes = isset($payload['shop_id']) && !empty($payload['shop_id']) ? hex2bin(str_replace('-', '', $payload['shop_id'])) : null;
+            $cartIdBytes = isset($payload['cart_id']) && !empty($payload['cart_id']) ? hex2bin(str_replace('-', '', $payload['cart_id'])) : null;
+
             $stmtOrder->execute([
                 ':order_id' => $orderIdBytes,
                 ':buyer_uid' => $buyerUidBytes,
                 ':seller_uid' => $sellerUidBytes,
+                ':shop_id' => $shopIdBytes,
+                ':cart_id' => $cartIdBytes,
                 ':listing_id' => $payload['listing_id'] ?? null,
                 ':order_type' => $payload['order_type'] ?? 'marketplace',
                 ':amount' => $payload['amount']
             ]);
 
             // Generate Payment Record mapping straight back to the new order
-            $this->generatePaymentRecord($orderIdBytes, $payload['amount'], 1); // 1 = success
+            $paymentInfo = $this->generatePaymentRecord($orderIdBytes, $payload['amount'], 1); // 1 = success
+
+            if ($paymentInfo) {
+                // Fetch emails
+                $stmtEmail = $this->db->prepare("SELECT BIN_TO_UUID(uid) as uid, email FROM users WHERE uid IN (:b_uid, :s_uid)");
+                $stmtEmail->execute([':b_uid' => $buyerUidBytes, ':s_uid' => $sellerUidBytes]);
+                $users = $stmtEmail->fetchAll(PDO::FETCH_ASSOC);
+                
+                $b_email = null;
+                $s_email = null;
+                foreach ($users as $u) {
+                    $u_hex = strtolower(str_replace('-', '', $u['uid']));
+                    if ($u_hex === strtolower(bin2hex($buyerUidBytes))) $b_email = $u['email'];
+                    if ($u_hex === strtolower(bin2hex($sellerUidBytes))) $s_email = $u['email'];
+                }
+
+                if ($b_email && $s_email) {
+                    require_once __DIR__ . '/ApiService.php';
+                    $apiService = new \Lib\services\ApiService();
+                    $apiService->send_escrow_notifications($b_email, $s_email, $paymentInfo['reference'], $paymentInfo['pin']);
+                }
+            }
+
+            // Decrease listing stock if this is a marketplace order
+            if (isset($payload['order_type']) && $payload['order_type'] === 'marketplace' && !empty($payload['listing_id'])) {
+                require_once __DIR__ . '/ApiService.php';
+                $apiService = new \Lib\services\ApiService();
+                $listingData = $apiService->get_listing($payload['listing_id']);
+                $listing = $listingData['listing'] ?? $listingData; 
+                if ($listing && isset($listing['stock']) && $listing['stock'] > 0) {
+                    $apiService->update_listing($payload['listing_id'], ['stock' => $listing['stock'] - 1]);
+                }
+            }
+
+            // If it is a shop order with a cart, clear the cart after successful payment
+            if (isset($payload['cart_id']) && !empty($payload['cart_id'])) {
+                $stmtGetCartItems = $this->db->prepare("SELECT product_id, quantity FROM cart_items WHERE cart_id = :cart_id");
+                $stmtGetCartItems->execute([':cart_id' => $cartIdBytes]);
+                $cartItems = $stmtGetCartItems->fetchAll(PDO::FETCH_ASSOC);
+
+                $stmtUpdateStock = $this->db->prepare("UPDATE shop_products SET stock_quantity = GREATEST(0, stock_quantity - :qty) WHERE product_id = :product_id");
+                foreach ($cartItems as $item) {
+                    $stmtUpdateStock->execute([':qty' => $item['quantity'], ':product_id' => $item['product_id']]);
+                }
+
+                $stmtDeleteCart = $this->db->prepare("DELETE FROM carts WHERE cart_id = :cart_id");
+                $stmtDeleteCart->execute([':cart_id' => $cartIdBytes]);
+            }
 
             $this->db->commit();
             return true;

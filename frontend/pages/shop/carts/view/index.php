@@ -15,10 +15,28 @@ $shop_service = new shop_service();
 $cart_items = $shop_service->getCartItems($cart_id);
 
 $total_amount = 0.0;
+$shop_id = '';
 foreach ($cart_items as $item) {
     // calculate total 
     $total_amount += $item['price_snapshot'] * $item['quantity'];
+    if (empty($shop_id)) {
+        // we can fetch shop_id from the first item since all items in a cart belong to the same shop
+        $product = $shop_service->getProduct($item['product_id']);
+        $shop_id = $product['shop_id'];
+    }
 }
+
+$seller_uid = '';
+if (!empty($shop_id)) {
+    $db = \Lib\db\Database::getConnection();
+    $stmt = $db->prepare("SELECT BIN_TO_UUID(uid) as seller_uid FROM shops WHERE shop_id = UUID_TO_BIN(:shop_id)");
+    $stmt->execute(['shop_id' => $shop_id]);
+    $shopRow = $stmt->fetch(\PDO::FETCH_ASSOC);
+    if ($shopRow) {
+        $seller_uid = $shopRow['seller_uid'];
+    }
+}
+
 
 ?>
 <!DOCTYPE html>
@@ -67,6 +85,18 @@ foreach ($cart_items as $item) {
             
             <br>
             <h3>Total: R<?php echo number_format($total_amount, 2); ?></h3>
+
+            <div style="margin-top: 20px;">
+                <form action="/pages/pay/initiate-shop.php" method="GET">
+                    <input type="hidden" name="cart_id" value="<?php echo htmlspecialchars($cart_id); ?>">
+                    <input type="hidden" name="shop_id" value="<?php echo htmlspecialchars($shop_id); ?>">
+                    <input type="hidden" name="seller_uid" value="<?php echo htmlspecialchars($seller_uid); ?>">
+                    <input type="hidden" name="amount" value="<?php echo htmlspecialchars($total_amount); ?>">
+                    <button type="submit" style="padding: 10px 20px; font-size: 16px; background-color: #128C7E; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        Pay Now
+                    </button>
+                </form>
+            </div>
 
         <?php else: ?>
             <p>Your cart is empty.</p>

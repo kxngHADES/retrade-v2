@@ -246,4 +246,31 @@ class ApiService {
 
         return ($httpCode >= 200 && $httpCode < 300);
     }
+
+    public function send_escrow_notifications(string $buyer_email, string $seller_email, string $reference, string $pin): bool {
+        $apiUrl = $_ENV['BACKEND_INTERNAL_URL'] . '/listings/escrow_notifications';
+        
+        $payload = [
+            'buyer_email' => $buyer_email,
+            'seller_email' => $seller_email,
+            'reference' => $reference,
+            'pin' => $pin
+        ];
+
+        $ch = curl_init($apiUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Accept: application/json'
+        ]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5); 
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        return ($httpCode >= 200 && $httpCode < 300);
+    }
 }

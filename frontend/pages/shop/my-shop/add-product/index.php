@@ -1,8 +1,8 @@
 <?php
 
-require_once __DIR__ . '/../../../config/bootstrap.php';
-require_once __DIR__ . '/../../../utils/protected_route.php';
-require_once __DIR__ . '/../../../utils/id_verified_screens.php';
+require_once __DIR__ . '/../../../../config/bootstrap.php';
+require_once __DIR__ . '/../../../../utils/protected_route.php';
+require_once __DIR__ . '/../../../../utils/id_verified_screens.php';
 
 use Lib\services\shop_service;
 

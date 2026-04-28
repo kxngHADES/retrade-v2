@@ -69,6 +69,8 @@ $payloadData = [
     'buyer_uid' => $uid,
     'seller_uid' => $metadata['seller_uid'] ?? null,
     'listing_id' => $metadata['listing_id'] ?? null,
+    'shop_id' => $metadata['shop_id'] ?? null,
+    'cart_id' => $metadata['cart_id'] ?? null,
     'order_type' => $metadata['order_type'] ?? 'marketplace'
 ];
 

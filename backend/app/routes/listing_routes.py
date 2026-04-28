@@ -1,11 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from app.services.listing_services import create_listing, get_users_listings, get_listing, update_listing, get_latest_listings, get_recommendations, record_user_view
 from app.models.listing_models import IndividualListing, individual, IndividualListingUpdate
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from app.db.mongodb import MongoConnection
+from app.services.order_services import handle_escrow_notifications
 
 router = APIRouter(prefix="/listings", tags=["Listings"])
+
+class EscrowNotificationRequest(BaseModel):
+    buyer_email: EmailStr
+    seller_email: EmailStr
+    reference: str
+    pin: str
 
 class ViewRequest(BaseModel):
     uid: str
@@ -63,3 +70,19 @@ async def get_user_listings(uid: str):
 @router.post("/create_user_listing")
 async def create_user_listings(data: IndividualListing):
     return await create_listing(data)
+
+
+
+# Orders
+
+@router.post("/escrow_notifications")
+async def trigger_escrow_notifications(data: EscrowNotificationRequest):
+    success = await handle_escrow_notifications(
+        buyer_email=data.buyer_email,
+        seller_email=data.seller_email,
+        reference=data.reference,
+        pin=data.pin
+    )
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to send escrow notification emails")
+    return {"success": True, "message": "Escrow notifications delivered successfully"}
