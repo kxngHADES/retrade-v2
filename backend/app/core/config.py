@@ -33,6 +33,10 @@ class Settings(BaseSettings):
 	QDRANT_VECTOR_SIZE: int
 	QDRANT_DISTANCE: str
 
+	ELASTICSEARCH_HOST: str
+	ELASTICSEARCH_PORT: int
+	ELASTICSEARCH_INDEX: str
+
 	OLLAMA_BASE_URL: str
 	OLLAMA_MODEL: str
 
@@ -53,6 +57,10 @@ class Settings(BaseSettings):
 	@property
 	def QDRANT_URL(self) -> str:
 		return f"http://{self.QDRANT_HOST}:{self.QDRANT_PORT}"
+
+	@property
+	def ELASTICSEARCH_URL(self) -> str:
+		return f"http://{self.ELASTICSEARCH_HOST}:{self.ELASTICSEARCH_PORT}"
 	
 	@property
 	def REDIS_URL(self) -> str:

@@ -12,11 +12,9 @@ from app.db.base import Base
 from sqlalchemy import text
 from app.db.mongodb import init_db
 from app.db.neo4j import Neo4jConnection
+from app.db.elasticsearch import ElasticsearchConnection
 from app.utils.vector_db import get_qdrant_client, ensure_collection_exists, close_qdrant_clients
 from app.db.redis_db import init_redis, close_redis
-
-
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -24,6 +22,7 @@ async def lifespan(app: FastAPI):
 		await conn.run_sync(Base.metadata.create_all)
 	await init_db() # MongoDB
 	await Neo4jConnection.connect() # Neo4j
+	await ElasticsearchConnection.connect() # Elasticsearch
 	await init_redis()
 	client = get_qdrant_client() # Qdrant
 	try:
@@ -38,6 +37,7 @@ async def lifespan(app: FastAPI):
 	yield
 	await engine.dispose()
 	await Neo4jConnection.close()
+	await ElasticsearchConnection.close()
 	await close_redis()
 	await close_qdrant_clients()
 

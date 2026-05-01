@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from app.services.listing_services import create_listing, get_users_listings, get_listing, update_listing, get_latest_listings, get_recommendations, record_user_view
-from app.models.listing_models import IndividualListing, individual, IndividualListingUpdate
+from app.services.listing_services import create_listing, get_users_listings, get_listing, update_listing, get_latest_listings, get_recommendations, record_user_view, search_listings_in_es
+from app.models.listing_models import IndividualListing, individual, IndividualListingUpdate, ListingSearchParams
 from pydantic import BaseModel, EmailStr
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from app.db.mongodb import MongoConnection
@@ -71,7 +71,10 @@ async def get_user_listings(uid: str):
 async def create_user_listings(data: IndividualListing):
     return await create_listing(data)
 
-
+@router.post("/search")
+async def search_listings(search_params: ListingSearchParams):
+    results = await search_listings_in_es(search_params)
+    return results
 
 # Orders
 

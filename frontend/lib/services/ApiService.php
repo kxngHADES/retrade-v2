@@ -273,4 +273,38 @@ class ApiService {
 
         return ($httpCode >= 200 && $httpCode < 300);
     }
+
+    public function search_listings(array $params): array {
+        $apiUrl = $_ENV['BACKEND_INTERNAL_URL'] . '/listings/search';
+        
+        $payload = [
+            'query' => $params['query'] ?? ''
+        ];
+        
+        if (!empty($params['category'])) $payload['category'] = $params['category'];
+        if (!empty($params['condition'])) $payload['condition'] = $params['condition'];
+        if (!empty($params['location'])) $payload['location'] = $params['location'];
+        if (isset($params['min_price']) && $params['min_price'] !== '') $payload['min_price'] = (float)$params['min_price'];
+        if (isset($params['max_price']) && $params['max_price'] !== '') $payload['max_price'] = (float)$params['max_price'];
+
+        $ch = curl_init($apiUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Accept: application/json'
+        ]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode >= 200 && $httpCode < 300) {
+            $data = json_decode($response, true);
+            return $data['listings'] ?? [];
+        }
+        return [];
+    }
 }
