@@ -14,6 +14,10 @@ class EscrowNotificationRequest(BaseModel):
     reference: str
     pin: str
 
+class PayoutNotificationRequest(BaseModel):
+    seller_email: EmailStr
+    amount: float
+
 class ViewRequest(BaseModel):
     uid: str
     listing_id: str
@@ -89,3 +93,14 @@ async def trigger_escrow_notifications(data: EscrowNotificationRequest):
     if not success:
         raise HTTPException(status_code=500, detail="Failed to send escrow notification emails")
     return {"success": True, "message": "Escrow notifications delivered successfully"}
+
+@router.post("/payout_notifications")
+async def trigger_payout_notifications(data: PayoutNotificationRequest):
+    from app.services.listing_services import handle_payout_notifications
+    success = await handle_payout_notifications(
+        seller_email=data.seller_email,
+        amount=data.amount
+    )
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to send payout notification email")
+    return {"success": True, "message": "Payout notification delivered successfully"}

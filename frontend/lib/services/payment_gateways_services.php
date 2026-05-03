@@ -95,9 +95,8 @@ class PaymentGatewaysServices
         return $this->supabase->chargeFakeBank($uid, $amount);
     }
 
-    /**
-     * Update session status
-
+    /*
+      Update session status
      */
     public function updateSessionStatus(int $sessionId, string $status): void
     {
@@ -106,8 +105,8 @@ class PaymentGatewaysServices
         $stmt->execute([':status' => $status, ':status2' => $status, ':id' => $sessionId]);
     }
 
-    /**
-     * Trigger the webhook event
+    /*
+      Trigger the webhook event
      */
     public function fireWebhook(int $sessionId, string $status, array $payloadData): bool
     {
@@ -134,8 +133,6 @@ class PaymentGatewaysServices
             ':signature' => $signature
         ]);
 
-        // Note: For a real asynchronous webhook, we would use cURL to POST this to the webhook receiver 
-        // endpoint. Here we call it directly or make a synchronous POST for simplicity.
         
         $webhookUrl = "http://" . $_SERVER['HTTP_HOST'] . "/pages/pay/webhook.php";
         
@@ -161,18 +158,19 @@ class PaymentGatewaysServices
         return $success;
     }
 
-    /**
-     * Webhook Escrow Integration
+    /*
+     Webhook Escrow Integration
      */
-    public function generatePaymentRecord(string $orderIdBytes, float $amount, int $status): ?array 
+    public function generatePaymentRecord(string $orderIdBytes, string $paymentIdBytes, float $amount, int $status): ?array 
     {
         $reference = 'REF-' . strtoupper(substr(bin2hex(random_bytes(4)), 0, 8));
         $pin = str_pad(random_int(0, 99999), 5, '0', STR_PAD_LEFT);
         
-        $sql = "INSERT INTO payment (order_id, status, amount, reference, pin, paid_at) 
-                VALUES (:order_id, :status, :amount, :reference, :pin, NOW())";
+        $sql = "INSERT INTO payment (payment_id, order_id, status, amount, reference, pin, paid_at) 
+                VALUES (:payment_id, :order_id, :status, :amount, :reference, :pin, NOW())";
         $stmt = $this->db->prepare($sql);
         if ($stmt->execute([
+            ':payment_id' => $paymentIdBytes,
             ':order_id' => $orderIdBytes,
             ':status' => $status,
             ':amount' => $amount,
@@ -208,16 +206,9 @@ class PaymentGatewaysServices
                     $buyerUidBytes = hex2bin(str_replace('-', '', $payload['buyer_uid']));
                     $sellerUidBytes = isset($payload['seller_uid']) && !empty($payload['seller_uid']) ? hex2bin(str_replace('-', '', $payload['seller_uid'])) : $buyerUidBytes; // fallback or safe fail
 
-                    // Insert into Escrow
-                    $sql = "INSERT INTO escrow (uid, amount, status) VALUES (:uid, :amount, 'held')";
-                    $stmt = $this->db->prepare($sql);
-                    $stmt->execute([
-                        ':uid' => $sellerUidBytes, // Typically Escrow is meant for the Seller/Beneficiary
-                        ':amount' => $payload['amount']
-                    ]);
-
                     // Generate generic random UUID locally to inject into MySQL BINARY(16)
                     $orderIdBytes = random_bytes(16);
+                    $paymentIdBytes = random_bytes(16);
 
                     // Insert into Orders (status 1 = paid)
                     $sqlOrder = "INSERT INTO orders (order_id, buyer_uid, seller_uid, listing_id, order_type, total_amount, status) 
@@ -233,7 +224,16 @@ class PaymentGatewaysServices
                     ]);
 
                     // Generate Payment Record mapping straight back to the new order
-                    $paymentInfo = $this->generatePaymentRecord($orderIdBytes, $payload['amount'], 1); // 1 = success
+                    $paymentInfo = $this->generatePaymentRecord($orderIdBytes, $paymentIdBytes, $payload['amount'], 1); // 1 = success
+
+                    // Insert into Escrow
+                    $sql = "INSERT INTO escrow (payment_id, uid, amount, status) VALUES (:payment_id, :uid, :amount, 'held')";
+                    $stmt = $this->db->prepare($sql);
+                    $stmt->execute([
+                        ':payment_id' => $paymentIdBytes,
+                        ':uid' => $sellerUidBytes, // Typically Escrow is meant for the Seller/Beneficiary
+                        ':amount' => $payload['amount']
+                    ]);
 
                     if ($paymentInfo) {
                         $stmtEmail = $this->db->prepare("SELECT BIN_TO_UUID(uid) as uid, email FROM users WHERE uid IN (:b_uid, :s_uid)");
@@ -294,8 +294,8 @@ class PaymentGatewaysServices
         return true;
     }
 
-    /**
-     * Completely bypass the webhook and fake bank, filling the DB tables directly.
+    /*
+     Completely bypass the webhook and fake bank, filling the DB tables directly.
      */
     public function bypassPaymentDirectly(array $payload): bool
     {
@@ -309,16 +309,9 @@ class PaymentGatewaysServices
             $buyerUidBytes = hex2bin(str_replace('-', '', $payload['buyer_uid']));
             $sellerUidBytes = isset($payload['seller_uid']) && !empty($payload['seller_uid']) ? hex2bin(str_replace('-', '', $payload['seller_uid'])) : $buyerUidBytes;
 
-            // Insert into Escrow
-            $sql = "INSERT INTO escrow (uid, amount, status) VALUES (:uid, :amount, 'held')";
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute([
-                ':uid' => $sellerUidBytes,
-                ':amount' => $payload['amount']
-            ]);
-
             // Generate generic random UUID locally to inject into MySQL BINARY(16)
             $orderIdBytes = random_bytes(16);
+            $paymentIdBytes = random_bytes(16);
 
             // Insert into Orders (status 1 = paid)
             $sqlOrder = "INSERT INTO orders (order_id, buyer_uid, seller_uid, shop_id, cart_id, listing_id, order_type, total_amount, status) 
@@ -340,7 +333,16 @@ class PaymentGatewaysServices
             ]);
 
             // Generate Payment Record mapping straight back to the new order
-            $paymentInfo = $this->generatePaymentRecord($orderIdBytes, $payload['amount'], 1); // 1 = success
+            $paymentInfo = $this->generatePaymentRecord($orderIdBytes, $paymentIdBytes, $payload['amount'], 1); // 1 = success
+
+            // Insert into Escrow
+            $sql = "INSERT INTO escrow (payment_id, uid, amount, status) VALUES (:payment_id, :uid, :amount, 'held')";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([
+                ':payment_id' => $paymentIdBytes,
+                ':uid' => $sellerUidBytes,
+                ':amount' => $payload['amount']
+            ]);
 
             if ($paymentInfo) {
                 // Fetch emails

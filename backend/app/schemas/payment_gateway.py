@@ -204,6 +204,12 @@ class Escrow(Base):
         server_default=func.uuid_to_bin(func.uuid()),
     )
 
+    payment_id: Mapped[bytes] = mapped_column(
+        BINARY(16),
+        ForeignKey("payment.payment_id", ondelete="CASCADE", onupdate="CASCADE"),
+        nullable=False,
+    )
+
     uid: Mapped[bytes] = mapped_column(
         BINARY(16),
         ForeignKey("users.uid", ondelete="CASCADE", onupdate="CASCADE"),
@@ -234,6 +240,11 @@ class Escrow(Base):
         nullable=True,
     )
 
+    payment: Mapped["Payment"] = relationship(
+        "Payment",
+        foreign_keys=[payment_id],
+    )
+
     user: Mapped["User"] = relationship(
         "User",
         back_populates="escrows",
@@ -241,6 +252,7 @@ class Escrow(Base):
     )
 
     __table_args__ = (
+        Index("idx_escrow_payment", "payment_id"),
         Index("idx_escrow_uid", "uid"),
         Index("idx_escrow_status", "status"),
     )

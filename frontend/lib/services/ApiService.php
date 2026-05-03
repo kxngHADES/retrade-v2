@@ -307,4 +307,36 @@ class ApiService {
         }
         return [];
     }
+
+    public function send_payout_notification(string $seller_email, float $amount): bool {
+        $apiUrl = $_ENV['BACKEND_INTERNAL_URL'] . '/listings/payout_notifications';
+        
+        $payload = [
+            'seller_email' => $seller_email,
+            'amount' => $amount
+        ];
+
+        $ch = curl_init($apiUrl);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Accept: application/json'
+        ]);
+
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode >= 200 && $httpCode < 300) {
+            return true;
+        }
+
+        error_log("Payout notification failed with HTTP $httpCode: $response");
+        return false;
+    }
 }

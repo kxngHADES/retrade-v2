@@ -325,5 +325,18 @@ def clean_mongo_doc(doc: dict) -> dict:
         return str(doc)
     return doc
 
+async def handle_payout_notifications(seller_email: str, amount: float) -> bool:
+    try:
+        from app.utils.email_helper import send_email
+        await send_email(
+            to_email=seller_email,
+            template_name="payout",
+            subject="ReTrade - Funds Released!",
+            amount=f"{amount:.2f}"
+        )
+        return True
+    except Exception as e:
+        print(f"Failed to send payout notification: {e}")
+        return False
 
 #listings = [clean_mongo_doc(doc) for doc in raw_listings]
