@@ -48,7 +48,7 @@ class shop_service {
         try {
             $this->db->beginTransaction();
 
-            $sql = "INSERT INTO shops (uid, shop_name) VALUES (UUID_TO_BIN(:uid), :shop_name) ";
+            $sql = "INSERT INTO shops (uid, shop_name, status) VALUES (UUID_TO_BIN(:uid), :shop_name, 1) ";
 
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
@@ -56,7 +56,7 @@ class shop_service {
                 'shop_name' => $shop_name
             ]);
 
-            $stmt = $this->db->prepare("SELECT * FROM shops WHERE uid = UUID_TO_BIN(:uid)");
+            $stmt = $this->db->prepare("SELECT BIN_TO_UUID(shop_id) as shop_id, BIN_TO_UUID(uid) as uid, shop_name, status FROM shops WHERE uid = UUID_TO_BIN(:uid)");
             $stmt->execute(['uid'=> $uid]);
 
             $shop = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -109,7 +109,7 @@ class shop_service {
 
 
     public function getShop(string $uid) {
-        $query = "SELECT * FROM shops WHERE uid = UUID_TO_BIN(:uid)";
+        $query = "SELECT BIN_TO_UUID(shop_id) as shop_id, BIN_TO_UUID(uid) as uid, shop_name, status FROM shops WHERE uid = UUID_TO_BIN(:uid)";
         $stmt = $this->db->prepare($query);
         $stmt->execute(['uid' => $uid]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -150,7 +150,7 @@ class shop_service {
     }
 
     public function addShopProduct(string $shop_id, string $name, string $description, float $price, int $quantity) {
-        $sql = "INSERT INTO shop_products (shop_id, name, description, stock_quantity, is_active ,price VALUES (UUID_TO_BIN(:shop_id), :name, :description, :stock_quantity, 1, :price))";
+        $sql = "INSERT INTO shop_products (shop_id, name, description, stock_quantity, is_active, price) VALUES (UUID_TO_BIN(:shop_id), :name, :description, :stock_quantity, 1, :price)";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
             'shop_id' => $shop_id,

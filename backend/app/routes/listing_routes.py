@@ -1,11 +1,22 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from app.services.listing_services import create_listing, get_users_listings, get_listing, update_listing, get_latest_listings, get_recommendations, record_user_view
-from app.models.listing_models import IndividualListing, individual, IndividualListingUpdate
-from pydantic import BaseModel
+from app.services.listing_services import create_listing, get_users_listings, get_listing, update_listing, get_latest_listings, get_recommendations, record_user_view, search_listings_in_es
+from app.models.listing_models import IndividualListing, individual, IndividualListingUpdate, ListingSearchParams
+from pydantic import BaseModel, EmailStr
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from app.db.mongodb import MongoConnection
+from app.services.order_services import handle_escrow_notifications
 
 router = APIRouter(prefix="/listings", tags=["Listings"])
+
+class EscrowNotificationRequest(BaseModel):
+    buyer_email: EmailStr
+    seller_email: EmailStr
+    reference: str
+    pin: str
+
+class PayoutNotificationRequest(BaseModel):
+    seller_email: EmailStr
+    amount: float
 
 class ViewRequest(BaseModel):
     uid: str
@@ -63,3 +74,33 @@ async def get_user_listings(uid: str):
 @router.post("/create_user_listing")
 async def create_user_listings(data: IndividualListing):
     return await create_listing(data)
+
+@router.post("/search")
+async def search_listings(search_params: ListingSearchParams):
+    results = await search_listings_in_es(search_params)
+    return results
+
+# Orders
+
+@router.post("/escrow_notifications")
+async def trigger_escrow_notifications(data: EscrowNotificationRequest):
+    success = await handle_escrow_notifications(
+        buyer_email=data.buyer_email,
+        seller_email=data.seller_email,
+        reference=data.reference,
+        pin=data.pin
+    )
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to send escrow notification emails")
+    return {"success": True, "message": "Escrow notifications delivered successfully"}
+
+@router.post("/payout_notifications")
+async def trigger_payout_notifications(data: PayoutNotificationRequest):
+    from app.services.listing_services import handle_payout_notifications
+    success = await handle_payout_notifications(
+        seller_email=data.seller_email,
+        amount=data.amount
+    )
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to send payout notification email")
+    return {"success": True, "message": "Payout notification delivered successfully"}

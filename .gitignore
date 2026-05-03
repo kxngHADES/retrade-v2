@@ -124,3 +124,9 @@ Thumbs.db
 # Logs
 *.log
 logs/
+
+
+
+
+
+supabase_schema.md

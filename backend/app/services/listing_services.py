@@ -1,6 +1,7 @@
 from app.db.mongodb import individual_listings_collection, MongoConnection
-from app.models.listing_models import individual, IndividualListing, IndividualListingUpdate
+from app.models.listing_models import individual, IndividualListing, IndividualListingUpdate, ListingSearchParams
 from app.db.neo4j import Neo4jConnection
+from app.db.elasticsearch import ElasticsearchConnection
 from app.utils.vector_db import add_listing_to_vector_db, search_similar_listings
 import redis.asyncio as redis
 from app.core.config import settings
@@ -217,6 +218,101 @@ async def create_listing(data: IndividualListing):
 
 
 
+async def search_listings_in_es(search_params: ListingSearchParams) -> dict:
+    es_client = ElasticsearchConnection.get_client()
+    
+    must_clauses = [{"multi_match": {
+        "query": search_params.query,
+        "fields": ["name^3", "description", "tags"]
+    }}]
+
+    filter_clauses = []
+    if search_params.category:
+        filter_clauses.append({"term": {"category.keyword": search_params.category}})
+    if search_params.condition:
+        filter_clauses.append({"term": {"condition.keyword": search_params.condition}})
+    if search_params.location:
+        filter_clauses.append({"match": {"location": search_params.location}})
+    
+    if search_params.min_price is not None or search_params.max_price is not None:
+        price_range = {}
+        if search_params.min_price is not None:
+            price_range["gte"] = search_params.min_price
+        if search_params.max_price is not None:
+            price_range["lte"] = search_params.max_price
+        filter_clauses.append({"range": {"price": price_range}})
+
+    es_query = {
+        "bool": {
+            "must": must_clauses,
+            "filter": filter_clauses
+        }
+    }
+    
+    try:
+        response = await es_client.search(
+            index=settings.ELASTICSEARCH_INDEX,
+            query=es_query,
+            size=50
+        )
+        hits = [hit["_source"] for hit in response.get("hits", {}).get("hits", [])]
+        for hit in hits:
+            hit["id"] = hit.get("id") or hit.get("_id")
+        results = {"total": response.get("hits", {}).get("total", {}).get("value", 0), "listings": hits, "source": "elasticsearch"}
+        
+        if results["total"] == 0:
+            print("Elasticsearch returned 0 hits, falling back to MongoDB search")
+            return await search_listings_in_mongo(search_params)
+            
+        return results
+    except Exception as e:
+        print(f"Elasticsearch query failed: {e}")
+        return await search_listings_in_mongo(search_params)
+
+async def search_listings_in_mongo(search_params: ListingSearchParams) -> dict:
+    db = await MongoConnection.get_db()
+    collection = db.individual_listings
+    
+    query_filter = {}
+    
+    # Simple regex search across multiple fields
+    if search_params.query:
+        regex_pattern = {"$regex": search_params.query, "$options": "i"}
+        query_filter["$or"] = [
+            {"name": regex_pattern},
+            {"description": regex_pattern},
+            {"tags": regex_pattern}
+        ]
+        
+    if search_params.category:
+        query_filter["category"] = search_params.category
+    if search_params.condition:
+        query_filter["condition"] = search_params.condition
+    if search_params.location:
+        query_filter["location"] = {"$regex": search_params.location, "$options": "i"}
+        
+    if search_params.min_price is not None or search_params.max_price is not None:
+        price_filter = {}
+        if search_params.min_price is not None:
+            price_filter["$gte"] = search_params.min_price
+        if search_params.max_price is not None:
+            price_filter["$lte"] = search_params.max_price
+        query_filter["price"] = price_filter
+        
+    try:
+        listings = await collection.find(query_filter).sort("_id", -1).limit(50).to_list(length=50)
+        
+        for doc in listings:
+            if "_id" in doc and hasattr(doc["_id"], "__str__"):
+                doc["_id"] = str(doc["_id"])
+                doc["id"] = doc["_id"]
+                doc["thumbnail_url"] = doc.get("thumbnail_url", "")
+                
+        return {"total": len(listings), "listings": listings, "source": "mongodb"}
+    except Exception as e:
+        print(f"MongoDB search failed: {e}")
+        return {"total": 0, "listings": []}
+
 def clean_mongo_doc(doc: dict) -> dict:
     if isinstance(doc, dict):
         return {
@@ -229,5 +325,18 @@ def clean_mongo_doc(doc: dict) -> dict:
         return str(doc)
     return doc
 
+async def handle_payout_notifications(seller_email: str, amount: float) -> bool:
+    try:
+        from app.utils.email_helper import send_email
+        await send_email(
+            to_email=seller_email,
+            template_name="payout",
+            subject="ReTrade - Funds Released!",
+            amount=f"{amount:.2f}"
+        )
+        return True
+    except Exception as e:
+        print(f"Failed to send payout notification: {e}")
+        return False
 
 #listings = [clean_mongo_doc(doc) for doc in raw_listings]

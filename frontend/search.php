@@ -6,8 +6,28 @@ use Lib\services\ApiService;
 $isLoggedIn = isset($_SESSION['uid']);
 $uid = $isLoggedIn ? $_SESSION['uid'] : null;
 
+$query = $_GET['query'] ?? '';
+$category = $_GET['category'] ?? '';
+$condition = $_GET['condition'] ?? '';
+$location = $_GET['location'] ?? '';
+$min_price = $_GET['min_price'] ?? '';
+$max_price = $_GET['max_price'] ?? '';
+
 $apiService = new ApiService();
-$listings = $apiService->get_recommendations_or_latest($uid, 1);
+$listings = [];
+
+if (!empty($query)) {
+    $searchParams = [
+        'query' => $query,
+        'category' => $category,
+        'condition' => $condition,
+        'location' => $location,
+        'min_price' => $min_price,
+        'max_price' => $max_price
+    ];
+    $listings = $apiService->search_listings($searchParams);
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -15,7 +35,7 @@ $listings = $apiService->get_recommendations_or_latest($uid, 1);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retrade</title>
+    <title>Search Results - Retrade</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#128C7E">
     <style>
@@ -27,17 +47,17 @@ $listings = $apiService->get_recommendations_or_latest($uid, 1);
         .card img { width: 100%; height: 150px; object-fit: cover; border-radius: 5px; }
         .card h3 { margin: 10px 0 5px 0; font-size: 1.1em; }
         .card p.price { font-weight: bold; color: #2E7D32; margin: 0; }
-        .hidden { display: none !important; }
-        .btn-more { display: block; margin: 30px auto; padding: 10px 20px; background: #128C7E; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        
         .search-bar { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .search-bar input, .search-bar select, .search-bar button { padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
         .search-bar input[type="text"] { flex-grow: 1; min-width: 200px; }
         .search-bar button { background: #128C7E; color: white; cursor: pointer; border: none; }
+        .no-results { text-align: center; padding: 50px; color: #666; font-size: 1.2em; }
     </style>
 </head>
 <body>
     <header>
-        <h2>Retrade</h2>
+        <h2><a href="/">Retrade</a></h2>
         <div>
             <?php if($isLoggedIn): ?>
                 <a href="/pages/chat/">My Chats</a>
@@ -50,50 +70,51 @@ $listings = $apiService->get_recommendations_or_latest($uid, 1);
     </header>
 
     <form class="search-bar" action="/search.php" method="GET">
-        <input type="text" name="query" placeholder="Search for items..." required>
+        <input type="text" name="query" placeholder="Search for items..." value="<?= htmlspecialchars($query) ?>" required>
         
         <select name="category">
             <option value="">All Categories</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Vehicles">Vehicles</option>
-            <option value="Home">Home</option>
-            <option value="Fashion">Fashion</option>
+            <option value="Electronics" <?= $category === 'Electronics' ? 'selected' : '' ?>>Electronics</option>
+            <option value="Vehicles" <?= $category === 'Vehicles' ? 'selected' : '' ?>>Vehicles</option>
+            <option value="Home" <?= $category === 'Home' ? 'selected' : '' ?>>Home</option>
+            <option value="Fashion" <?= $category === 'Fashion' ? 'selected' : '' ?>>Fashion</option>
         </select>
         
         <select name="condition">
             <option value="">Any Condition</option>
-            <option value="New">New</option>
-            <option value="Used - Good">Used - Good</option>
-            <option value="Used - Fair">Used - Fair</option>
+            <option value="New" <?= $condition === 'New' ? 'selected' : '' ?>>New</option>
+            <option value="Used - Good" <?= $condition === 'Used - Good' ? 'selected' : '' ?>>Used - Good</option>
+            <option value="Used - Fair" <?= $condition === 'Used - Fair' ? 'selected' : '' ?>>Used - Fair</option>
         </select>
 
-        <input type="text" name="location" placeholder="Location">
-        <input type="number" name="min_price" placeholder="Min Price" min="0">
-        <input type="number" name="max_price" placeholder="Max Price" min="0">
+        <input type="text" name="location" placeholder="Location" value="<?= htmlspecialchars($location) ?>">
+        <input type="number" name="min_price" placeholder="Min Price" min="0" value="<?= htmlspecialchars($min_price) ?>">
+        <input type="number" name="max_price" placeholder="Max Price" min="0" value="<?= htmlspecialchars($max_price) ?>">
         
         <button type="submit">Search</button>
     </form>
 
-    <div class="grid" id="listing-container">
-        <?php foreach ($listings as $index => $item): ?>
-            <a href="/view/?listing_id=<?= urlencode($item['_id']) ?>" class="card <?= $index >= 20 ? 'hidden' : '' ?>" data-index="<?= $index ?>">
-                <img src="<?= htmlspecialchars($item['thumbnail_url'] ?? 'https://via.placeholder.com/200') ?>" alt="Image">
-                <h3><?= htmlspecialchars($item['name']) ?></h3>
-                <p class="price">R<?= htmlspecialchars($item['price']) ?></p>
-            </a>
-        <?php endforeach; ?>
-    </div>
-
-    <?php if (count($listings) > 20): ?>
-        <button id="see-more-btn" class="btn-more">See More</button>
+    <?php if (empty($listings)): ?>
+        <div class="no-results">
+            No listings found for "<?= htmlspecialchars($query) ?>" with the selected filters.
+        </div>
+    <?php else: ?>
+        <div class="grid" id="listing-container">
+            <?php foreach ($listings as $index => $item): ?>
+                <a href="/view/?listing_id=<?= urlencode($item['id'] ?? $item['_id'] ?? '') ?>" class="card">
+                    <img src="<?= htmlspecialchars($item['thumbnail_url'] ?? 'https://via.placeholder.com/200') ?>" alt="Image">
+                    <h3><?= htmlspecialchars($item['name'] ?? 'Unknown Item') ?></h3>
+                    <p class="price">R<?= htmlspecialchars($item['price'] ?? '0') ?></p>
+                </a>
+            <?php endforeach; ?>
+        </div>
     <?php endif; ?>
 
-    <script src="/assets/js/index_listings.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js').then(reg => {
-                    console.log('ServiceWorker registered:', reg.scope);
+                    console.log('ServiceWorker registered on search:', reg.scope);
                 }).catch(err => {
                     console.log('ServiceWorker registration failed:', err);
                 });
