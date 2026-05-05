@@ -44,6 +44,32 @@ class Auth_flow {
 		}
 	}
 
+	public function resend_registration_otp(string $phoneNumber): string|bool {
+		$redis = \Lib\cache\Redis::getInstance();
+		$userData = $redis->getUserTemp($phoneNumber);
+
+		if (!$userData) {
+			return "Registration session expired. Please register again.";
+		}
+
+		$userData['otp'] = rand(100000, 999999);
+		$stored = $redis->storeUserTemp($userData);
+
+		if ($stored) {
+			$sms = new sms_services();
+			$success = $sms->send_otp($userData['phoneNumber'], $userData['otp']);
+			if ($success) {
+				return true;
+			} else {
+				error_log("Failed to resend otp sms");
+				return "Failed to resend OTP sms.";
+			}
+		} else {
+			error_log("Failed to update user data.");
+			return "Failed to update OTP.";
+		}
+	}
+
 	
 
 

@@ -8,10 +8,19 @@ $phoneNumber = $_SESSION['phoneNumber'];
 $error = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST'){
-	$otp = $_POST['otp'];
 	$auth = new Auth_flow();
-	$result = $auth->finish_registration($phoneNumber, $otp);
-	$error = $result['error'];
+	if (isset($_POST['resend'])) {
+		$result = $auth->resend_registration_otp($phoneNumber);
+		if ($result === true) {
+			$error = "A new OTP has been sent.";
+		} else {
+			$error = $result;
+		}
+	} else if (isset($_POST['verify'])) {
+		$otp = $_POST['otp'];
+		$result = $auth->finish_registration($phoneNumber, $otp);
+		$error = $result['error'] ?? "An error occurred";
+	}
 }
 
 ?>
@@ -23,12 +32,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
 	<title>Document</title> <!--Lang verify-->
 </head>
 <body>
+	<h2><?= htmlspecialchars($error) ?></h2>
 	<form action="" method="post">
 		<legend>Veirfy OTP</legend>
 		<label>Enter OTP</label><br/>
 		<input type="text" name="otp" placeholder="6 digit number"><br/><br/>
 
-		<input type="submit" value="Verify">
+		<input type="submit" name="verify" value="Verify">
+		<input type="submit" name="resend" value="Resend Code" formnovalidate>
 	</form>
 </body>
 </html>
