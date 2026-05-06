@@ -1,4 +1,6 @@
 <?php
+session_start();
+$_SESSION['lang'] = $_GET['lang'] ?? $_SESSION['lang'] ?? 'en';
 
 require_once __DIR__ . '/../../config/bootstrap.php';
 use Lib\services\Auth_flow;
@@ -17,24 +19,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 ?>
 <!DOCTYPE html>
-<html lang=<?= $_SESSION['lang'] ?? 'en'; ?>>
+<html lang="<?= htmlspecialchars($_SESSION['lang']); ?>">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Document</title> <!--Add login-->
+	<title><?= trans('title'); ?> - Login</title>
+	<link rel="stylesheet" href="/assets/css/global.css">
+	<link rel="stylesheet" href="/assets/css/forms.css">
 </head>
-<body>
-	<form action="" method="post">
-		<legend>Login</legend>
+<body class="auth-layout">
+	<main class="auth-container">
+		<header class="auth-header">
+			<h1 class="auth-title font-display text-display"><?= trans('title'); ?></h1>
+			<p class="auth-slogan text-small"><?= trans('slogan'); ?></p>
+		</header>
 
-		<label><?= $error; ?></label>
-		<label>Email:</label><br/>
-		<input type="email" name="email" placeholder="user@example.com"><br/><br/>
+		<form action="" method="post" class="auth-form">
+			<?php if ($error): ?>
+				<span class="form-error"><?= htmlspecialchars($error); ?></span>
+			<?php endif; ?>
 
-		<label>Password:</label><br/>
-		<input type="password" name="password"><br/><br/>
+			<div class="form-group">
+				<label class="form-label label" for="email"><?= trans('email-address'); ?></label>
+				<input class="form-input" id="email" type="email" name="email" placeholder="name@example.com" required>
+			</div>
 
-		<input type="submit" value="Login">
-	</form>
+			<div class="form-group">
+				<label class="form-label label" for="password"><?= trans('password'); ?></label>
+				<div class="password-wrapper">
+					<input class="form-input password-input" id="password" type="password" name="password" placeholder="••••••••" required>
+				</div>
+			</div>
+
+			<button class="btn auth-btn" type="submit"><?= trans('sign in'); ?></button>
+		</form>
+
+		<div class="auth-footer">
+			<a class="text-small" href="/pages/register/"><?= trans("Don't have an account? Register"); ?></a>
+		</div>
+	</main>
 </body>
 </html>

@@ -16,12 +16,19 @@ $listings = $apiService->get_recommendations_or_latest($uid, 1);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Retrade</title>
+    <!-- Apply saved theme immediately before paint to avoid flash -->
+    <script>
+        (function() {
+            var t = localStorage.getItem('theme');
+            if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+            else document.documentElement.removeAttribute('data-theme');
+        })();
+    </script>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#128C7E">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="/assets/css/global.css">
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 20px; }
-        header { display: flex; justify-content: space-between; align-items: center; background: #333; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-        header a { color: white; margin-left: 10px; text-decoration: none; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
         .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; text-decoration: none; color: black; display: block; }
         .card img { width: 100%; height: 150px; object-fit: cover; border-radius: 5px; }
@@ -35,19 +42,12 @@ $listings = $apiService->get_recommendations_or_latest($uid, 1);
         .search-bar button { background: #128C7E; color: white; cursor: pointer; border: none; }
     </style>
 </head>
-<body>
-    <header>
-        <h2>Retrade</h2>
-        <div>
-            <?php if($isLoggedIn): ?>
-                <a href="/pages/chat/">My Chats</a>
-                <a href="/pages/profile/">Profile</a>
-            <?php else: ?>
-                <a href="/pages/login/">Login</a>
-                <a href="/pages/register/">Register</a>
-            <?php endif; ?>
-        </div>
-    </header>
+<body class="bg-surface-container-lowest text-light-text-primary antialiased min-h-screen flex">
+    <!-- Include the Navbar -->
+    <?php include __DIR__ . '/templates/partial/navbar.php'; ?>
+    
+    <div id="main-content" class="main-content min-h-screen relative overflow-hidden bg-surface-container-lowest transition-all duration-300">
+        <main class="w-full h-full overflow-y-auto pt-[40px] pb-[72px] md:pt-0 md:pb-0 p-4">
 
     <form class="search-bar" action="/search.php" method="GET">
         <input type="text" name="query" placeholder="Search for items..." required>
@@ -84,10 +84,12 @@ $listings = $apiService->get_recommendations_or_latest($uid, 1);
         <?php endforeach; ?>
     </div>
 
-    <?php if (count($listings) > 20): ?>
-        <button id="see-more-btn" class="btn-more">See More</button>
-    <?php endif; ?>
-
+        <?php if (count($listings) > 20): ?>
+            <button id="see-more-btn" class="btn-more">See More</button>
+        <?php endif; ?>
+    </main>
+    </div>
+    
     <script src="/assets/js/index_listings.js"></script>
     <script>
         if ('serviceWorker' in navigator) {

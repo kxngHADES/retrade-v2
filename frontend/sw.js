@@ -54,7 +54,9 @@ self.addEventListener('install', event => {
                 '/',
                 '/search.php',
                 '/manifest.json',
-                '/assets/js/index_listings.js'
+                '/assets/js/index_listings.js',
+                '/assets/css/variables.css',
+                '/assets/css/global.css'
             ]);
         })
     );
@@ -92,7 +94,11 @@ self.addEventListener('fetch', event => {
                             headers: { 'Content-Type': cached.contentType }
                         });
                     }
-                    return caches.match(event.request);
+                    const cacheResponse = await caches.match(event.request);
+                    if (cacheResponse) {
+                        return cacheResponse;
+                    }
+                    return new Response("Network error", { status: 503, statusText: "Service Unavailable" });
                 })
         );
     } else {

@@ -37,12 +37,19 @@ date_default_timezone_set('Africa/Johannesburg');
 if (!function_exists('trans')) {
 	function trans($key) {
 		static $translations = [];
-		if (empty($translations)) {
-			$lang = $_SESSION['lang'] ?? 'en';
+		static $currentLang = null;
+
+		$lang = $_SESSION['lang'] ?? 'en';
+
+		if (empty($translations) || $currentLang !== $lang) {
 			$file = __DIR__ . '/../lang/' . $lang . '.php';
-			if (!file_exists($file)) $file = __DIR__ . '/../lang/en.php';
+			if (!file_exists($file)) {
+				$file = __DIR__ . '/../lang/en.php';
+			}
 			$translations = include $file;
+			$currentLang = $lang;
 		}
+		
 		return $translations[$key] ?? $key;
 	}
 }
