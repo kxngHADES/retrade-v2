@@ -1,11 +1,15 @@
 <?php
 header('Content-Type: application/json');
+ob_start();
 ini_set('display_errors', 0);
 error_reporting(0);
 
 register_shutdown_function(function() {
 	$error = error_get_last();
 	if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+		if (ob_get_length()) {
+			ob_end_clean();
+		}
 		http_response_code(500);
 		echo json_encode(["error" => "Internal server error", "details" => getenv('APP_DEBUG') ? $error['message'] : null]);
 	}
@@ -17,7 +21,7 @@ use Aws\S3\S3Client;
 use Aws\Exception\AwsException;
 
 // Validate required env vars early
-$requiredEnv = ['AWS_DEFAULT_REGION', 'MINIO_ENDPOINT', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_BUCKET', 'AWS_URL'];
+$requiredEnv = ['AWS_DEFAULT_REGION', 'MINIO_ENDPOINT', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_URL'];
 foreach ($requiredEnv as $key) {
 	if (empty($_ENV[$key])) {
 		http_response_code(500);
@@ -27,8 +31,26 @@ foreach ($requiredEnv as $key) {
 }
 
 if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
-	http_response_code(400);
-	echo json_encode(["error" => "File upload failed", "code" => $_FILES['file']['error'] ?? 'unknown']);
+	if (ob_get_length()) {
+		ob_end_clean();
+	}
+
+	$errorCode = $_FILES['file']['error'] ?? null;
+	$message = 'File upload failed';
+	$status = 400;
+
+	if ($errorCode === UPLOAD_ERR_INI_SIZE || $errorCode === UPLOAD_ERR_FORM_SIZE) {
+		$message = 'File too large. Maximum upload size is 8MB.';
+		$status = 413;
+	} elseif ($errorCode === UPLOAD_ERR_NO_FILE) {
+		$message = 'No file uploaded.';
+		$status = 400;
+	} elseif ($errorCode !== null) {
+		$message = 'File upload failed with error code ' . $errorCode;
+	}
+
+	http_response_code($status);
+	echo json_encode(["error" => $message, "code" => $errorCode]);
 	exit;
 }
 
@@ -75,7 +97,12 @@ try {
 		]
 	]);
 
-	$bucket = $_ENV['AWS_BUCKET'];
+	$bucket = $_GET['bucket'] ?? $_ENV['AWS_BUCKET'] ?? 'retrade';
+	if (empty($bucket)) {
+		http_response_code(500);
+		echo json_encode(["error" => "Storage bucket is not configured"]);
+		exit;
+	}
 
 	$s3->putObject([
 		'Bucket' => $bucket,

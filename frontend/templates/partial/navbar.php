@@ -9,7 +9,6 @@ $email = $isLoggedIn ? ($_SESSION['email'] ?? '') : '';
 $avatar = $isLoggedIn ? ($_SESSION['profile_image_url'] ?? null) : null;
 $initials = $isLoggedIn ? strtoupper(substr($firstName, 0, 1) . substr($lastName, 0, 1)) : '';
 ?>
-<link rel="stylesheet" href="/assets/css/navbar.css">
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <!-- Mobile Menu Button -->

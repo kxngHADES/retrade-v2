@@ -198,6 +198,19 @@ class Authentication_service {
 		}
 	}
 
+	public function update_profile_image(string $url, string $uid) {
+		$sql = "UPDATE users SET profile_image_url = :url WHERE uid = UUID_TO_BIN(:uid)";
+
+		try {
+			$stmt = $this->db->prepare($sql);
+			$stmt->execute(['url' => $url, 'uid' => $uid]);
+			return $stmt->rowCount() >= 0;
+		} catch (\PDOException $e) {
+			error_log("Update profile image: " . $e->getMessage());
+			return false;
+		}
+	}
+
 	public function verify_phone(string $uid) {
 		$sql = "UPDATE users SET is_phone_verified = 1 WHERE uid = UUID_TO_BIN(:uid)";
 		try {

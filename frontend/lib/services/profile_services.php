@@ -71,7 +71,20 @@ class profile_services {
 
 
 	// Update profile image URL
+	public function change_profile_image(string $imageUrl, string $uid) {
+		if (session_status() === PHP_SESSION_NONE) {
+			session_start();
+		}
 
+		$auth = new Authentication_service();
+
+		if ($auth->update_profile_image($imageUrl, $uid)) {
+			$_SESSION['profile_image_url'] = $imageUrl;
+		}
+
+		header('Location: /pages/profile');
+		exit;
+	}
 
 
 	// Update Phone number

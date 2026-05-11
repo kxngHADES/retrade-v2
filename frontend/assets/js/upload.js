@@ -48,17 +48,80 @@ async function uploadToMinio(blob, path) {
 	return data.url;
 }
 
+const thumbnailInput = document.getElementById("thumbnail");
+const imagesInput = document.getElementById("images");
+const thumbnailPreview = document.querySelector(".listing-preview-img--thumbnail");
+const imagePreviewSlots = Array.from(document.querySelectorAll(".listing-preview-img--small"));
+
+function setPreviewImage(imgElement, file) {
+	if (!imgElement) return;
+	if (imgElement.dataset.previewUrl) {
+		URL.revokeObjectURL(imgElement.dataset.previewUrl);
+		delete imgElement.dataset.previewUrl;
+	}
+
+	if (!file) {
+		imgElement.classList.remove("visible");
+		const panel = imgElement.closest(".listing-upload-card");
+		if (panel) {
+			const content = panel.querySelector(".listing-upload-card-content");
+			if (content) content.classList.remove("hidden");
+		}
+		return;
+	}
+
+	const previewUrl = URL.createObjectURL(file);
+	imgElement.src = previewUrl;
+	imgElement.dataset.previewUrl = previewUrl;
+	imgElement.classList.add("visible");
+	const panel = imgElement.closest(".listing-upload-card");
+	if (panel) {
+		const content = panel.querySelector(".listing-upload-card-content");
+		if (content) content.classList.add("hidden");
+	}
+}
+
+function onThumbnailChange() {
+	const file = thumbnailInput.files[0];
+	setPreviewImage(thumbnailPreview, file);
+}
+
+function onImagesChange() {
+	const files = Array.from(imagesInput.files);
+
+	imagePreviewSlots.forEach((imgEl, index) => {
+		setPreviewImage(imgEl, files[index] || null);
+	});
+}
+
+if (thumbnailInput) {
+	thumbnailInput.addEventListener("change", onThumbnailChange);
+}
+
+if (imagesInput) {
+	imagesInput.addEventListener("change", onImagesChange);
+}
+
 document.querySelector("form").addEventListener("submit", async (e) => {
 	e.preventDefault();
 
+	const form = e.target;
+	const submitButton = form.querySelector(".listing-submit-btn");
+	const previousButtonText = submitButton ? submitButton.textContent : null;
+
+	if (submitButton) {
+		submitButton.disabled = true;
+		submitButton.classList.add("listing-submit-btn--loading");
+		submitButton.setAttribute("aria-busy", "true");
+	}
+
 	try {
-		const form = e.target;
 		const uid = window.UID;
 		const name = form.name.value.trim();
 
 		if (!name) {
 			alert("Listing name is required");
-			return;
+			throw new Error("Missing listing name");
 		}
 
 		const tags = (form.tags?.value || "")
@@ -71,7 +134,7 @@ document.querySelector("form").addEventListener("submit", async (e) => {
 
 		if (!thumbnailFile) {
 			alert("Thumbnail required");
-			return;
+			throw new Error("Thumbnail required");
 		}
 
 		// Upload thumbnail
@@ -107,5 +170,11 @@ document.querySelector("form").addEventListener("submit", async (e) => {
 	} catch (err) {
 		console.error("Upload failed:", err);
 		alert("Upload failed: " + err.message);
+
+		if (submitButton) {
+			submitButton.disabled = false;
+			submitButton.classList.remove("listing-submit-btn--loading");
+			submitButton.removeAttribute("aria-busy");
+		}
 	}
 });
