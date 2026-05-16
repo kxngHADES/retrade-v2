@@ -22,21 +22,51 @@ if (!$product) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>View Product</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>View Product - ReTrade</title>
+    <link rel="stylesheet" href="/assets/css/variables.css">
+    <link rel="stylesheet" href="/assets/css/global.css">
+    <link rel="stylesheet" href="/assets/css/shops.css">
+    <script src="/assets/js/global.js" defer></script>
 </head>
-<body>
-	<a href="/pages/shop/my-shop/">Back to My Shop</a>
-	<br>
-	<div>
-		<h2><?php echo htmlspecialchars($product['name'] ?? ''); ?></h2>
-		<p><strong>Description:</strong> <br><?php echo nl2br(htmlspecialchars($product['description'] ?? '')); ?></p>
-		<p><strong>Price:</strong> R<?php echo htmlspecialchars($product['price'] ?? '0.00'); ?></p>
-		<p><strong>Stock Quantity:</strong> <?php echo htmlspecialchars($product['stock_quantity'] ?? '0'); ?></p>
-		<p><strong>Status:</strong> <?php echo !empty($product['is_active']) ? 'Active' : 'Inactive'; ?></p>
+<body class="shop-product-page">
+    <?php require_once __DIR__ . '/../../../templates/partial/navbar.php'; ?>
+    <main class="main-content" id="main-content">
+        <div class="shop-product-shell">
+            <section class="shop-product-panel">
+                <header class="shop-product-header">
+                    <div>
+                        <p class="shop-dashboard-label">Product Details</p>
+                        <h1 class="shop-product-header-title"><?= htmlspecialchars($product['name'] ?? '') ?></h1>
+                        <p class="shop-dashboard-copy">Review product details and make changes when needed.</p>
+                    </div>
+                    <div class="shop-product-actions">
+                        <a href="/pages/shop/my-shop/" class="shop-dashboard-button shop-dashboard-button--secondary">Back to Shop</a>
+                        <a href="/pages/shop/my-shop/edit-product/?id=<?= urlencode($product_id) ?>" class="shop-dashboard-button shop-dashboard-button--primary">Edit Product</a>
+                    </div>
+                </header>
 
-        <a href="/pages/shop/my-shop/edit-product/?id=<?php echo urlencode($product_id); ?>">Edit Product</a>
-	</div>
+                <div class="shop-product-detail-card">
+                    <div class="shop-product-detail-row">
+                        <span class="shop-product-detail-label">Price</span>
+                        <span class="shop-product-detail-value">R<?= htmlspecialchars(number_format($product['price'], 2)) ?></span>
+                    </div>
+                    <div class="shop-product-detail-row">
+                        <span class="shop-product-detail-label">Stock Quantity</span>
+                        <span class="shop-product-detail-value"><?= htmlspecialchars($product['stock_quantity'] ?? '0') ?></span>
+                    </div>
+                    <div class="shop-product-detail-row">
+                        <span class="shop-product-detail-label">Status</span>
+                        <span class="shop-product-detail-value"><?= !empty($product['is_active']) ? 'Active' : 'Inactive' ?></span>
+                    </div>
+                    <div class="shop-product-detail-row">
+                        <span class="shop-product-detail-label">Description</span>
+                        <span class="shop-product-detail-value"><?= nl2br(htmlspecialchars($product['description'] ?? 'No description available.')) ?></span>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
 </body>
 </html>

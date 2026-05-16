@@ -11,12 +11,11 @@ $listings = $apiService->get_recommendations_or_latest($uid, 1);
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retrade</title>
-    <!-- Apply saved theme immediately before paint to avoid flash -->
+    <title><?= htmlspecialchars(trans('Home') ?? 'ReTrade Home') ?></title>
     <script>
         (function() {
             var t = localStorage.getItem('theme');
@@ -25,82 +24,121 @@ $listings = $apiService->get_recommendations_or_latest($uid, 1);
         })();
     </script>
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#128C7E">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="/assets/css/global.css">
-    <style>
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-        .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; text-decoration: none; color: black; display: block; }
-        .card img { width: 100%; height: 150px; object-fit: cover; border-radius: 5px; }
-        .card h3 { margin: 10px 0 5px 0; font-size: 1.1em; }
-        .card p.price { font-weight: bold; color: #2E7D32; margin: 0; }
-        .hidden { display: none !important; }
-        .btn-more { display: block; margin: 30px auto; padding: 10px 20px; background: #128C7E; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        .search-bar { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .search-bar input, .search-bar select, .search-bar button { padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
-        .search-bar input[type="text"] { flex-grow: 1; min-width: 200px; }
-        .search-bar button { background: #128C7E; color: white; cursor: pointer; border: none; }
-    </style>
+    <link rel="stylesheet" href="/assets/css/home.css">
 </head>
-<body class="bg-surface-container-lowest text-light-text-primary antialiased min-h-screen flex">
-    <!-- Include the Navbar -->
+<body class="antialiased min-h-screen flex home-page">
     <?php include __DIR__ . '/templates/partial/navbar.php'; ?>
-    
-    <div id="main-content" class="main-content min-h-screen relative overflow-hidden bg-surface-container-lowest transition-all duration-300">
-        <main class="w-full h-full overflow-y-auto pt-[40px] pb-[72px] md:pt-0 md:pb-0 p-4">
 
-    <form class="search-bar" action="/search.php" method="GET">
-        <input type="text" name="query" placeholder="Search for items..." required>
-        
-        <select name="category">
-            <option value="">All Categories</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Vehicles">Vehicles</option>
-            <option value="Home">Home</option>
-            <option value="Fashion">Fashion</option>
-        </select>
-        
-        <select name="condition">
-            <option value="">Any Condition</option>
-            <option value="New">New</option>
-            <option value="Used - Good">Used - Good</option>
-            <option value="Used - Fair">Used - Fair</option>
-        </select>
+    <div id="main-content" class="main-content home-main">
+        <main>
+            <div class="home-shell">
+                <section class="home-search-panel">
+                    <form class="home-form-grid" action="/search.php" method="GET">
+                        <div class="home-search-row">
+                            <div class="home-input-group">
+                                <label class="home-input-label" for="query"><?= htmlspecialchars(trans('Search') ?? 'Search') ?></label>
+                                <div class="home-input-with-icon">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" fill="none" />
+                                        <path d="M16 16l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                    </svg>
+                                    <input id="query" name="query" class="home-input" type="text" placeholder="<?= htmlspecialchars(trans('Search for items...')) ?>" required>
+                                </div>
+                            </div>
+                            <div class="home-search-actions">
+                                <button type="button" class="home-filter-toggle" data-target="home-search-filters"><?= htmlspecialchars(trans('Filters') ?? 'Filters') ?></button>
+                                <button type="submit" class="home-search-button"><?= htmlspecialchars(trans('Search')) ?></button>
+                            </div>
+                        </div>
 
-        <input type="text" name="location" placeholder="Location">
-        <input type="number" name="min_price" placeholder="Min Price" min="0">
-        <input type="number" name="max_price" placeholder="Max Price" min="0">
-        
-        <button type="submit">Search</button>
-    </form>
+                        <div class="home-search-filters home-search-filters--collapsed" id="home-search-filters">
+                            <div class="home-filter-grid">
+                                <div class="home-input-group">
+                                    <label class="home-input-label" for="category"><?= htmlspecialchars(trans('Category') ?? 'Category') ?></label>
+                                    <select id="category" name="category" class="home-select">
+                                        <option value=""><?= htmlspecialchars(trans('All Categories') ?? 'All Categories') ?></option>
+                                        <option value="Electronics"><?= htmlspecialchars(trans('Electronics')) ?></option>
+                                        <option value="Vehicles"><?= htmlspecialchars(trans('Vehicles') ?? 'Vehicles') ?></option>
+                                        <option value="Home"><?= htmlspecialchars(trans('Home') ?? 'Home') ?></option>
+                                        <option value="Fashion"><?= htmlspecialchars(trans('Fashion') ?? 'Fashion') ?></option>
+                                    </select>
+                                </div>
 
-    <div class="grid" id="listing-container">
-        <?php foreach ($listings as $index => $item): ?>
-            <a href="/view/?listing_id=<?= urlencode($item['_id']) ?>" class="card <?= $index >= 20 ? 'hidden' : '' ?>" data-index="<?= $index ?>">
-                <img src="<?= htmlspecialchars($item['thumbnail_url'] ?? 'https://via.placeholder.com/200') ?>" alt="Image">
-                <h3><?= htmlspecialchars($item['name']) ?></h3>
-                <p class="price">R<?= htmlspecialchars($item['price']) ?></p>
-            </a>
-        <?php endforeach; ?>
+                                <div class="home-input-group">
+                                    <label class="home-input-label" for="condition"><?= htmlspecialchars(trans('Condition') ?? 'Condition') ?></label>
+                                    <select id="condition" name="condition" class="home-select">
+                                        <option value=""><?= htmlspecialchars(trans('Any Condition') ?? 'Any Condition') ?></option>
+                                        <option value="New"><?= htmlspecialchars(trans('New')) ?></option>
+                                        <option value="Used - Good"><?= htmlspecialchars(trans('Used - Good')) ?></option>
+                                        <option value="Used - Fair"><?= htmlspecialchars(trans('Used - Fair')) ?></option>
+                                    </select>
+                                </div>
+
+                                <div class="home-input-group">
+                                    <label class="home-input-label" for="location"><?= htmlspecialchars(trans('Location') ?? 'Location') ?></label>
+                                    <div class="home-input-with-icon">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                            <path d="M12 21s-6-5.686-6-10a6 6 0 1 1 12 0c0 4.314-6 10-6 10z" fill="none" stroke="currentColor" stroke-width="2" />
+                                            <circle cx="12" cy="11" r="2" fill="currentColor" />
+                                        </svg>
+                                        <input id="location" name="location" class="home-input" type="text" placeholder="<?= htmlspecialchars(trans('City or Postal Code') ?? 'City or Postal Code') ?>">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="home-filter-grid">
+                                <div class="home-input-group">
+                                    <label class="home-input-label" for="min_price"><?= htmlspecialchars(trans('Min Price') ?? 'Min Price') ?></label>
+                                    <input id="min_price" name="min_price" class="home-input" type="number" min="0" placeholder="0">
+                                </div>
+                                <div class="home-input-group">
+                                    <label class="home-input-label" for="max_price"><?= htmlspecialchars(trans('Max Price') ?? 'Max Price') ?></label>
+                                    <input id="max_price" name="max_price" class="home-input" type="number" min="0" placeholder="<?= htmlspecialchars(trans('Max') ?? 'Max') ?>">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+
+                <section>
+                    <div class="home-feature-header">
+                        <h2 class="home-feature-title"><?= htmlspecialchars(trans('Featured items') ?? 'Featured items') ?></h2>
+                    </div>
+                    <div class="home-grid" id="listing-container">
+                        <?php foreach ($listings as $index => $item): ?>
+                            <a href="/view/?listing_id=<?= urlencode($item['_id']) ?>" class="home-card <?= $index >= 20 ? 'hidden' : '' ?>" data-index="<?= $index ?>">
+                                <div class="home-card-image">
+                                    <img src="<?= htmlspecialchars($item['thumbnail_url'] ?? '/assets/placeholder.jpg') ?>" alt="<?= htmlspecialchars($item['name'] ?? trans('Listing')) ?>">
+                                </div>
+                                <div class="home-card-content">
+                                    <h3 class="home-card-title"><?= htmlspecialchars($item['name'] ?? trans('Listing')) ?></h3>
+                                    <p class="home-card-price">R <?= number_format((float)($item['price'] ?? 0), 2) ?></p>
+                                    <?php if (!empty($item['location'])): ?>
+                                        <div class="home-card-meta">
+                                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                                <path d="M12 21s-6-5.686-6-10a6 6 0 1 1 12 0c0 4.314-6 10-6 10z" fill="none" stroke="currentColor" stroke-width="2" />
+                                                <circle cx="12" cy="11" r="2" fill="currentColor" />
+                                            </svg>
+                                            <span><?= htmlspecialchars($item['location']) ?></span>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </section>
+
+                <?php if (count($listings) > 20): ?>
+                    <div class="home-more-wrapper">
+                        <button id="see-more-btn" class="home-see-more"><?= htmlspecialchars(trans('See More') ?? 'See More') ?></button>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </main>
     </div>
 
-        <?php if (count($listings) > 20): ?>
-            <button id="see-more-btn" class="btn-more">See More</button>
-        <?php endif; ?>
-    </main>
-    </div>
-    
     <script src="/assets/js/index_listings.js"></script>
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').then(reg => {
-                    console.log('ServiceWorker registered:', reg.scope);
-                }).catch(err => {
-                    console.log('ServiceWorker registration failed:', err);
-                });
-            });
-        }
-    </script>
+    <script src="/assets/js/search_filters.js"></script>
 </body>
 </html>

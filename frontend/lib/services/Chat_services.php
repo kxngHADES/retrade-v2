@@ -98,6 +98,7 @@ class Chat_services {
                 SELECT 
                     BIN_TO_UUID(r.room_id) AS room_id,
                     CONCAT(u.firstName, ' ', u.lastName) AS full_name,
+                    u.profile_image_url,
                     m.message_text AS last_message
                 FROM chat_rooms r
 

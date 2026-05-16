@@ -6,7 +6,7 @@ use Lib\services\ApiService;
 $isLoggedIn = isset($_SESSION['uid']);
 $uid = $isLoggedIn ? $_SESSION['uid'] : null;
 
-$query = $_GET['query'] ?? '';
+$query = trim($_GET['query'] ?? '');
 $category = $_GET['category'] ?? '';
 $condition = $_GET['condition'] ?? '';
 $location = $_GET['location'] ?? '';
@@ -16,110 +16,158 @@ $max_price = $_GET['max_price'] ?? '';
 $apiService = new ApiService();
 $listings = [];
 
-if (!empty($query)) {
+if ($query !== '' || $category !== '' || $condition !== '' || $location !== '' || $min_price !== '' || $max_price !== '') {
     $searchParams = [
         'query' => $query,
         'category' => $category,
         'condition' => $condition,
         'location' => $location,
         'min_price' => $min_price,
-        'max_price' => $max_price
+        'max_price' => $max_price,
     ];
     $listings = $apiService->search_listings($searchParams);
 }
-
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= htmlspecialchars($_SESSION['lang'] ?? 'en'); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Results - Retrade</title>
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#128C7E">
-    <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 20px; }
-        header { display: flex; justify-content: space-between; align-items: center; background: #333; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-        header a { color: white; margin-left: 10px; text-decoration: none; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-        .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; text-decoration: none; color: black; display: block; }
-        .card img { width: 100%; height: 150px; object-fit: cover; border-radius: 5px; }
-        .card h3 { margin: 10px 0 5px 0; font-size: 1.1em; }
-        .card p.price { font-weight: bold; color: #2E7D32; margin: 0; }
-        
-        .search-bar { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .search-bar input, .search-bar select, .search-bar button { padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
-        .search-bar input[type="text"] { flex-grow: 1; min-width: 200px; }
-        .search-bar button { background: #128C7E; color: white; cursor: pointer; border: none; }
-        .no-results { text-align: center; padding: 50px; color: #666; font-size: 1.2em; }
-    </style>
-</head>
-<body>
-    <header>
-        <h2><a href="/">Retrade</a></h2>
-        <div>
-            <?php if($isLoggedIn): ?>
-                <a href="/pages/chat/">My Chats</a>
-                <a href="/pages/profile/">Profile</a>
-            <?php else: ?>
-                <a href="/pages/login/">Login</a>
-                <a href="/pages/register/">Register</a>
-            <?php endif; ?>
-        </div>
-    </header>
-
-    <form class="search-bar" action="/search.php" method="GET">
-        <input type="text" name="query" placeholder="Search for items..." value="<?= htmlspecialchars($query) ?>" required>
-        
-        <select name="category">
-            <option value="">All Categories</option>
-            <option value="Electronics" <?= $category === 'Electronics' ? 'selected' : '' ?>>Electronics</option>
-            <option value="Vehicles" <?= $category === 'Vehicles' ? 'selected' : '' ?>>Vehicles</option>
-            <option value="Home" <?= $category === 'Home' ? 'selected' : '' ?>>Home</option>
-            <option value="Fashion" <?= $category === 'Fashion' ? 'selected' : '' ?>>Fashion</option>
-        </select>
-        
-        <select name="condition">
-            <option value="">Any Condition</option>
-            <option value="New" <?= $condition === 'New' ? 'selected' : '' ?>>New</option>
-            <option value="Used - Good" <?= $condition === 'Used - Good' ? 'selected' : '' ?>>Used - Good</option>
-            <option value="Used - Fair" <?= $condition === 'Used - Fair' ? 'selected' : '' ?>>Used - Fair</option>
-        </select>
-
-        <input type="text" name="location" placeholder="Location" value="<?= htmlspecialchars($location) ?>">
-        <input type="number" name="min_price" placeholder="Min Price" min="0" value="<?= htmlspecialchars($min_price) ?>">
-        <input type="number" name="max_price" placeholder="Max Price" min="0" value="<?= htmlspecialchars($max_price) ?>">
-        
-        <button type="submit">Search</button>
-    </form>
-
-    <?php if (empty($listings)): ?>
-        <div class="no-results">
-            No listings found for "<?= htmlspecialchars($query) ?>" with the selected filters.
-        </div>
-    <?php else: ?>
-        <div class="grid" id="listing-container">
-            <?php foreach ($listings as $index => $item): ?>
-                <a href="/view/?listing_id=<?= urlencode($item['id'] ?? $item['_id'] ?? '') ?>" class="card">
-                    <img src="<?= htmlspecialchars($item['thumbnail_url'] ?? 'https://via.placeholder.com/200') ?>" alt="Image">
-                    <h3><?= htmlspecialchars($item['name'] ?? 'Unknown Item') ?></h3>
-                    <p class="price">R<?= htmlspecialchars($item['price'] ?? '0') ?></p>
-                </a>
-            <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
-
+    <title><?= htmlspecialchars(trans('Search Results') ?? 'Search Results') ?> - ReTrade</title>
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').then(reg => {
-                    console.log('ServiceWorker registered on search:', reg.scope);
-                }).catch(err => {
-                    console.log('ServiceWorker registration failed:', err);
-                });
-            });
-        }
+        (function() {
+            var t = localStorage.getItem('theme');
+            if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+        })();
     </script>
+    <link rel="stylesheet" href="/assets/css/global.css">
+    <link rel="stylesheet" href="/assets/css/home.css">
+</head>
+<body class="antialiased min-h-screen flex home-page">
+    <?php include __DIR__ . '/templates/partial/navbar.php'; ?>
+
+    <div id="main-content" class="main-content home-main">
+        <main>
+            <div class="home-shell">
+                <div class="search-page-header">
+                    <h1 class="home-feature-title"><?= htmlspecialchars(trans('Search Results') ?? 'Search Results') ?></h1>
+                    <?php if ($query !== ''): ?>
+                        <p class="search-summary"><?= htmlspecialchars(trans('Showing results for')) ?> “<?= htmlspecialchars($query) ?>”</p>
+                    <?php endif; ?>
+                </div>
+
+                <section class="home-search-panel">
+                    <form class="home-form-grid" action="/search.php" method="GET">
+                        <div class="home-search-row">
+                            <div class="home-input-group">
+                                <label class="home-input-label" for="query"><?= htmlspecialchars(trans('Search') ?? 'Search') ?></label>
+                                <div class="home-input-with-icon">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" fill="none" />
+                                        <path d="M16 16l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                    </svg>
+                                    <input id="query" name="query" class="home-input" type="text" placeholder="<?= htmlspecialchars(trans('Search for items...')) ?>" value="<?= htmlspecialchars($query) ?>" required>
+                                </div>
+                            </div>
+                            <div class="home-search-actions">
+                                <button type="button" class="home-filter-toggle" data-target="home-search-filters"><?= htmlspecialchars(trans('Filters') ?? 'Filters') ?></button>
+                                <button type="submit" class="home-search-button"><?= htmlspecialchars(trans('Search')) ?></button>
+                            </div>
+                        </div>
+
+                        <div class="home-search-filters home-search-filters--collapsed" id="home-search-filters">
+                            <div class="home-filter-grid">
+                                <div class="home-input-group">
+                                    <label class="home-input-label" for="category"><?= htmlspecialchars(trans('Category') ?? 'Category') ?></label>
+                                    <select id="category" name="category" class="home-select">
+                                        <option value=""><?= htmlspecialchars(trans('All Categories') ?? 'All Categories') ?></option>
+                                        <option value="Electronics" <?= $category === 'Electronics' ? 'selected' : '' ?>><?= htmlspecialchars(trans('Electronics')) ?></option>
+                                        <option value="Vehicles" <?= $category === 'Vehicles' ? 'selected' : '' ?>><?= htmlspecialchars(trans('Vehicles') ?? 'Vehicles') ?></option>
+                                        <option value="Home" <?= $category === 'Home' ? 'selected' : '' ?>><?= htmlspecialchars(trans('Home') ?? 'Home') ?></option>
+                                        <option value="Fashion" <?= $category === 'Fashion' ? 'selected' : '' ?>><?= htmlspecialchars(trans('Fashion') ?? 'Fashion') ?></option>
+                                    </select>
+                                </div>
+
+                                <div class="home-input-group">
+                                    <label class="home-input-label" for="condition"><?= htmlspecialchars(trans('Condition') ?? 'Condition') ?></label>
+                                    <select id="condition" name="condition" class="home-select">
+                                        <option value=""><?= htmlspecialchars(trans('Any Condition') ?? 'Any Condition') ?></option>
+                                        <option value="New" <?= $condition === 'New' ? 'selected' : '' ?>><?= htmlspecialchars(trans('New')) ?></option>
+                                        <option value="Used - Good" <?= $condition === 'Used - Good' ? 'selected' : '' ?>><?= htmlspecialchars(trans('Used - Good')) ?></option>
+                                        <option value="Used - Fair" <?= $condition === 'Used - Fair' ? 'selected' : '' ?>><?= htmlspecialchars(trans('Used - Fair')) ?></option>
+                                    </select>
+                                </div>
+
+                                <div class="home-input-group">
+                                    <label class="home-input-label" for="location"><?= htmlspecialchars(trans('Location') ?? 'Location') ?></label>
+                                    <div class="home-input-with-icon">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                            <path d="M12 21s-6-5.686-6-10a6 6 0 1 1 12 0c0 4.314-6 10-6 10z" fill="none" stroke="currentColor" stroke-width="2" />
+                                            <circle cx="12" cy="11" r="2" fill="currentColor" />
+                                        </svg>
+                                        <input id="location" name="location" class="home-input" type="text" placeholder="<?= htmlspecialchars(trans('City or Postal Code') ?? 'City or Postal Code') ?>" value="<?= htmlspecialchars($location) ?>">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="home-filter-grid">
+                                <div class="home-input-group">
+                                    <label class="home-input-label" for="min_price"><?= htmlspecialchars(trans('Min Price') ?? 'Min Price') ?></label>
+                                    <input id="min_price" name="min_price" class="home-input" type="number" min="0" placeholder="0" value="<?= htmlspecialchars($min_price) ?>">
+                                </div>
+                                <div class="home-input-group">
+                                    <label class="home-input-label" for="max_price"><?= htmlspecialchars(trans('Max Price') ?? 'Max Price') ?></label>
+                                    <input id="max_price" name="max_price" class="home-input" type="number" min="0" placeholder="<?= htmlspecialchars(trans('Max') ?? 'Max') ?>" value="<?= htmlspecialchars($max_price) ?>">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+
+                <?php if (empty($listings)): ?>
+                    <div class="home-no-results">
+                        <p><?= htmlspecialchars(trans('No listings found for')) ?> “<?= htmlspecialchars($query) ?>” <?= htmlspecialchars(trans('with the selected filters.')) ?></p>
+                    </div>
+                <?php else: ?>
+                    <div class="home-grid" id="listing-container">
+                        <?php foreach ($listings as $index => $item): ?>
+                            <a href="/view/?listing_id=<?= urlencode($item['id'] ?? $item['_id'] ?? '') ?>" class="home-card <?= $index >= 20 ? 'hidden' : '' ?>" data-index="<?= $index ?>">
+                                <div class="home-card-image">
+                                    <img src="<?= htmlspecialchars($item['thumbnail_url'] ?? '/assets/placeholder.jpg') ?>" alt="<?= htmlspecialchars($item['name'] ?? trans('Listing')) ?>">
+                                </div>
+                                <div class="home-card-content">
+                                    <h3 class="home-card-title"><?= htmlspecialchars($item['name'] ?? trans('Listing')) ?></h3>
+                                    <p class="home-card-price">R <?= number_format((float)($item['price'] ?? 0), 2) ?></p>
+                                    <?php if (!empty($item['location'])): ?>
+                                        <div class="home-card-meta">
+                                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                                <path d="M12 21s-6-5.686-6-10a6 6 0 1 1 12 0c0 4.314-6 10-6 10z" fill="none" stroke="currentColor" stroke-width="2" />
+                                                <circle cx="12" cy="11" r="2" fill="currentColor" />
+                                            </svg>
+                                            <span><?= htmlspecialchars($item['location']) ?></span>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php if (count($listings) > 20): ?>
+                    <div class="home-more-wrapper">
+                        <button id="see-more-btn" class="home-see-more"><?= htmlspecialchars(trans('See More') ?? 'See More') ?></button>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </main>
+    </div>
+
+    <script src="/assets/js/index_listings.js"></script>
+    <script src="/assets/js/search_filters.js"></script>
 </body>
 </html>

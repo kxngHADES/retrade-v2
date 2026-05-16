@@ -7,34 +7,61 @@ require_once __DIR__ . '/../../config/bootstrap.php';
 
 use PDO;
 use Lib\db\Database;
+use Lib\cache\Redis;
 
 class delivery_service {
     private PDO $db;
+    private ?Redis $redis = null;
+    private const RATE_LIMIT_PREFIX = 'delivery:attempts:';
+    private const RATE_LIMIT_MAX_ATTEMPTS = 5;
+    private const RATE_LIMIT_WINDOW = 900; // 15 minutes
 
     public function __construct()
     {
         $this->db = Database::getConnection();
-    }
 
+        try {
+            $this->redis = Redis::getInstance();
+        } catch (\Throwable $e) {
+            $this->redis = null;
+            error_log('Delivery rate limiter unavailable: ' . $e->getMessage());
+        }
+    }
 
     /*
      Orchastrating function
     */
-    public function deliveredGoods(string $reference, string $pin) {
+    public function deliveredGoods(string $reference, string $pin): array {
+        if ($this->isRateLimited($reference)) {
+            return [
+                'success' => false,
+                'error' => $this->getRateLimitMessage($reference),
+            ];
+        }
+
         $payment_id = $this->getPayment($reference, $pin);
 
         if (empty($payment_id)) {
-            return false;
+            $this->incrementRateLimit($reference);
+            return [
+                'success' => false,
+                'error' => 'Invalid Reference/PIN or transaction is already completed',
+            ];
         }
 
         $is_released = $this->releaseEscrow($payment_id);
 
-        if ($is_released){
+        if ($is_released) {
+            $this->resetRateLimit($reference);
             $this->notifyRelease($payment_id);
-            return true;
+            return ['success' => true];
         }
 
-        return false;
+        $this->incrementRateLimit($reference);
+        return [
+            'success' => false,
+            'error' => 'Invalid Reference/PIN or transaction is already completed',
+        ];
     }
 
     /*
@@ -52,6 +79,71 @@ class delivery_service {
         $payment = $stmt->fetch(PDO::FETCH_ASSOC);
 
         return $payment['payment_id'] ?? null;
+    }
+
+    private function getRateLimitKey(string $reference): ?string {
+        if (!$this->redis) {
+            return null;
+        }
+
+        $normalized = preg_replace('/[^A-Za-z0-9_-]/', '', $reference);
+        return self::RATE_LIMIT_PREFIX . ($normalized ?: 'unknown');
+    }
+
+    private function isRateLimited(string $reference): bool {
+        $key = $this->getRateLimitKey($reference);
+        if (!$key) {
+            return false;
+        }
+
+        $count = $this->redis->getClient()->get($key);
+        if ($count === null) {
+            return false;
+        }
+
+        return (int)$count >= self::RATE_LIMIT_MAX_ATTEMPTS;
+    }
+
+    private function incrementRateLimit(string $reference): void {
+        $key = $this->getRateLimitKey($reference);
+        if (!$key) {
+            return;
+        }
+
+        $client = $this->redis->getClient();
+        $current = $client->incr($key);
+        if ($current === 1) {
+            $client->expire($key, self::RATE_LIMIT_WINDOW);
+        } else {
+            $ttl = $client->ttl($key);
+            if ($ttl === -1) {
+                $client->expire($key, self::RATE_LIMIT_WINDOW);
+            }
+        }
+    }
+
+    private function resetRateLimit(string $reference): void {
+        $key = $this->getRateLimitKey($reference);
+        if (!$key) {
+            return;
+        }
+
+        $this->redis->delete($key);
+    }
+
+    private function getRateLimitMessage(string $reference): string {
+        $key = $this->getRateLimitKey($reference);
+        if (!$key) {
+            return 'Too many delivery attempts. Please wait and try again later.';
+        }
+
+        $ttl = $this->redis->getClient()->ttl($key);
+        if ($ttl < 0) {
+            $ttl = self::RATE_LIMIT_WINDOW;
+        }
+
+        $minutes = ceil($ttl / 60);
+        return "Too many delivery attempts. Please try again in {$minutes} minute(s).";
     }
 
     /*

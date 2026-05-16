@@ -142,6 +142,13 @@ class shop_service {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getShopById(string $shop_id) {
+        $sql = "SELECT BIN_TO_UUID(shop_id) as shop_id, BIN_TO_UUID(uid) as uid, shop_name, status FROM shops WHERE shop_id = UUID_TO_BIN(:shop_id) LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['shop_id' => $shop_id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function getProduct(string $product_id) {
         $sql = "SELECT BIN_TO_UUID(product_id) as product_id, BIN_TO_UUID(shop_id) as shop_id, name, description, price, stock_quantity, is_active FROM shop_products WHERE product_id = UUID_TO_BIN(:product_id)";
         $stmt = $this->db->prepare($sql);
@@ -208,12 +215,35 @@ class shop_service {
     }
 
     public function removeFromCart(string $item_id){
-        # DELETE FROM cart_items WHERE item_id = item_id
+        $this->db->beginTransaction();
+
+        $cartQuery = "SELECT cart_id FROM cart_items WHERE item_id = UUID_TO_BIN(:item_id) LIMIT 1";
+        $stmt = $this->db->prepare($cartQuery);
+        $stmt->execute([
+            'item_id' => $item_id
+        ]);
+        $cartRow = $stmt->fetch(PDO::FETCH_ASSOC);
+        $cart_id = $cartRow['cart_id'] ?? null;
+
         $del_query = "DELETE FROM cart_items WHERE item_id = UUID_TO_BIN(:item_id)";
         $stmt = $this->db->prepare($del_query);
         $stmt->execute([
             'item_id'=>$item_id
         ]);
+
+        if ($cart_id) {
+            $countQuery = "SELECT COUNT(*) as item_count FROM cart_items WHERE cart_id = :cart_id";
+            $stmt = $this->db->prepare($countQuery);
+            $stmt->execute(['cart_id' => $cart_id]);
+            $countRow = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$countRow || (int) $countRow['item_count'] === 0) {
+                $deleteCart = "DELETE FROM carts WHERE cart_id = :cart_id";
+                $stmt = $this->db->prepare($deleteCart);
+                $stmt->execute(['cart_id' => $cart_id]);
+            }
+        }
+
+        $this->db->commit();
     }
 
     private function createCart(string $uid, string $shop_id) {

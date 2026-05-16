@@ -31,10 +31,6 @@ $initials = $isLoggedIn ? strtoupper(substr($firstName, 0, 1) . substr($lastName
             <div class="nav-icon"><i data-lucide="home"></i></div>
             <span class="sidebar-text"><?= trans('Home') ?? 'Home' ?></span>
         </a>
-        <a href="/search.php" class="nav-item <?= strpos($_SERVER['REQUEST_URI'], 'search.php') !== false ? 'active' : '' ?>">
-            <div class="nav-icon"><i data-lucide="search"></i></div>
-            <span class="sidebar-text"><?= trans('Search') ?? 'Search' ?></span>
-        </a>
         <a href="/pages/chat/" class="nav-item <?= strpos($_SERVER['REQUEST_URI'], 'chat') !== false ? 'active' : '' ?>">
             <div class="nav-icon"><i data-lucide="message-square"></i></div>
             <span class="sidebar-text"><?= trans('Chats') ?? 'Chats' ?></span>
@@ -43,9 +39,13 @@ $initials = $isLoggedIn ? strtoupper(substr($firstName, 0, 1) . substr($lastName
             <div class="nav-icon"><i data-lucide="list"></i></div>
             <span class="sidebar-text"><?= trans('Listings') ?? 'Listings' ?></span>
         </a>
-        <a href="/pages/shop/" class="nav-item <?= strpos($_SERVER['REQUEST_URI'], 'shop') !== false ? 'active' : '' ?>">
+        <a href="/pages/shop/" class="nav-item <?= strpos($_SERVER['REQUEST_URI'], 'shop') !== false && strpos($_SERVER['REQUEST_URI'], 'delivery') === false ? 'active' : '' ?>">
             <div class="nav-icon"><i data-lucide="store"></i></div>
             <span class="sidebar-text"><?= trans('Shop') ?? 'Shop' ?></span>
+        </a>
+        <a href="/pages/delivery/" class="nav-item <?= strpos($_SERVER['REQUEST_URI'], 'delivery') !== false ? 'active' : '' ?>">
+            <div class="nav-icon"><i data-lucide="truck"></i></div>
+            <span class="sidebar-text"><?= trans('Delivery') ?? 'Delivery' ?></span>
         </a>
     </div>
 

@@ -37,40 +37,24 @@ $messages = $chatService->getRoomMessages($roomId);
 <head>
     <meta charset="UTF-8">
     <title><?= $fullName ?> - Retrade Chat</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #e5e5e5; display: flex; flex-direction: column; height: 100vh; }
-        header { background: #075E54; color: white; padding: 15px; display: flex; align-items: center; gap: 10px; }
-        header a { color: white; text-decoration: none; font-size: 20px; }
-        header h2 { margin: 0; font-size: 1.2em; }
-        .chat-container { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
-        .message { max-width: 70%; padding: 10px 15px; border-radius: 10px; font-size: 0.95em; line-height: 1.4; word-wrap: break-word; }
-        .message.sent { background: #DCF8C6; margin-left: auto; border-bottom-right-radius: 0; }
-        .message.received { background: white; margin-right: auto; border-bottom-left-radius: 0; }
-        .message .time { font-size: 0.7em; color: #999; margin-top: 5px; text-align: right; display: block; }
-        .message img, .message video { max-width: 100%; border-radius: 5px; margin-bottom: 5px; }
-        .input-area { background: #f0f0f0; padding: 10px; display: flex; align-items: center; gap: 10px; }
-        .input-area input[type="text"] { flex-grow: 1; padding: 12px; border: 1px solid #ccc; border-radius: 20px; outline: none; }
-        .input-area button { background: #128C7E; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; }
-        .input-area button:hover { background: #075E54; }
-        .file-btn { background: #bbb; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-weight: bold; font-size: 20px; }
-        .order-btn { background: #ff9800; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-weight: bold; font-size: 20px; border: none; }
-        #file-input { display: none; }
-        .order-modal { display: none; position: fixed; bottom: 80px; left: 10px; width: 300px; background: white; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); padding: 15px; }
-        .order-modal h3 { margin-top: 0; }
-        .order-modal select { width: 100%; padding: 10px; border-radius: 5px; margin-bottom: 10px; }
-        .order-modal button { background: #ff9800; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: 100%; }
-        .order-prompt { border: 1px solid #ccc; background: #fff3e0; padding: 10px; border-radius: 5px; margin-top: 5px; text-align: center; }
-        .order-prompt button { margin-top: 10px; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="/assets/css/global.css">
+    <link rel="stylesheet" href="/assets/css/chat.css">
+    <script src="/assets/js/global.js" defer></script>
 </head>
-<body>
-    <header>
-        <a href="/pages/chat/">&#8592;</a>
-        <h2><?= $fullName ?></h2>
-    </header>
-    
-    <div class="chat-container" id="chat-container">
+<body class="chat-room-page">
+    <?php require_once __DIR__ . '/../../../templates/partial/navbar.php'; ?>
+    <main class="main-content" id="main-content">
+        <div class="chat-room-inner">
+            <header class="chat-room-header">
+                <a href="/pages/chat/" class="chat-room-back">&#8592;</a>
+                <h2><?= $fullName ?></h2>
+                <button type="button" class="chat-room-action" aria-label="More options">
+                    <span>&#8230;</span>
+                </button>
+            </header>
+
+            <div class="chat-container" id="chat-container">
         <?php foreach ($messages as $msg): ?>
             <?php $isSent = ($msg['sender_id'] === $uid); ?>
             <div class="message <?= $isSent ? 'sent' : 'received' ?>">
@@ -94,9 +78,22 @@ $messages = $chatService->getRoomMessages($roomId);
                         $listingName = isset($parts[3]) ? urldecode($parts[3]) : 'Item';
                         ?>
                         <?php if ($isSent): ?>
-                            <div class="order-prompt"><b>Order Proposal Sent</b><br>Item: <?= htmlspecialchars($listingName) ?><br>Price: R<?= htmlspecialchars($price) ?></div>
+                            <div class="order-prompt">
+                                <div class="order-prompt-header">
+                                    <span class="order-prompt-title">Order</span>
+                                </div>
+                                <strong>Order Proposal Sent</strong>
+                                <p>Item: <?= htmlspecialchars($listingName) ?><br>Price: R<?= htmlspecialchars($price) ?></p>
+                            </div>
                         <?php else: ?>
-                            <div class="order-prompt"><b>Order Proposal Received</b><br>Item: <?= htmlspecialchars($listingName) ?><br>Price: R<?= htmlspecialchars($price) ?><br><button onclick="window.location.href='/pages/pay/initiate.php?amount=<?= urlencode($price) ?>&listing_id=<?= urlencode($listingId) ?>&order_type=marketplace&seller_uid=<?= urlencode($msg['sender_id']) ?>'">Pay Now</button></div>
+                            <div class="order-prompt">
+                                <div class="order-prompt-header">
+                                    <span class="order-prompt-title">Order</span>
+                                </div>
+                                <strong>Order Proposal Received</strong>
+                                <p>Item: <?= htmlspecialchars($listingName) ?><br>Price: R<?= htmlspecialchars($price) ?></p>
+                                <button onclick="window.location.href='/pages/pay/initiate.php?amount=<?= urlencode($price) ?>&listing_id=<?= urlencode($listingId) ?>&order_type=marketplace&seller_uid=<?= urlencode($msg['sender_id']) ?>'">Pay Now</button>
+                            </div>
                         <?php endif; ?>
                     <?php else: ?>
                         <span><?= htmlspecialchars($msg['message_text']) ?></span>
@@ -108,15 +105,16 @@ $messages = $chatService->getRoomMessages($roomId);
         <?php endforeach; ?>
     </div>
 
-    <div class="input-area">
-        <button class="order-btn" id="show-order-modal">
-            <i data-lucide="package" width="20" height="20"></i>
-        </button>
-        <label class="file-btn" for="file-input">+</label>
-        <input type="file" id="file-input" />
-        <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off">
-        <button id="send-btn">Send</button>
-    </div>
+            <div class="chat-input-area">
+                <button class="chat-action-btn order-button" id="show-order-modal" type="button" aria-label="Start an order">
+                    <i data-lucide="package" class="order-action-icon" aria-hidden="true"></i>
+                    <span class="order-action-label">Order</span>
+                </button>
+                <textarea id="message-input" class="chat-input" placeholder="Type a message..." rows="1" autocomplete="off"></textarea>
+                <button id="send-btn" class="chat-send-btn" type="button" aria-label="Send message">
+                    <span>➤</span>
+                </button>
+            </div>
 
     <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -146,7 +144,6 @@ $messages = $chatService->getRoomMessages($roomId);
         const chatContainer = document.getElementById('chat-container');
         const sendBtn = document.getElementById('send-btn');
         const msgInput = document.getElementById('message-input');
-        const fileInput = document.getElementById('file-input');
         
         const roomId = "<?= htmlspecialchars($roomId) ?>";
         const currentUid = "<?= htmlspecialchars($uid) ?>";
@@ -180,9 +177,9 @@ $messages = $chatService->getRoomMessages($roomId);
                     const listingName = parts[3] ? decodeURIComponent(parts[3]) : 'Item';
                     
                     if (isSent) {
-                        html += `<div class="order-prompt"><b>Order Proposal Sent</b><br>Item: ${listingName}<br>Price: R${price}</div>`;
+                        html += `<div class="order-prompt"><div class="order-prompt-header"><span class="order-prompt-symbol">🛒</span><span class="order-prompt-title">Order</span></div><strong>Order Proposal Sent</strong><p>Item: ${listingName}<br>Price: R${price}</p></div>`;
                     } else {
-                        html += `<div class="order-prompt"><b>Order Proposal Received</b><br>Item: ${listingName}<br>Price: R${price}<br><button onclick="window.location.href='/pages/pay/initiate.php?amount=${price}&listing_id=${listingId}&order_type=marketplace&seller_uid=${msg.sender_id}'">Pay Now</button></div>`;
+                        html += `<div class="order-prompt"><div class="order-prompt-header"><span class="order-prompt-symbol">🛒</span><span class="order-prompt-title">Order</span></div><strong>Order Proposal Received</strong><p>Item: ${listingName}<br>Price: R${price}</p><button onclick="window.location.href='/pages/pay/initiate.php?amount=${price}&listing_id=${listingId}&order_type=marketplace&seller_uid=${msg.sender_id}'">Pay Now</button></div>`;
                     }
                 } else {
                     const textNode = document.createTextNode(msg.message_text);
@@ -198,24 +195,6 @@ $messages = $chatService->getRoomMessages($roomId);
             div.innerHTML = html;
             chatContainer.appendChild(div);
             scrollToBottom();
-        }
-
-        async function uploadFile(file) {
-            const timestamp = Date.now();
-            const ext = file.name.split('.').pop();
-            const path = `${roomId}/${timestamp}.${ext}`;
-            
-            const formData = new FormData();
-            formData.append('file', file);
-            
-            // upload.php endpoint expects a `path` query param
-            const res = await fetch(`/lib/services/upload.php?path=${encodeURIComponent(path)}`, {
-                method: 'POST',
-                body: formData
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Upload failed');
-            return data.url;
         }
 
         const showOrderModalBtn = document.getElementById('show-order-modal');
@@ -280,39 +259,24 @@ $messages = $chatService->getRoomMessages($roomId);
 
         async function sendMessage() {
             const text = msgInput.value.trim();
-            const file = fileInput.files[0];
             
-            if (!text && !file) return;
+            if (!text) return;
 
-            // Optimistic UI could be added here, but going simple for now
             sendBtn.disabled = true;
 
             try {
-                let attachmentUrl = null;
-                let fileType = null;
-
-                if (file) {
-                    attachmentUrl = await uploadFile(file);
-                    fileType = file.type || 'application/octet-stream';
-                }
-
                 const res = await fetch('/pages/chat/api/send_message.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         room_id: roomId,
-                        message_text: text,
-                        attachment_url: attachmentUrl,
-                        file_type: fileType
+                        message_text: text
                     })
                 });
                 
                 const responseData = await res.json();
                 if (res.ok) {
                     msgInput.value = '';
-                    fileInput.value = '';
-                    // Local append handled by SSE mostly, but to ensure instant feedback:
-                    // SSE will reflect it back, so we skip appending manually for now to avoid duplicates.
                 } else {
                     alert('Error sending message: ' + (responseData.error || ''));
                 }

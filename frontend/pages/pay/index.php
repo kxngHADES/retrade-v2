@@ -25,52 +25,68 @@ if (!$sessionDetails || $sessionDetails['status'] !== 'pending') {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Secure Payment Checkout</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #e5e5e5; display: flex; center; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .payment-card { background: white; padding: 20px; border-radius: 10px; width: 350px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .payment-card h2 { text-align: center; margin-bottom: 20px; }
-        .amount-display { font-size: 1.5em; text-align: center; color: #128C7E; margin-bottom: 20px; }
-        .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .input-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .input-group .row { display: flex; gap: 10px; }
-        .row div { width: 50%; }
-        .btn-pay { width: 100%; background: #128C7E; color: white; border: none; padding: 15px; border-radius: 5px; cursor: pointer; font-size: 1.1em; }
-        .btn-pay:hover { background: #075E54; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Payment - ReTrade</title>
+    <link rel="stylesheet" href="/assets/css/variables.css">
+    <link rel="stylesheet" href="/assets/css/global.css">
+    <link rel="stylesheet" href="/assets/css/payment.css">
+    <script src="/assets/js/global.js" defer></script>
 </head>
-<body>
-    <div class="payment-card">
-        <h2>Secure Payment</h2>
-        <div class="amount-display">Amount Due: R<?= htmlspecialchars(number_format($sessionDetails['amount'], 2)) ?></div>
-        
-        <form action="/pages/pay/process.php" method="POST">
+<body class="payment-page">
+    <main class="payment-shell">
+        <header class="payment-header">
+            <div class="payment-header-row">
+                <a href="/" class="payment-back-link">Back</a>
+                <h1 class="payment-brand">ReTrade</h1>
+            </div>
+        </header>
+
+        <section class="payment-summary">
+            <h2 class="payment-title">Secure Payment</h2>
+            <div class="payment-amount-card">
+                <span class="payment-amount-label">Amount Due</span>
+                <strong class="payment-amount-value">R <?= htmlspecialchars(number_format($sessionDetails['amount'], 2)) ?></strong>
+            </div>
+        </section>
+
+        <form class="payment-form" action="/pages/pay/process.php" method="POST">
             <input type="hidden" name="payment_session_id" value="<?= htmlspecialchars($sessionId) ?>">
-            
-            <div class="input-group">
-                <label for="card_name">Cardholder Name</label>
-                <input type="text" id="card_name" name="card_name" required placeholder="John Doe">
+
+            <div class="payment-field">
+                <label class="payment-field-label" for="card_name">Cardholder Name</label>
+                <input id="card_name" name="card_name" type="text" class="payment-input" required placeholder="Sfiso Nkosi">
             </div>
-            
-            <div class="input-group">
-                <label for="card_number">Card Number</label>
-                <input type="text" id="card_number" name="card_number" required placeholder="0000 0000 0000 0000" maxlength="19">
+
+            <div class="payment-field">
+                <label class="payment-field-label" for="card_number">Card Number</label>
+                <input id="card_number" name="card_number" type="text" class="payment-input" maxlength="19" required placeholder="5151 0456 9930 4218">
             </div>
-            
-            <div class="input-group row">
-                <div>
-                    <label for="exp_date">Expiry Date</label>
-                    <input type="text" id="exp_date" name="exp_date" required placeholder="MM/YY" maxlength="5">
+
+            <div class="payment-grid">
+                <div class="payment-field">
+                    <label class="payment-field-label" for="exp_date">Expiry Date</label>
+                    <input id="exp_date" name="exp_date" type="text" class="payment-input" maxlength="5" required placeholder="MM/YY">
                 </div>
-                <div>
-                    <label for="cvv">CVV</label>
-                    <input type="password" id="cvv" name="cvv" required placeholder="123" maxlength="3">
+                <div class="payment-field">
+                    <label class="payment-field-label" for="cvv">CVV</label>
+                    <input id="cvv" name="cvv" type="password" class="payment-input" maxlength="4" required placeholder="123">
                 </div>
             </div>
-            
-            <button type="submit" class="btn-pay">Pay R<?= htmlspecialchars(number_format($sessionDetails['amount'], 2)) ?></button>
+
+            <button type="submit" class="payment-submit">Pay R <?= htmlspecialchars(number_format($sessionDetails['amount'], 2)) ?></button>
         </form>
-    </div>
+
+        <div class="payment-footer">
+            <span class="payment-footnote-icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17 10V8C17 5.23858 14.7614 3 12 3C9.23858 3 7 5.23858 7 8V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" stroke-width="2"/>
+                    <path d="M12 15V18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="12" cy="13" r="1" fill="currentColor"/>
+                </svg>
+            </span>
+            <p class="payment-footnote-text">Your payment details are encrypted.</p>
+        </div>
+    </main>
 </body>
 </html>
