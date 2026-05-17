@@ -2,6 +2,7 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.auth_routes import router as auth_router
 from app.routes.listing_routes import router as listing_router
+from app.routes.fraud_routes import router as fraud_router
 from app.core.config import settings
 import uvicorn
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -72,6 +73,7 @@ else:
 # Routes
 app.include_router(auth_router)
 app.include_router(listing_router)
+app.include_router(fraud_router)
 
 @app.get("/ping")
 async def ping_db(db: AsyncSession = Depends(get_db)):

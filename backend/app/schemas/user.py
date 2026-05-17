@@ -45,6 +45,9 @@ class User(Base):
 	is_banned: Mapped[bool] = mapped_column(
 		Boolean, nullable=False, server_default="0"
 	)
+	ban_expires_at: Mapped[datetime | None] = mapped_column(
+		DateTime, nullable=True
+	)
 	province: Mapped[str | None] = mapped_column(String(120), nullable=True)
 	city: Mapped[str | None] = mapped_column(String(255), nullable=True)
 	street_address: Mapped[str | None] = mapped_column(String(255), nullable=True)
