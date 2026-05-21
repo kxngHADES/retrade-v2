@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
 	profile_image_url VARCHAR(2048) NULL,
 	rbac_role TINYINT(3) NOT NULL DEFAULT 0 COMMENT '0=buy only, 1=byt/sell, 2=admin, 3=superAdmin',
 	is_banned TINYINT(1) NOT NULL DEFAULT 0,
+	ban_expires_at DATETIME NULL COMMENT 'Time when the ban expires (NULL if permanent or not banned)',
 	province VARCHAR(120) NULL,
 	city VARCHAR(255) NULL,
 	street_address VARCHAR(255) NULL,

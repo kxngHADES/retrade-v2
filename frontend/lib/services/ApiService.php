@@ -238,7 +238,7 @@ class ApiService {
             'Content-Type: application/json',
             'Accept: application/json'
         ]);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5); // Short timeout for background task
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
         
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -337,6 +337,45 @@ class ApiService {
         }
 
         error_log("Payout notification failed with HTTP $httpCode: $response");
+        return false;
+    }
+
+    public function send_fraud_report_to_graph(string $reporterId, string $targetUserId, string $reason, string $description): bool {
+        $apiUrl = $_ENV['BACKEND_INTERNAL_URL'] . '/fraud/report_graph';
+
+        $payload = [
+            'reporter_id' => $reporterId,
+            'target_user_id' => $targetUserId,
+            'reason' => $reason,
+            'description' => $description
+        ];
+
+        $ch = curl_init($apiUrl);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Accept: application/json'
+        ]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+
+        if ($curlError) {
+            error_log("cURL Error (send_fraud_report_to_graph): " . $curlError);
+            return false;
+        }
+
+        if ($httpCode >= 200 && $httpCode < 300) {
+            return true;
+        }
+
+        error_log("Fraud Graph API ERROR $httpCode: $response");
         return false;
     }
 }

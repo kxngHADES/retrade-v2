@@ -49,8 +49,8 @@ $messages = $chatService->getRoomMessages($roomId);
             <header class="chat-room-header">
                 <a href="/pages/chat/" class="chat-room-back">&#8592;</a>
                 <h2><?= $fullName ?></h2>
-                <button type="button" class="chat-room-action" aria-label="More options">
-                    <span>&#8230;</span>
+                <button type="button" class="chat-room-action" id="show-report-modal" aria-label="Report User" title="Report User">
+                    <span style="color: red; font-size: 1.2rem;">&#9888;</span>
                 </button>
             </header>
 
@@ -140,6 +140,24 @@ $messages = $chatService->getRoomMessages($roomId);
         <?php endif; ?>
     </div>
 
+    <!-- Report Modal -->
+    <div class="order-modal" id="report-modal" style="display:none; z-index: 1000;">
+        <h3 style="color: red;">Report <?= $fullName ?></h3>
+        <select id="report-reason" style="width: 100%; padding: 10px; border-radius: 5px; margin-bottom: 10px; border: 1px solid #ccc; box-sizing: border-box;">
+            <option value="">Select a reason...</option>
+            <option value="scamming">Scamming / Fraud</option>
+            <option value="harassment">Harassment</option>
+            <option value="spamming">Spamming</option>
+            <option value="fake_delivery">Fake Delivery</option>
+            <option value="other">Other</option>
+        </select>
+        <textarea id="report-description" placeholder="Additional details..." rows="3" style="width: 100%; padding: 10px; border-radius: 5px; margin-bottom: 10px; border: 1px solid #ccc; box-sizing: border-box;"></textarea>
+        <div style="display: flex; gap: 10px;">
+            <button id="submit-report-btn" style="flex: 1; background: red; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer;">Submit Report</button>
+            <button onclick="document.getElementById('report-modal').style.display='none'" style="flex: 1; background: #ccc; border: none; padding: 10px; border-radius: 5px; cursor: pointer;">Cancel</button>
+        </div>
+    </div>
+
     <script>
         const chatContainer = document.getElementById('chat-container');
         const sendBtn = document.getElementById('send-btn');
@@ -202,6 +220,59 @@ $messages = $chatService->getRoomMessages($roomId);
         const createOrderBtn = document.getElementById('create-order-btn');
         const listingSelect = document.getElementById('listing-select');
         const customPriceInput = document.getElementById('custom-price');
+
+        const showReportModalBtn = document.getElementById('show-report-modal');
+        const reportModal = document.getElementById('report-modal');
+        const submitReportBtn = document.getElementById('submit-report-btn');
+        const otherUserId = "<?= htmlspecialchars($otherUser['uid'] ?? '') ?>";
+
+        if (showReportModalBtn) {
+            showReportModalBtn.addEventListener('click', () => {
+                reportModal.style.display = 'block';
+            });
+        }
+
+        if (submitReportBtn) {
+            submitReportBtn.addEventListener('click', async () => {
+                const reason = document.getElementById('report-reason').value;
+                const desc = document.getElementById('report-description').value;
+
+                if (!reason) {
+                    alert("Please select a reason for reporting.");
+                    return;
+                }
+
+                submitReportBtn.disabled = true;
+                submitReportBtn.innerText = "Submitting...";
+
+                try {
+                    const res = await fetch('/pages/chat/api/report_user.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            target_user_id: otherUserId,
+                            reason: reason,
+                            description: desc
+                        })
+                    });
+
+                    if (res.ok) {
+                        alert("Report submitted successfully. Admins will review it shortly.");
+                        reportModal.style.display = 'none';
+                        document.getElementById('report-reason').value = '';
+                        document.getElementById('report-description').value = '';
+                    } else {
+                        const data = await res.json();
+                        alert("Failed to submit report: " + (data.error || 'Unknown error'));
+                    }
+                } catch(e) {
+                    alert('Error: ' + e);
+                } finally {
+                    submitReportBtn.disabled = false;
+                    submitReportBtn.innerText = "Submit Report";
+                }
+            });
+        }
 
         if (showOrderModalBtn) {
             showOrderModalBtn.addEventListener('click', () => {

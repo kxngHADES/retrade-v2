@@ -105,6 +105,46 @@ class Authentication_service {
 			];
 		}
 
+		if (isset($user['is_banned']) && $user['is_banned'] == 1) {
+			if (!empty($user['ban_expires_at'])) {
+				$banExpires = new \DateTime($user['ban_expires_at']);
+				$now = new \DateTime();
+
+				if ($now >= $banExpires) {
+					// The ban has expired -> unban the user
+					try {
+						$unbanStmt = $this->db->prepare("UPDATE users SET is_banned = 0, ban_expires_at = NULL WHERE uid = UUID_TO_BIN(:uid)");
+						$unbanStmt->execute(['uid' => $user['uid']]);
+						$user['is_banned'] = 0; // Temporarily update context so login proceeds
+					} catch (\PDOException $e) {
+						error_log("Failed to unban user: " . $e->getMessage());
+						// Fallback if update fails
+						return [
+							'success' => false,
+							'error' => 'An error occurred verifying your account status. Please contact support.',
+							'user' => null,
+							'action' => null
+						];
+					}
+				} else {
+					return [
+						'success' => false,
+						'error' => 'Your account has been banned until ' . $banExpires->format('Y-m-d H:i:s') . '. Please contact support.',
+						'user' => null,
+						'action' => null
+					];
+				}
+			} else {
+				// Permanent ban (ban_expires_at is NULL)
+				return [
+					'success' => false,
+					'error' => 'Your account has been permanently banned. Please contact support.',
+					'user' => null,
+					'action' => null
+				];
+			}
+		}
+
 		if (!$this->verifyPassword($password, $user['password'])) {
 			return [
 				'success' => false,

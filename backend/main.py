@@ -2,6 +2,8 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.auth_routes import router as auth_router
 from app.routes.listing_routes import router as listing_router
+from app.routes.fraud_routes import router as fraud_router
+from app.routes.admin_routes import router as admin_router
 from app.core.config import settings
 import uvicorn
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,6 +17,7 @@ from app.db.neo4j import Neo4jConnection
 from app.db.elasticsearch import ElasticsearchConnection
 from app.utils.vector_db import get_qdrant_client, ensure_collection_exists, close_qdrant_clients
 from app.db.redis_db import init_redis, close_redis
+from prometheus_fastapi_instrumentator import Instrumentator
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -72,6 +75,11 @@ else:
 # Routes
 app.include_router(auth_router)
 app.include_router(listing_router)
+app.include_router(fraud_router)
+app.include_router(admin_router)
+
+# Instrumentation
+Instrumentator().instrument(app).expose(app)
 
 @app.get("/ping")
 async def ping_db(db: AsyncSession = Depends(get_db)):

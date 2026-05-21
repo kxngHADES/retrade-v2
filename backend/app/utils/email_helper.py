@@ -40,7 +40,8 @@ async def send_email(to_email: EmailStr, template_name: str, subject: str,**cont
 
 	raw_html = template_path.read_text(encoding="utf-8")
 
-	html_content = raw_html.format(**context)
+	from string import Template
+	html_content = Template(raw_html).safe_substitute(**context)
 
 	msg.set_content("Please enable HTML to view this message")
 	msg.add_alternative(html_content, subtype='html')
@@ -51,3 +52,21 @@ async def send_email(to_email: EmailStr, template_name: str, subject: str,**cont
 
 	server.send_message(msg)
 	server.quit()
+
+async def send_mass_email(to_emails: list[EmailStr], subject: str, html_body: str):
+	"""Sends a mass email to multiple recipients individually to avoid disclosing list"""
+	import datetime
+	year = datetime.datetime.now().year
+	
+	for email in to_emails:
+		try:
+			await send_email(
+				to_email=email,
+				template_name="mass_broadcast",
+				subject=subject,
+				content=html_body,
+				year=year
+			)
+		except Exception as e:
+			print(f"Failed to send email to {email}: {e}")
+			continue

@@ -1,0 +1,79 @@
+:root {
+	/* Light Theme Colors (Default) */
+	--bg: #F5F5F0;
+	--surface: #FFFFFF;
+	--surface-alt: #EFEFEA;
+	--border: #DDDDD8;
+	--text-primary: #111111;
+	--text-secondary: #555555;
+	--text-muted: #999999;
+	--primary: #FF6B00;
+	--primary-text: #FFFFFF;
+	--accent-dim: rgba(255, 107, 0, 0.12);
+	--success: #2E7D32;
+	--warning: #B45309;
+	--error: #C0392B;
+	--error-dim: rgba(192, 57, 43, 0.12);
+	--error-border: rgba(192, 57, 43, 0.3);
+	--disabled: #CCCCCC;
+	--overlay: rgba(0, 0, 0, 0.40);
+	
+	/* Typography from DESIGN.md */
+	--font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+	--font-display-size: 2.25rem;
+	--font-display-weight: 800;
+	--font-display-lh: 1.1;
+	--font-h1-size: 1.75rem;
+	--font-h1-weight: 700;
+	--font-h1-lh: 1.25;
+	--font-h2-size: 1.25rem;
+	--font-h2-weight: 700;
+	--font-h2-lh: 1.3;
+	--font-h3-size: 1.1rem;
+	--font-h3-weight: 600;
+	--font-h3-lh: 1.35;
+	--font-body-size: 1rem;
+	--font-body-weight: 400;
+	--font-body-lh: 1.5;
+	--font-body-small-size: 0.875rem;
+	--font-body-small-weight: 400;
+	--font-body-small-lh: 1.5;
+	--font-micro-size: 0.75rem;
+	--font-micro-weight: 400;
+	--font-micro-lh: 1.4;
+	--font-label-size: 0.65rem;
+	--font-label-weight: 600;
+	--font-label-lh: 1.4;
+	
+	/* Spacing */
+	--space-1: 4px;
+	--space-2: 8px;
+	--space-3: 12px;
+	--space-4: 16px;
+	--space-5: 24px;
+	--space-6: 32px;
+	--space-8: 48px;
+}
+
+
+
+:root[data-theme="dark"] {
+	/* Dark Theme Colors */
+	--bg: #111111;
+	--surface: #1C1C1C;
+	--surface-alt: #242424;
+	--border: #2E2E2E;
+	--text-primary: #F0F0F0;
+	--text-secondary: #AAAAAA;
+	--text-muted: #666666;
+	--primary: #FF6B00;
+	--primary-text: #FFFFFF;
+	--accent-dim: rgba(255, 107, 0, 0.12);
+	--success: #4CAF50;
+	--warning: #F59E0B;
+	--error: #E74C3C;
+	--error-dim: rgba(231, 76, 60, 0.12);
+	--error-border: rgba(231, 76, 60, 0.3);
+	--disabled: #444444;
+	--overlay: rgba(0, 0, 0, 0.60);
+}

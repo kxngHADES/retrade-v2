@@ -1,0 +1,170 @@
+.escrow-container {
+  padding: var(--space-5);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-6);
+}
+
+.page-title {
+  font-size: var(--font-h1-size);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Escrow Table Stylings */
+.escrow-table-wrapper {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.escrow-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.escrow-table th {
+  background: var(--bg);
+  padding: var(--space-4);
+  font-size: var(--font-label-size);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 2px solid var(--border);
+}
+
+.escrow-table td {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  color: var(--text-primary);
+}
+
+.escrow-table tr:last-child td {
+  border-bottom: none;
+}
+
+.escrow-table tr:hover td {
+  background: var(--accent-dim);
+}
+
+/* User & ID Info */
+.id-badge {
+  font-family: monospace;
+  background: var(--bg);
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.user-email {
+  font-size: var(--font-body-small-size);
+  color: var(--text-secondary);
+}
+
+/* Amount Styling */
+.amount-text {
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 1.1em;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-badge.held {
+  background: rgba(255, 143, 0, 0.1);
+  color: #ff8f00;
+}
+
+.status-badge.released {
+  background: rgba(46, 125, 50, 0.1);
+  color: var(--success);
+}
+
+.status-badge.refunded {
+  background: rgba(211, 47, 47, 0.1);
+  color: var(--error);
+}
+
+/* Actions */
+.action-buttons {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.btn-release {
+  background: var(--success);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 12px;
+  transition: opacity 0.2s;
+}
+
+.btn-refund {
+  background: var(--error);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 12px;
+  transition: opacity 0.2s;
+}
+
+.btn-release:hover, .btn-refund:hover {
+  opacity: 0.9;
+}
+
+.payout-date {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.link-secondary {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link-secondary:hover {
+  text-decoration: underline;
+}
