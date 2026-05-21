@@ -38,10 +38,19 @@ class Authentication_service{
 			];
         }
 
+        if ($user['is_active'] == 0) {
+            return [
+				'success' => false,
+				'error' => 'Your account is inactive. Please contact a super admin.',
+				'user' => null,
+				'action' => null
+			];
+        }
+
         unset($user['password']);
 
         try {
-			$stmt = $this->db->prepare("UPDATE admin SET last_login = NOW() WHERE email = :email");
+			$stmt = $this->db->prepare("UPDATE admins SET last_login = NOW() WHERE email = :email");
 			$stmt->execute(['email' => $email]);
 		} catch (\PDOException $e) {
 			error_log("Failed to update last_login: " . $e->getMessage());
@@ -59,7 +68,7 @@ class Authentication_service{
     # find by email
     public function findByEmail(string $email): ?array {
 		try {
-			$sql = "SELECT *, BIN_TO_UUID(uid) as uuid FROM admin WHERE email = :email LIMIT 1";
+			$sql = "SELECT *, BIN_TO_UUID(admin_id) as uuid FROM admins WHERE email = :email LIMIT 1";
 			$stmt = $this->db->prepare($sql);
 			$stmt->execute([':email' => $email]);
 
@@ -76,6 +85,27 @@ class Authentication_service{
 			return null;
 		}
 	}
+
+    public function register(string $firstName, string $lastName, string $email, string $password, int $role = 2): bool {
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        
+        $sql = "INSERT INTO admins (firstName, lastName, email, password, rbac_role, is_active) 
+                VALUES (:firstName, :lastName, :email, :password, :role, 1)";
+        
+        try {
+            $stmt = $this->db->prepare($sql);
+            return $stmt->execute([
+                ':firstName' => $firstName,
+                ':lastName' => $lastName,
+                ':email' => $email,
+                ':password' => $hashedPassword,
+                ':role' => $role
+            ]);
+        } catch (PDOException $e) {
+            error_log("Admin registration failed: " . $e->getMessage());
+            return false;
+        }
+    }
 
     public function verifyPassword(string $password, string $hashedPassword): bool {
 		return password_verify($password, $hashedPassword);

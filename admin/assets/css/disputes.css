@@ -1,0 +1,197 @@
+.disputes-container {
+  padding: var(--space-5);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-6);
+}
+
+.page-title {
+  font-size: var(--font-h1-size);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Dispute Table Stylings */
+.dispute-table-wrapper {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.dispute-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.dispute-table th {
+  background: var(--bg);
+  padding: var(--space-4);
+  font-size: var(--font-label-size);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 2px solid var(--border);
+}
+
+.dispute-table td {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  color: var(--text-primary);
+}
+
+.dispute-table tr:last-child td {
+  border-bottom: none;
+}
+
+.dispute-table tr:hover td {
+  background: var(--accent-dim);
+}
+
+/* Reporter & Info */
+.reporter-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.reporter-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.reporter-email {
+  font-size: var(--font-body-small-size);
+  color: var(--text-secondary);
+}
+
+/* Reason & Description */
+.dispute-reason {
+  color: var(--text-primary);
+  font-weight: 600;
+  display: block;
+}
+
+.dispute-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  max-width: 300px;
+  display: block;
+  margin-top: 4px;
+}
+
+/* Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-badge.open {
+  background: rgba(211, 47, 47, 0.1);
+  color: var(--error);
+}
+
+.status-badge.investigating {
+  background: rgba(255, 143, 0, 0.1);
+  color: #ff8f00;
+}
+
+.status-badge.resolved {
+  background: rgba(46, 125, 50, 0.1);
+  color: var(--success);
+}
+
+.status-badge.rejected {
+  background: var(--accent-dim);
+  color: var(--text-secondary);
+}
+
+/* Action Form */
+.action-card {
+  background: var(--bg);
+  padding: var(--space-3);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.action-textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  margin-bottom: 8px;
+  resize: vertical;
+  min-height: 60px;
+}
+
+.action-select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.btn-update {
+  background: var(--primary);
+  color: var(--primary-text);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  width: 100%;
+  transition: opacity 0.2s;
+}
+
+.btn-update:hover {
+  opacity: 0.9;
+}
+
+.link-secondary {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link-secondary:hover {
+  text-decoration: underline;
+}
+
+.empty-state {
+  text-align: center;
+  padding: var(--space-10);
+  background: var(--surface);
+  border-radius: 12px;
+  border: 2px dashed var(--border);
+}
+
+.empty-state p {
+  color: var(--text-secondary);
+  font-size: 1.1em;
+}

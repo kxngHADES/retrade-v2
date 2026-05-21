@@ -1,5 +1,5 @@
 from sqlalchemy import (
-	String, LargeBinary, Integer, Boolean, DateTime, func,
+	String, BINARY, Integer, Boolean, DateTime, func,
 	SmallInteger, Index
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -11,7 +11,7 @@ class User(Base):
 	__tablename__ = "users"
 
 	uid: Mapped[bytes] = mapped_column(
-		LargeBinary(16),
+		BINARY(16),
 		primary_key=True,
 		default=lambda: func.uuid_to_bin(func.uuid()),
 		server_default=func.uuid_to_bin(func.uuid())

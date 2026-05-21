@@ -1,4 +1,4 @@
-from sqlalchemy import String, LargeBinary, DateTime, func, Text, ForeignKey
+from sqlalchemy import String, BINARY, DateTime, func, Text, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from app.db.base import Base
@@ -7,13 +7,13 @@ class UserReport(Base):
 	__tablename__ = "user_reports"
 
 	report_id: Mapped[bytes] = mapped_column(
-		LargeBinary(16),
+		BINARY(16),
 		primary_key=True,
 		default=lambda: func.uuid_to_bin(func.uuid()),
 		server_default=func.uuid_to_bin(func.uuid())
 	)
 	reporter_id: Mapped[bytes] = mapped_column(
-		LargeBinary(16),
+		BINARY(16),
 		ForeignKey('users.uid', ondelete='CASCADE'),
 		nullable=False
 	)

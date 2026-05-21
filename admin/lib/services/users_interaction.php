@@ -13,7 +13,6 @@ class users_interaction {
 		$this->db = Database::getConnection();
 	}
 
-
 	public function banUser(string $uid, string $reason): bool {
 		$expiresAt = null;
 
@@ -59,10 +58,51 @@ class users_interaction {
 	}
 
 
-    # Fraud
+	# User management
+	public function getAllUsers(): array {
+		$sql = "SELECT BIN_TO_UUID(uid) as uid, firstName, lastName, email, phoneNumber, is_banned, ban_expires_at, created_at FROM users ORDER BY created_at DESC";
+		try {
+			$stmt = $this->db->query($sql);
+			return $stmt->fetchAll(PDO::FETCH_ASSOC);
+		} catch (PDOException $e) {
+			error_log("Failed to get all users: " . $e->getMessage());
+			return [];
+		}
+	}
+
+
+	public function getReportedUsers(): array {
+		$sql = "SELECT DISTINCT BIN_TO_UUID(u.uid) as uid, u.firstName, u.lastName, u.email, u.is_banned, 
+					   COUNT(r.report_id) as report_count
+				FROM users u
+				JOIN user_reports r ON u.uid = UUID_TO_BIN(r.target_reference_id)
+				WHERE r.report_type = 'user'
+				GROUP BY u.uid
+				ORDER BY report_count DESC";
+		try {
+			$stmt = $this->db->query($sql);
+			return $stmt->fetchAll(PDO::FETCH_ASSOC);
+		} catch (PDOException $e) {
+			error_log("Failed to get reported users: " . $e->getMessage());
+			return [];
+		}
+	}
 
 
 
-    # User management
-
+	public function getFraudSuspects(): array {
+		$sql = "SELECT DISTINCT BIN_TO_UUID(u.uid) as uid, u.firstName, u.lastName, u.email, u.is_banned,
+					   r.reason, r.description, r.created_at as reported_at
+				FROM users u
+				JOIN user_reports r ON u.uid = UUID_TO_BIN(r.target_reference_id)
+				WHERE r.reason IN ('scamming', 'fraud', 'fake_delivery')
+				ORDER BY r.created_at DESC";
+		try {
+			$stmt = $this->db->query($sql);
+			return $stmt->fetchAll(PDO::FETCH_ASSOC);
+		} catch (PDOException $e) {
+			error_log("Failed to get fraud suspects: " . $e->getMessage());
+			return [];
+		}
+	}
 }

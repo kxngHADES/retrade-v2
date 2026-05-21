@@ -27,9 +27,40 @@ class Auth_flow {
 		$_SESSION['email'] = $user['email'];
 		$_SESSION['firstName'] = $user['firstName'];
 		$_SESSION['lastName'] = $user['lastName'];
-		$_SESSION['phoneNumber'] = $user['phoneNumber'];
+		$_SESSION['rbac_role'] = $user['rbac_role'];
 
-		header('Location: /');
+		header('Location: /dashboard/');
 		exit;
 	}
+
+    public function register(array $userData) {
+        $auth = new Authentication_service();
+
+        $firstName = $userData['firstName'] ?? '';
+        $lastName = $userData['lastName'] ?? '';
+        $email = $userData['email'] ?? '';
+        $password = $userData['password'] ?? '';
+        $role = (int)($userData['role'] ?? 2);
+
+        if (empty($firstName) || empty($lastName) || empty($email) || empty($password)) {
+            return [
+                "success" => false,
+                "error" => "All fields are required."
+            ];
+        }
+
+        $success = $auth->register($firstName, $lastName, $email, $password, $role);
+
+        if (!$success) {
+            return [
+                "success" => false,
+                "error" => "Registration failed. Email might already exist."
+            ];
+        }
+
+        return [
+            "success" => true,
+            "message" => "Admin account created successfully. You can now login."
+        ];
+    }
 }

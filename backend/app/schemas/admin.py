@@ -1,4 +1,4 @@
-from sqlalchemy import String, LargeBinary, Boolean, DateTime, func, SmallInteger
+from sqlalchemy import String, BINARY, Boolean, DateTime, func, SmallInteger
 from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
 from app.db.base import Base
@@ -7,7 +7,7 @@ class Admin(Base):
 	__tablename__ = "admins"
 
 	admin_id: Mapped[bytes] = mapped_column(
-		LargeBinary(16),
+		BINARY(16),
 		primary_key=True,
 		default=lambda: func.uuid_to_bin(func.uuid()),
 		server_default=func.uuid_to_bin(func.uuid())

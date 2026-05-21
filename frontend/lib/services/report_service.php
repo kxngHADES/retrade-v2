@@ -41,4 +41,39 @@ class Report_service {
 			return false;
 		}
 	}
+
+	public function log_dispute(string $reporterId, string $orderId, string $reason, string $description, ?string $paymentRef = null): bool {
+		$sql = "INSERT INTO payment_disputes (dispute_id, reporter_id, order_id, payment_reference, dispute_reason, description, status) 
+				VALUES (UUID_TO_BIN(UUID()), UUID_TO_BIN(:reporter_id), UUID_TO_BIN(:order_id), :payment_ref, :reason, :description, 'open')";
+		
+		try {
+			$stmt = $this->db->prepare($sql);
+			return $stmt->execute([
+				'reporter_id' => $reporterId,
+				'order_id' => $orderId,
+				'payment_ref' => $paymentRef,
+				'reason' => $reason,
+				'description' => $description
+			]);
+		} catch (PDOException $e) {
+			error_log("Failed to log payment dispute: " . $e->getMessage());
+			return false;
+		}
+	}
+
+	public function get_user_disputes(string $uid): array {
+		$sql = "SELECT BIN_TO_UUID(dispute_id) as dispute_id, BIN_TO_UUID(order_id) as order_id, 
+					   payment_reference, dispute_reason, description, status, created_at 
+				FROM payment_disputes 
+				WHERE reporter_id = UUID_TO_BIN(:uid)
+				ORDER BY created_at DESC";
+		try {
+			$stmt = $this->db->prepare($sql);
+			$stmt->execute(['uid' => $uid]);
+			return $stmt->fetchAll(PDO::FETCH_ASSOC);
+		} catch (PDOException $e) {
+			error_log("Failed to fetch user disputes: " . $e->getMessage());
+			return [];
+		}
+	}
 }

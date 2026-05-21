@@ -47,6 +47,10 @@ $initials = $isLoggedIn ? strtoupper(substr($firstName, 0, 1) . substr($lastName
             <div class="nav-icon"><i data-lucide="truck"></i></div>
             <span class="sidebar-text"><?= trans('Delivery') ?? 'Delivery' ?></span>
         </a>
+        <a href="/pages/disputes/" class="nav-item <?= strpos($_SERVER['REQUEST_URI'], 'disputes') !== false ? 'active' : '' ?>">
+            <div class="nav-icon"><i data-lucide="alert-circle"></i></div>
+            <span class="sidebar-text"><?= trans('Disputes') ?? 'Disputes' ?></span>
+        </a>
     </div>
 
     <div class="divider"></div>

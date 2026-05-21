@@ -20,6 +20,7 @@
 		"aws/aws-sdk-php": "^3.376",
 		"mongodb/mongodb": "^2.2",
 		"supabase-php/supabase-client": "^1.2",
-		"guzzlehttp/guzzle": "^7.10"
+		"guzzlehttp/guzzle": "^7.10",
+		"laudis/neo4j-php-client": "*"
 	}
 }
