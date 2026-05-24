@@ -100,9 +100,9 @@ fi
         stage('Cleanup Docker') {
             steps {
                 sh '''
-        docker ps -aq --filter name=prometheus | xargs -r docker rm -f
-        docker compose down -v --remove-orphans || true
-        '''
+                    docker compose down --remove-orphans || true
+                    docker rm -f prometheus || true
+                '''
             }
         }
 
