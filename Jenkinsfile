@@ -42,8 +42,8 @@ pipeline {
                     string(credentialsId: 'QDRANT_API_KEY', variable: 'QDRANT_API_KEY'),
                     string(credentialsId: 'GF_SECURITY_ADMIN_PASSWORD', variable: 'GF_SECURITY_ADMIN_PASSWORD')
                 ]) {
-                    sh """
-                        cat > .env <<EOF
+                    sh '''
+cat > .env <<EOF
 MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
 MYSQL_DATABASE=${MYSQL_DATABASE}
 MYSQL_USER=${MYSQL_USER}
@@ -56,7 +56,7 @@ NEO4J_AUTH=${NEO4J_AUTH}
 QDRANT_API_KEY=${QDRANT_API_KEY}
 GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
 EOF
-                    """
+                    '''
                 }
             }
         }
@@ -64,28 +64,34 @@ EOF
         stage('Prepare Environment') {
             steps {
                 sh '''
-                mkdir -p ./docker/prometheus
-                cat > ./docker/prometheus/prometheus.yml <<'EOF'
-                global:
-                  scrape_interval: 15s
+mkdir -p ./docker/prometheus
+cat > ./docker/prometheus/prometheus.yml <<'EOF'
+global:
+  scrape_interval: 15s
 
-                scrape_configs:
-                  - job_name: 'prometheus'
-                    static_configs:
-                      - targets: ['localhost:9090']
-                EOF
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+EOF
 
-                if [ ! -f ./docker/nginx/default.conf ]; then
-                  echo "ERROR: docker/nginx/default.conf is missing or not a file"
-                  ls -la ./docker/nginx || true
-                  exit 1
-                fi
+ls -la ./docker/prometheus
+if [ -d ./docker/prometheus/prometheus.yml ]; then
+  echo "ERROR: ./docker/prometheus/prometheus.yml is a directory"
+  exit 1
+fi
 
-                if [ ! -f ./docker/prometheus/prometheus.yml ]; then
-                  echo "ERROR: docker/prometheus/prometheus.yml is missing or not a file"
-                  ls -la ./docker/prometheus || true
-                  exit 1
-                fi
+if [ ! -f ./docker/nginx/default.conf ]; then
+  echo "ERROR: docker/nginx/default.conf is missing or not a file"
+  ls -la ./docker/nginx || true
+  exit 1
+fi
+
+if [ ! -f ./docker/prometheus/prometheus.yml ]; then
+  echo "ERROR: docker/prometheus/prometheus.yml is missing or not a file"
+  ls -la ./docker/prometheus || true
+  exit 1
+fi
                 '''
             }
         }
