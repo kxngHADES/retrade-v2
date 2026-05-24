@@ -1,0 +1,113 @@
+@import 'variables.css';
+
+.dispute-history {
+  margin-top: var(--space-6);
+  width: 100%;
+}
+
+.dispute-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+}
+
+.dispute-item {
+  padding: var(--space-4);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dispute-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--overlay);
+}
+
+.dispute-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.dispute-item-title {
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  font-size: var(--font-h3-size);
+}
+
+.dispute-item-id {
+  font-size: var(--font-body-small-size);
+  color: var(--text-secondary);
+  margin: var(--space-1) 0;
+}
+
+.status-pill {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: var(--font-micro-size);
+    font-weight: 700;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid currentColor;
+}
+
+.status-pill--warning {
+    color: var(--warning);
+    background: rgba(180, 83, 9, 0.12);
+    border-color: rgba(180, 83, 9, 0.2);
+}
+
+.status-pill--success {
+    color: var(--success);
+    background: rgba(46, 125, 50, 0.12);
+    border-color: rgba(46, 125, 50, 0.2);
+}
+
+.dispute-item-desc {
+  font-size: var(--font-body-small-size);
+  color: var(--text-secondary);
+  margin: var(--space-3) 0;
+  line-height: 1.5;
+}
+
+.dispute-item-date {
+  font-size: var(--font-micro-size);
+  color: var(--text-muted);
+}
+
+.content-editor {
+  height: auto !important;
+  min-height: 120px;
+  padding: var(--space-3) !important;
+  line-height: 1.6 !important;
+  resize: vertical;
+}
+
+.dispute-divider {
+  margin: var(--space-6) 0;
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+.dispute-back-footer {
+  margin-top: var(--space-6);
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .dispute-item-header {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+  
+  .auth-container {
+    padding: var(--space-4);
+  }
+}

@@ -40,7 +40,7 @@ if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
 	$status = 400;
 
 	if ($errorCode === UPLOAD_ERR_INI_SIZE || $errorCode === UPLOAD_ERR_FORM_SIZE) {
-		$message = 'File too large. Maximum upload size is 8MB.';
+		$message = 'File too large. Maximum upload size is 100MB.';
 		$status = 413;
 	} elseif ($errorCode === UPLOAD_ERR_NO_FILE) {
 		$message = 'No file uploaded.';

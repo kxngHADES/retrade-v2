@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="listing-photo-grid">
                     <label for="thumbnail" class="listing-upload-card listing-upload-card--large listing-upload-card--preview">
-                        <input type="file" id="thumbnail" accept="image/*" class="listing-file-input" required>
+                        <input type="file" id="thumbnail" name="thumbnail" accept="image/*" class="listing-file-input" required>
                         <img class="listing-preview-img listing-preview-img--thumbnail hidden" alt="<?= htmlspecialchars(trans('Thumbnail preview')) ?>">
                         <div class="listing-upload-card-content">
                             <svg class="listing-upload-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -89,23 +89,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <span class="listing-upload-hint"><?= htmlspecialchars(trans('Recommended size 1200x900')) ?></span>
                         </div>
                     </label>
-                    <label for="images" class="listing-upload-card listing-upload-card--small listing-upload-card--secondary listing-upload-card--preview">
-                        <input type="file" id="images" accept="image/*" multiple class="listing-file-input">
+                    <label for="img_slot_1" class="listing-upload-card listing-upload-card--small listing-upload-card--secondary listing-upload-card--preview">
+                        <input type="file" id="img_slot_1" name="images[]" accept="image/*" class="listing-file-input secondary-image-input">
                         <img class="listing-preview-img listing-preview-img--small hidden" alt="<?= htmlspecialchars(trans('Image preview 1')) ?>">
                         <div class="listing-upload-card-content">
-                            <span class="listing-add-text"><?= htmlspecialchars(trans('Add image')) ?></span>
+                            <span class="listing-add-text"><?= htmlspecialchars(trans('Add')) ?></span>
                         </div>
                     </label>
-                    <label for="images" class="listing-upload-card listing-upload-card--small listing-upload-card--secondary listing-upload-card--preview">
+                    <label for="img_slot_2" class="listing-upload-card listing-upload-card--small listing-upload-card--secondary listing-upload-card--preview">
+                        <input type="file" id="img_slot_2" name="images[]" accept="image/*" class="listing-file-input secondary-image-input">
                         <img class="listing-preview-img listing-preview-img--small hidden" alt="<?= htmlspecialchars(trans('Image preview 2')) ?>">
                         <div class="listing-upload-card-content">
-                            <span class="listing-add-text"><?= htmlspecialchars(trans('Add image')) ?></span>
+                            <span class="listing-add-text"><?= htmlspecialchars(trans('Add')) ?></span>
                         </div>
                     </label>
-                    <label for="images" class="listing-upload-card listing-upload-card--small listing-upload-card--secondary listing-upload-card--preview">
+                    <label for="img_slot_3" class="listing-upload-card listing-upload-card--small listing-upload-card--secondary listing-upload-card--preview">
+                        <input type="file" id="img_slot_3" name="images[]" accept="image/*" class="listing-file-input secondary-image-input">
                         <img class="listing-preview-img listing-preview-img--small hidden" alt="<?= htmlspecialchars(trans('Image preview 3')) ?>">
                         <div class="listing-upload-card-content">
-                            <span class="listing-add-text"><?= htmlspecialchars(trans('Add image')) ?></span>
+                            <span class="listing-add-text"><?= htmlspecialchars(trans('Add')) ?></span>
                         </div>
                     </label>
                 </div>
@@ -130,11 +132,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <section class="listing-section listing-grid-two">
                 <div class="listing-field">
                     <label class="listing-label" for="price"><?= htmlspecialchars(trans('Price')) ?></label>
-                    <div class="listing-input-icon-wrapper">
-                        <span class="listing-input-icon">R</span>
-                        <input id="price" name="price" type="number" step="0.01" class="listing-input listing-input--icon" placeholder="0.00" required>
-                    </div>
-                </div>
+                    <input id="price" name="price" type="number" step="0.01" class="listing-input" placeholder="0.00" required>
+                </input>
                 <div class="listing-field">
                     <label class="listing-label" for="stock"><?= htmlspecialchars(trans('Stock')) ?></label>
                     <input id="stock" name="stock" type="number" class="listing-input" placeholder="1" required>
@@ -173,15 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <div class="listing-field">
                     <label class="listing-label" for="location"><?= htmlspecialchars(trans('Location')) ?></label>
-                    <div class="listing-input-icon-wrapper">
-                        <span class="listing-input-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"></path>
-                                <circle cx="12" cy="10" r="3"></circle>
-                            </svg>
-                        </span>
-                        <input id="location" name="location" type="text" class="listing-input listing-input--icon" placeholder="<?= htmlspecialchars(trans('e.g. Cape Town, WC')) ?>">
-                    </div>
+                    <input id="location" name="location" type="text" class="listing-input" placeholder="<?= htmlspecialchars(trans('e.g. Cape Town, WC')) ?>">
                 </div>
                 <div class="listing-field">
                     <label class="listing-label" for="delivery_method"><?= htmlspecialchars(trans('Delivery method')) ?></label>

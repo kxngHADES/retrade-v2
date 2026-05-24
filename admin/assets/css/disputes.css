@@ -9,6 +9,8 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+  gap: var(--space-4);
 }
 
 .page-title {
@@ -22,14 +24,16 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  -webkit-overflow-scrolling: touch;
 }
 
 .dispute-table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
+  min-width: 900px;
 }
 
 .dispute-table th {
@@ -40,6 +44,7 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   border-bottom: 2px solid var(--border);
+  white-space: nowrap;
 }
 
 .dispute-table td {
@@ -47,6 +52,17 @@
   border-bottom: 1px solid var(--border);
   vertical-align: top;
   color: var(--text-primary);
+}
+
+@media (max-width: 640px) {
+  .disputes-container {
+    padding: var(--space-4);
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 .dispute-table tr:last-child td {

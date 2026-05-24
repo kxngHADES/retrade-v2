@@ -12,6 +12,22 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
+.nav-brand-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.mobile-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: var(--space-2);
+}
+
 .nav-brand {
   display: flex;
   align-items: center;
@@ -26,12 +42,18 @@
   letter-spacing: -0.5px;
 }
 
+.nav-content {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  justify-content: space-between;
+}
+
 .nav-menu {
   display: flex;
   align-items: center;
   gap: var(--space-5);
   margin-left: var(--space-8);
-  flex: 1;
 }
 
 .nav-link {
@@ -98,11 +120,89 @@
 
 .user-profile {
   display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
-  background-color: var(--bg);
-  border-radius: 8px;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.user-role {
+  font-size: var(--font-label-size);
+  color: var(--text-muted);
+}
+
+.logout-link {
+  color: var(--error);
+  text-decoration: none;
+  font-size: var(--font-body-small-size);
+  font-weight: 600;
+}
+
+@media (max-width: 1024px) {
+  .admin-nav {
+    flex-direction: column;
+    height: auto;
+    padding: var(--space-3) var(--space-4);
+    align-items: stretch;
+  }
+
+  .nav-brand-container {
+    width: 100%;
+  }
+
+  .mobile-toggle {
+    display: block;
+  }
+
+  .nav-content {
+    display: none;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border);
+  }
+
+  .nav-content.show {
+    display: flex;
+  }
+
+  .nav-menu {
+    flex-direction: column;
+    margin-left: 0;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .nav-link {
+    width: 100%;
+    padding: var(--space-4) var(--space-2);
+    font-size: 1.1rem;
+    border-bottom: 1px solid var(--surface-alt);
+  }
+
+  .nav-link:last-child {
+    border-bottom: none;
+  }
+
+  .nav-link-text {
+    font-weight: 500;
+  }
+
+  .nav-link.active::after {
+    display: none;
+  }
+
+  .nav-actions {
+    width: 100%;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border);
+  }
+
+  .user-profile {
+    align-items: flex-start;
+  }
+}
   font-size: var(--font-micro-size);
   font-weight: 600;
   color: var(--text-primary);
