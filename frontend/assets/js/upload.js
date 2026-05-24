@@ -49,9 +49,8 @@ async function uploadToMinio(blob, path) {
 }
 
 const thumbnailInput = document.getElementById("thumbnail");
-const imagesInput = document.getElementById("images");
+const secondaryImageInputs = document.querySelectorAll(".secondary-image-input");
 const thumbnailPreview = document.querySelector(".listing-preview-img--thumbnail");
-const imagePreviewSlots = Array.from(document.querySelectorAll(".listing-preview-img--small"));
 
 function setPreviewImage(imgElement, file) {
 	if (!imgElement) return;
@@ -62,6 +61,7 @@ function setPreviewImage(imgElement, file) {
 
 	if (!file) {
 		imgElement.classList.remove("visible");
+		imgElement.classList.add("hidden");
 		const panel = imgElement.closest(".listing-upload-card");
 		if (panel) {
 			const content = panel.querySelector(".listing-upload-card-content");
@@ -74,6 +74,7 @@ function setPreviewImage(imgElement, file) {
 	imgElement.src = previewUrl;
 	imgElement.dataset.previewUrl = previewUrl;
 	imgElement.classList.add("visible");
+	imgElement.classList.remove("hidden");
 	const panel = imgElement.closest(".listing-upload-card");
 	if (panel) {
 		const content = panel.querySelector(".listing-upload-card-content");
@@ -86,28 +87,23 @@ function onThumbnailChange() {
 	setPreviewImage(thumbnailPreview, file);
 }
 
-function onImagesChange() {
-	const files = Array.from(imagesInput.files);
-
-	imagePreviewSlots.forEach((imgEl, index) => {
-		setPreviewImage(imgEl, files[index] || null);
-	});
-}
-
 if (thumbnailInput) {
 	thumbnailInput.addEventListener("change", onThumbnailChange);
 }
 
-if (imagesInput) {
-	imagesInput.addEventListener("change", onImagesChange);
-}
+secondaryImageInputs.forEach(input => {
+	input.addEventListener("change", (e) => {
+		const file = e.target.files[0];
+		const previewImg = e.target.closest(".listing-upload-card").querySelector(".listing-preview-img");
+		setPreviewImage(previewImg, file);
+	});
+});
 
 document.querySelector("form").addEventListener("submit", async (e) => {
 	e.preventDefault();
 
 	const form = e.target;
 	const submitButton = form.querySelector(".listing-submit-btn");
-	const previousButtonText = submitButton ? submitButton.textContent : null;
 
 	if (submitButton) {
 		submitButton.disabled = true;
@@ -129,8 +125,13 @@ document.querySelector("form").addEventListener("submit", async (e) => {
 			.map(t => t.trim())
 			.filter(Boolean);
 
-		const thumbnailFile = document.getElementById("thumbnail").files[0];
-		const imageFiles = document.getElementById("images").files;
+		const thumbnailFile = thumbnailInput.files[0];
+		
+		// Collect all additional images from separate inputs
+		const imageFiles = [];
+		secondaryImageInputs.forEach(input => {
+			if (input.files[0]) imageFiles.push(input.files[0]);
+		});
 
 		if (!thumbnailFile) {
 			alert("Thumbnail required");

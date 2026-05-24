@@ -237,21 +237,8 @@
     min-height: 120px;
 }
 
-.listing-input-icon-wrapper,
 .listing-select-wrapper {
     position: relative;
-}
-
-.listing-input-icon {
-    position: absolute;
-    inset-inline-start: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-secondary);
-}
-
-.listing-input--icon {
-    padding-inline-start: 40px;
 }
 
 .listing-select {

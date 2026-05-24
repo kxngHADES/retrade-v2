@@ -85,6 +85,19 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  minio-init:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set myminio http://minio:9000 minio_admin minio_secure_password_123;
+      /usr/bin/mc mb myminio/retrade || true;
+      /usr/bin/mc anonymous set public myminio/retrade;
+      exit 0;
+      "
   
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
