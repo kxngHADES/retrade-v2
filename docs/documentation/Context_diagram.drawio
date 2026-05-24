@@ -1,0 +1,147 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="wECJxkMFQLXO92m6P7oj">
+    <mxGraphModel dx="1210" dy="743" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-15" edge="1" parent="1" source="odtBwRnPcTYLP7u9OpOH-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" target="odtBwRnPcTYLP7u9OpOH-2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="300" y="370" />
+              <mxPoint x="160" y="370" />
+              <mxPoint x="160" y="320" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-16" connectable="0" parent="odtBwRnPcTYLP7u9OpOH-15" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Order status, chat messages,&amp;nbsp;&lt;div&gt;product recommendatio, OTP&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="0.32" y="-3" as="geometry">
+            <mxPoint x="67" y="23" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-26" edge="1" parent="1" source="odtBwRnPcTYLP7u9OpOH-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="odtBwRnPcTYLP7u9OpOH-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-27" connectable="0" parent="odtBwRnPcTYLP7u9OpOH-26" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Send SMS OTPs" vertex="1">
+          <mxGeometry relative="1" x="-0.5385" y="3" as="geometry">
+            <mxPoint y="13" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-28" edge="1" parent="1" source="odtBwRnPcTYLP7u9OpOH-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="odtBwRnPcTYLP7u9OpOH-6">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="490" y="300" />
+              <mxPoint x="490" y="340" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-29" connectable="0" parent="odtBwRnPcTYLP7u9OpOH-28" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="send email&lt;div&gt;(notification &amp;amp; verification)&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.3556" y="-1" as="geometry">
+            <mxPoint x="31" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-30" edge="1" parent="1" source="odtBwRnPcTYLP7u9OpOH-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" target="odtBwRnPcTYLP7u9OpOH-7">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="550" y="265" />
+              <mxPoint x="550" y="200" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-31" connectable="0" parent="odtBwRnPcTYLP7u9OpOH-30" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Upload product images&lt;div&gt;chat attachments&lt;/div&gt;&lt;div&gt;ID verification and profile pictures&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="0.2498" y="2" as="geometry">
+            <mxPoint x="42" y="-28" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-34" edge="1" parent="1" source="odtBwRnPcTYLP7u9OpOH-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" target="odtBwRnPcTYLP7u9OpOH-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-35" connectable="0" parent="odtBwRnPcTYLP7u9OpOH-34" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="user viewing metrics,&lt;div&gt;cross-linked fraud data graph&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="0.3239" y="4" as="geometry">
+            <mxPoint x="40" y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-1" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" value="ReTrade" vertex="1">
+          <mxGeometry height="100" width="100" x="350" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-9" edge="1" parent="1" source="odtBwRnPcTYLP7u9OpOH-2" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" target="odtBwRnPcTYLP7u9OpOH-1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="280" y="300" />
+              <mxPoint x="280" y="270" />
+              <mxPoint x="350" y="270" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-25" connectable="0" parent="odtBwRnPcTYLP7u9OpOH-9" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Browse products,&amp;nbsp;&amp;nbsp;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212)); color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;login, register,&amp;nbsp;&lt;/span&gt;&lt;div&gt;&lt;div&gt;send messages,&lt;div&gt;place orders, pays,&amp;nbsp;&lt;/div&gt;&lt;div&gt;files reports&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.4824" y="4" as="geometry">
+            <mxPoint x="7" y="-26" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-2" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="Users" vertex="1">
+          <mxGeometry height="80" width="80" x="10" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-18" edge="1" parent="1" source="odtBwRnPcTYLP7u9OpOH-3" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;startArrow=classic;startFill=1;endArrow=none;endFill=0;edgeStyle=orthogonalEdgeStyle;" target="odtBwRnPcTYLP7u9OpOH-1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="100" y="185" />
+              <mxPoint x="365" y="185" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-19" connectable="0" parent="odtBwRnPcTYLP7u9OpOH-18" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="bann accounts,&amp;nbsp;&lt;div&gt;escalate disputes,&amp;nbsp;&lt;/div&gt;&lt;div&gt;system metrics&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.5037" as="geometry">
+            <mxPoint x="26" y="-25" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-20" edge="1" parent="1" source="odtBwRnPcTYLP7u9OpOH-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;" target="odtBwRnPcTYLP7u9OpOH-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-21" connectable="0" parent="odtBwRnPcTYLP7u9OpOH-20" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Review disputes,&amp;nbsp;&lt;div&gt;manage users,&amp;nbsp;&lt;/div&gt;&lt;div&gt;oversea platform health&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.7077" y="3" as="geometry">
+            <mxPoint x="43" y="-27" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-3" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="Administrators" vertex="1">
+          <mxGeometry height="80" width="80" x="80" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-5" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="SMS provider" vertex="1">
+          <mxGeometry height="80" width="80" x="470" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-6" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="Email Provider" vertex="1">
+          <mxGeometry height="80" width="80" x="590" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-32" edge="1" parent="1" source="odtBwRnPcTYLP7u9OpOH-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=1;entryY=0;entryDx=0;entryDy=0;" target="odtBwRnPcTYLP7u9OpOH-1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="710" y="265" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-33" connectable="0" parent="odtBwRnPcTYLP7u9OpOH-32" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Serve media files" vertex="1">
+          <mxGeometry relative="1" x="0.4008" y="-1" as="geometry">
+            <mxPoint x="113" y="-14" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-7" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="Cloud storage S3/ Minio" vertex="1">
+          <mxGeometry height="80" width="80" x="750" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-36" edge="1" parent="1" source="odtBwRnPcTYLP7u9OpOH-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="odtBwRnPcTYLP7u9OpOH-1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="550" y="120" />
+              <mxPoint x="400" y="120" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-37" connectable="0" parent="odtBwRnPcTYLP7u9OpOH-36" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Personalised feed&lt;div&gt;fraud alerts&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.0848" as="geometry">
+            <mxPoint x="31" y="-20" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="odtBwRnPcTYLP7u9OpOH-8" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="Recommendaton engin/ graph" vertex="1">
+          <mxGeometry height="100" width="100" x="550" y="20" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
