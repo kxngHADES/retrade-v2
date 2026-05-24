@@ -61,6 +61,16 @@ EOF
             }
         }
 
+        stage('Prepare Environment') {
+            steps {
+                sh '''
+                mkdir -p ./docker/prometheus
+                touch ./docker/prometheus/prometheus.yml
+                echo "global:\n  scrape_interval: 15s" > ./docker/prometheus/prometheus.yml
+                '''
+            }
+        }
+
         stage('Build & Deploy') {
             steps {
                 sh 'curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o ./docker-compose && chmod +x ./docker-compose'
