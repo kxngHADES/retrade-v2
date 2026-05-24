@@ -65,8 +65,27 @@ EOF
             steps {
                 sh '''
                 mkdir -p ./docker/prometheus
-                touch ./docker/prometheus/prometheus.yml
-                echo "global:\n  scrape_interval: 15s" > ./docker/prometheus/prometheus.yml
+                cat > ./docker/prometheus/prometheus.yml <<'EOF'
+                global:
+                  scrape_interval: 15s
+
+                scrape_configs:
+                  - job_name: 'prometheus'
+                    static_configs:
+                      - targets: ['localhost:9090']
+                EOF
+
+                if [ ! -f ./docker/nginx/default.conf ]; then
+                  echo "ERROR: docker/nginx/default.conf is missing or not a file"
+                  ls -la ./docker/nginx || true
+                  exit 1
+                fi
+
+                if [ ! -f ./docker/prometheus/prometheus.yml ]; then
+                  echo "ERROR: docker/prometheus/prometheus.yml is missing or not a file"
+                  ls -la ./docker/prometheus || true
+                  exit 1
+                fi
                 '''
             }
         }
@@ -74,7 +93,7 @@ EOF
         stage('Build & Deploy') {
             steps {
                 sh 'curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o ./docker-compose && chmod +x ./docker-compose'
-                sh './docker-compose up -d'
+                sh './docker-compose up -d --remove-orphans'
             }
         }
     }
