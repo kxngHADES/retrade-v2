@@ -1,4 +1,3 @@
-# docker-compose.yml – uses variables from .env (not committed)
 services:
   nginx:
     image: nginx:latest
