@@ -65,6 +65,7 @@ EOF
             steps {
                 sh '''
 mkdir -p ./docker/prometheus
+rm -rf ./docker/prometheus/prometheus.yml
 cat > ./docker/prometheus/prometheus.yml <<'EOF'
 global:
   scrape_interval: 15s
