@@ -21,6 +21,28 @@
   align-items: start;
 }
 
+@media (max-width: 1024px) {
+  .broadcast-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-pane {
+    position: static;
+    margin-top: var(--space-6);
+  }
+}
+
+@media (max-width: 640px) {
+  .broadcast-container {
+    padding: var(--space-4);
+  }
+  
+  .broadcast-form-card,
+  .preview-pane {
+    padding: var(--space-4);
+  }
+}
+
 /* Form Section */
 .broadcast-form-card {
   background: var(--surface);

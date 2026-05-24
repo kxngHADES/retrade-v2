@@ -16,6 +16,7 @@ RUN docker-php-ext-enable redis
 RUN apt-get update && apt-get install -y \
     libssl-dev \
     pkg-config \
+    libzstd-dev \
     && pecl install mongodb \
     && docker-php-ext-enable mongodb
 
@@ -28,6 +29,11 @@ COPY www.conf /usr/local/etc/php-fpm.d/www.conf
 # Copy custom entrypoint script
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Set PHP upload limits
+RUN echo "upload_max_filesize=100M" > /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "post_max_size=100M" >> /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "memory_limit=256M" >> /usr/local/etc/php/conf.d/uploads.ini
 
 # Set entrypoint
 ENTRYPOINT ["docker-entrypoint.sh"]

@@ -9,6 +9,8 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+  gap: var(--space-4);
 }
 
 .page-title {
@@ -24,16 +26,18 @@
   border-radius: 12px;
   padding: var(--space-4);
   margin-bottom: var(--space-5);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
   display: flex;
   align-items: center;
   gap: var(--space-4);
+  flex-wrap: wrap;
 }
 
 .filter-group {
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  flex-wrap: wrap;
 }
 
 .filter-label {
@@ -49,14 +53,16 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  -webkit-overflow-scrolling: touch;
 }
 
 .user-table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
+  min-width: 800px;
 }
 
 .user-table th {
@@ -67,6 +73,7 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   border-bottom: 2px solid var(--border);
+  white-space: nowrap;
 }
 
 .user-table td {
@@ -74,6 +81,36 @@
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
   color: var(--text-primary);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .user-management-container {
+    padding: var(--space-4);
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .filter-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-group {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+
+  .ban-select {
+    width: 100%;
+    min-height: 48px;
+    font-size: 16px;
+  }
 }
 
 .user-table tr:last-child td {
