@@ -44,35 +44,26 @@ pipeline {
                 ]) {
                     sh """
                         cat > .env <<EOF
-                        MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-                        MYSQL_DATABASE=${MYSQL_DATABASE}
-                        MYSQL_USER=${MYSQL_USER}
-                        MYSQL_PASSWORD=${MYSQL_PASSWORD}
-                        MINIO_ROOT_USER=${MINIO_ROOT_USER}
-                        MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
-                        MONGO_ROOT_USERNAME=${MONGO_ROOT_USERNAME}
-                        MONGO_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
-                        NEO4J_AUTH=${NEO4J_AUTH}
-                        QDRANT_API_KEY=${QDRANT_API_KEY}
-                        GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
-                        EOF
+MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+MYSQL_DATABASE=${MYSQL_DATABASE}
+MYSQL_USER=${MYSQL_USER}
+MYSQL_PASSWORD=${MYSQL_PASSWORD}
+MINIO_ROOT_USER=${MINIO_ROOT_USER}
+MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+MONGO_ROOT_USERNAME=${MONGO_ROOT_USERNAME}
+MONGO_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
+NEO4J_AUTH=${NEO4J_AUTH}
+QDRANT_API_KEY=${QDRANT_API_KEY}
+GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+EOF
                     """
                 }
             }
         }
 
-        stage('Install docker-compose') {
-            steps {
-                sh '''
-                    curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose 2>/dev/null
-                    chmod +x /usr/local/bin/docker-compose
-                '''
-            }
-        }
-
         stage('Build & Deploy') {
             steps {
-                sh 'docker-compose up -d'
+                sh 'docker compose up -d --build'
             }
         }
     }
