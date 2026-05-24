@@ -108,7 +108,6 @@ wheels/
 # UV
 .env
 !.env.example
-uv.lock
 .venv/
 
 # IDE
@@ -134,3 +133,6 @@ supabase_schema.md
 DESIGN.md
 
 docker-compose-example
+
+
+jenkins_fail.txt
