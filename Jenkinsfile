@@ -63,13 +63,7 @@ EOF
 
         stage('Build & Deploy') {
             steps {
-                script {
-                    try {
-                        sh 'docker compose up -d --build'
-                    } catch (Exception e) {
-                        sh 'docker-compose up -d --build'
-                    }
-                }
+                sh 'docker-compose up -d --build --no-deps --force-recreate'
             }
         }
     }
