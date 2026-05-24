@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from app.services.listing_services import create_listing, get_users_listings, get_listing, update_listing, get_latest_listings, get_recommendations, record_user_view, search_listings_in_es
-from app.models.listing_models import IndividualListing, individual, IndividualListingUpdate, ListingSearchParams
+from app.services.listing_services import create_listing, get_users_listings, get_listing, update_listing, delete_listing, get_latest_listings, get_recommendations, record_user_view, search_listings_in_es
+from app.models.listing_models import IndividualListing, individual, IndividualListingUpdate, ListingSearchParams, DeleteListingResponse
 from pydantic import BaseModel, EmailStr
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from app.db.mongodb import MongoConnection
@@ -61,6 +61,15 @@ async def update_listing_endpoint(id: str, data: IndividualListingUpdate):
     if not success:
         raise HTTPException(status_code=400, detail="Failed to update listing")
     return {"success": True, "message": "Listing updated successfully"}
+
+@router.delete("/delete_listing/{id}", response_model=DeleteListingResponse)
+async def delete_listing_endpoint(id: str):
+    db: AsyncIOMotorDatabase = await MongoConnection.get_db()
+    collection = db.individual_listings
+    success = await delete_listing(id, collection)
+    if not success:
+        raise HTTPException(status_code=400, detail="Failed to delete listing")
+    return DeleteListingResponse(success=True, message="Listing deleted successfully")
 
 @router.get("/get_user_listings/{uid}")
 async def get_user_listings(uid: str):

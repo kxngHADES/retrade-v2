@@ -13,18 +13,22 @@ $listing_id = $_GET['id'];
 $listingService = new listing_service();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $data = [
-        'name' => $_POST['name'] ?? '',
-        'description' => $_POST['description'] ?? '',
-        'price' => $_POST['price'] ?? 0,
-        'stock' => $_POST['stock'] ?? 0,
-        'condition' => $_POST['condition'] ?? '',
-        'category' => $_POST['category'] ?? '',
-        'location' => $_POST['location'] ?? '',
-        'delivery_method' => $_POST['delivery_method'] ?? '',
-        'tags' => $_POST['tags'] ?? '[]'
-    ];
-    $listingService->updateListing($listing_id, $data);
+    if (isset($_POST['action']) && $_POST['action'] === 'delete') {
+        $listingService->deleteListing($listing_id);
+    } else {
+        $data = [
+            'name' => $_POST['name'] ?? '',
+            'description' => $_POST['description'] ?? '',
+            'price' => $_POST['price'] ?? 0,
+            'stock' => $_POST['stock'] ?? 0,
+            'condition' => $_POST['condition'] ?? '',
+            'category' => $_POST['category'] ?? '',
+            'location' => $_POST['location'] ?? '',
+            'delivery_method' => $_POST['delivery_method'] ?? '',
+            'tags' => $_POST['tags'] ?? '[]'
+        ];
+        $listingService->updateListing($listing_id, $data);
+    }
 }
 
 $listing = $listingService->getListing($listing_id);
@@ -140,6 +144,11 @@ if (!$listing) {
                     <div class="listing-submit-wrap">
                         <button class="listing-submit-btn" type="submit"><?= htmlspecialchars(trans('Update Listing')) ?></button>
                     </div>
+                </form>
+
+                <form method="POST" action="/pages/my-listings/edit-listing/?id=<?= urlencode($listing_id) ?>" onsubmit="return confirm('Are you sure you want to delete this listing?');" style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+                    <input type="hidden" name="action" value="delete">
+                    <button class="listing-delete-btn" type="submit"><?= htmlspecialchars(trans('Delete Listing')) ?></button>
                 </form>
             </div>
         </main>

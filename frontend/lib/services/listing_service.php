@@ -51,6 +51,14 @@ class listing_service{
         exit();
     }
 
+    public function deleteListing(string $id) {
+        $apiService = new ApiService();
+        $apiService->delete_listing($id);
+
+        header('Location: /pages/my-listings');
+        exit();
+    }
+
     public function handleViewListingProcess(?string $uid, ?string $listingId): array {
         if (!$listingId) {
             header("Location: /");

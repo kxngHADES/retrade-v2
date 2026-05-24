@@ -34,6 +34,13 @@ async def update_listing(listing_id: str, update_data: IndividualListingUpdate, 
     except Exception:
         return False
 
+async def delete_listing(listing_id: str, collection: AsyncIOMotorCollection) -> bool:
+    try:
+        result = await collection.delete_one({"_id": ObjectId(listing_id)})
+        return result.deleted_count > 0
+    except Exception:
+        return False
+
 
 async def get_users_listings(uid: str, collection: AsyncIOMotorCollection) -> list[dict]:
     global redis_client

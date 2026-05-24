@@ -37,6 +37,4 @@ class Database {
 			throw new PDOException("Failed to connect to database.", (int)$e->getCode());
 		}
 	}
-
-	
 }

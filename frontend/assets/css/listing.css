@@ -292,6 +292,24 @@
     transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
+.listing-delete-btn {
+    min-width: 170px;
+    padding: 16px 24px;
+    border: none;
+    border-radius: 16px;
+    background: #dc3545;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    margin-top: 10px;
+}
+
+.listing-delete-btn:hover {
+    background: #c82333;
+}
+
 .listing-submit-btn:disabled {
     background: var(--disabled);
     cursor: not-allowed;

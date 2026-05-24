@@ -42,3 +42,7 @@ class ListingSearchParams(BaseModel):
     location: Optional[str] = None
     min_price: Optional[float] = None
     max_price: Optional[float] = None
+
+class DeleteListingResponse(BaseModel):
+    success: bool
+    message: str

@@ -207,6 +207,36 @@ class ApiService {
         return false;
     }
 
+    public function delete_listing(string $id): bool {
+        $apiUrl = $_ENV['BACKEND_INTERNAL_URL'] . '/listings/delete_listing/' . urlencode($id);
+        
+        $ch = curl_init($apiUrl);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Accept: application/json'
+        ]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+
+        if ($curlError) {
+            error_log("CURL Error deleting listing $id: " . $curlError);
+            return false;
+        }
+
+        if ($httpCode >= 200 && $httpCode < 300) {
+            return true;
+        }
+
+        error_log("Delete Listing API ERROR $httpCode: $response");
+        return false;
+    }
+
     public function get_recommendations_or_latest(?string $uid, int $page = 1): array {
         $endpoint = $uid ? "/listings/recommendations/" . urlencode($uid) . "?page=" . $page : "/listings/latest";
         $apiUrl = $_ENV['BACKEND_INTERNAL_URL'] . $endpoint;
