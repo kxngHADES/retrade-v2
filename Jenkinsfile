@@ -63,14 +63,15 @@ EOF
 
         stage('Build & Deploy') {
             steps {
-                sh 'docker-compose up -d --build --no-deps --force-recreate'
+                sh 'curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o ./docker-compose && chmod +x ./docker-compose'
+                sh './docker-compose up -d --build --no-deps --force-recreate'
             }
         }
     }
 
     post {
         always {
-            sh 'rm -f admin/.env backend/.env frontend/.env .env'
+            sh 'rm -f admin/.env backend/.env frontend/.env .env ./docker-compose'
         }
     }
 }
