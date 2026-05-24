@@ -97,6 +97,15 @@ fi
             }
         }
 
+        stage('Cleanup Docker') {
+            steps {
+                sh '''
+        docker ps -aq --filter name=prometheus | xargs -r docker rm -f
+        docker compose down -v --remove-orphans || true
+        '''
+            }
+        }
+
         stage('Build & Deploy') {
             steps {
                 sh 'curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o ./docker-compose && chmod +x ./docker-compose'
