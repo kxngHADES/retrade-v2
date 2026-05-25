@@ -90,14 +90,14 @@ class profile_services {
 	// Update Phone number
 	public function change_phone_number(string $phoneNumber, string $uid) {
 		if (session_status() === PHP_SESSION_NONE) {
-			session_status();
+			session_start();
 		}
 
 		$auth = new Authentication_service();
 
 		$auth->update_phone_number($phoneNumber, $uid);
 
-		//send otp and store in redis session
+		// send otp and store in redis session
 		$redis = \Lib\cache\Redis::getInstance();
 		$otp = rand(100000, 999999);
 		$redis->setEx($phoneNumber, $otp, (60*20));
@@ -109,7 +109,8 @@ class profile_services {
 			header('Location: /pages/profile/verify_phone');
 			exit;
 		}
-		
+
+		throw new Exception(trans('Failed to send OTP'));
 	}
 
 	// Verify Phone
@@ -145,13 +146,18 @@ class profile_services {
 		try {
 			$otp = rand(100000, 999999);
 			$redis->setEx($email, $otp, (60*20));
-			$email_service->send_otp($email, $otp);
+
+			$success = $email_service->send_otp($email, $otp);
+			if (!$success) {
+				throw new Exception(trans('Failed to send verification email'));
+			}
+
 			header('Location: /pages/profile/verify_email');
 			exit;
 		} catch (Exception $e){
 			error_log("Email verification error: " . $e->getMessage());
+			throw $e;
 		}
-		
 	}
 
 	public function validate_email_otp(string $email, int $otp, string $uid) {

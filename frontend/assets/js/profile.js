@@ -48,7 +48,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const disableOnSubmit = button => {
     if (!button) return;
     button.addEventListener('click', function () {
-      button.disabled = true;
+      setTimeout(() => {
+        button.disabled = true;
+      }, 0);
     });
   };
 

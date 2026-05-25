@@ -97,9 +97,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
     </main>
     <script>
+        const form = document.querySelector('form');
+        const submitBtn = document.querySelector('button[type="submit"]');
         const idInput = document.getElementById('id_image');
         const idPreviewImage = document.getElementById('idPreviewImage');
         const idUploadPlaceholder = document.getElementById('idUploadPlaceholder');
+
+        form.addEventListener('submit', function() {
+            setTimeout(() => {
+                submitBtn.disabled = true;
+            }, 0);
+        });
 
         idInput.addEventListener('change', function () {
             const file = this.files[0];

@@ -64,8 +64,16 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     </main>
 
     <script>
+        const form = document.querySelector('form');
+        const submitBtn = document.querySelector('button[type="submit"]');
         const otpInputs = document.querySelectorAll('.otp-input');
         const hiddenOtp = document.getElementById('hiddenOtp');
+
+        form.addEventListener('submit', function() {
+            setTimeout(() => {
+                submitBtn.disabled = true;
+            }, 0);
+        });
 
         function updateHiddenOtp() {
             let val = '';
