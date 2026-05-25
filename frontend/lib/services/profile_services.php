@@ -117,6 +117,11 @@ class profile_services {
 	public function verify_phone_number(string $uid, $otp, string $phoneNumber) {
 		$redis = \Lib\cache\Redis::getInstance();
 		
+		$ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+		if ($redis->isRateLimited('verify_otp_phone', $ip, 5, 300)) {
+			return "Too many verification attempts. Please try again in 5 minutes.";
+		}
+
 		try {
 			$redis->verifyEmailOTP($phoneNumber, $otp); //similar logic so just reused emailOTP verification with just a differnt key value
 			$auth = new Authentication_service();
@@ -162,6 +167,11 @@ class profile_services {
 
 	public function validate_email_otp(string $email, int $otp, string $uid) {
 		$redis = \Lib\cache\Redis::getInstance();
+
+		$ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+		if ($redis->isRateLimited('verify_otp_email', $ip, 5, 300)) {
+			return "Too many verification attempts. Please try again in 5 minutes.";
+		}
 
 		try {
 			$redis->verifyEmailOTP($email, $otp);

@@ -75,6 +75,16 @@ class Auth_flow {
 
 	public function finish_registration(string $phoneNumber ,int $otp) {
 		$redis = \Lib\cache\Redis::getInstance();
+		
+		$ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+		if ($redis->isRateLimited('verify_otp_reg', $ip, 5, 300)) {
+			return [
+				"success" => false,
+				"error" => "Too many verification attempts. Please try again in 5 minutes.",
+				"action" => null
+			];
+		}
+
 		// check if phone number and otp match redis
 		if (!$redis->verifyUserTemp($phoneNumber, $otp)) {
 			return [
@@ -123,6 +133,16 @@ class Auth_flow {
 
 	// Login flow
 	public function login(array $userData) {
+		$redis = \Lib\cache\Redis::getInstance();
+		$ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+
+		if ($redis->isRateLimited('login', $ip, 5, 300)) {
+			return [
+				"success" => false,
+				"error" => "Too many login attempts. Please try again in 5 minutes."
+			];
+		}
+
 		$auth = new Authentication_service();
 
 		$email = $userData['email'];

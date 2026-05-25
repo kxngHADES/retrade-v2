@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <p class="text-micro auth-terms">
-                    By creating an account, you agree to ReTrade's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+                    By creating an account, you agree to ReTrade's <a href="/../Terms-of-service.php">Terms of Service</a> and <a href="/../privacy-policy.php">Privacy Policy</a>.
                 </p>
 
                 <button type="submit" class="btn btn-full">Register</button>

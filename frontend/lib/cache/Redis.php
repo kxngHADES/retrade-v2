@@ -99,6 +99,15 @@ class Redis {
 	public function increment(string $key): int {
 		return $this->client->incr($key);
 	}
+
+	public function isRateLimited(string $action, string $ip, int $limit = 5, int $ttl = 300): bool {
+		$key = "ratelimit:$action:$ip";
+		$current = $this->client->incr($key);
+		if ($current === 1) {
+			$this->client->expire($key, $ttl);
+		}
+		return $current > $limit;
+	}
 	
 	//Store session data
 	public function setSession(string $sessionId, array $data, int $ttl = 3600): bool {

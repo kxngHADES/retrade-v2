@@ -1,7 +1,8 @@
-from fastapi import APIRouter, BackgroundTasks, HTTPException, File, UploadFile, Form, Depends
+from fastapi import APIRouter, BackgroundTasks, HTTPException, File, UploadFile, Form, Depends, Request
 from app.services.Auth_services import send_otp
 from app.services.validate_users import validate_email, validate_id
 from app.models.auth_models import OTP_model, Email_verification, UploadPayload
+from app.utils.input_validation import validate_form_content_type
 from pathlib import Path
 
 
@@ -24,7 +25,7 @@ async def send_email_otp_endpoint(data:Email_verification, background_tasks: Bac
 def get_upload_payload(filename: str = Form(...), uid: str = Form(...) ):
 	return UploadPayload(filename=filename, uid=uid)
 
-@router.post("/validate_id", status_code=202)
+@router.post("/validate_id", status_code=202, dependencies=[Depends(validate_form_content_type)])
 async def upload_id(
 	background_tasks: BackgroundTasks,
 	payload: UploadPayload = Depends(get_upload_payload),
