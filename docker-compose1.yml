@@ -57,10 +57,10 @@ services:
     ports:
       - "3311:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: retrade_exp
-      MYSQL_USER: retrade_user
-      MYSQL_PASSWORD: retrade_pass
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
@@ -75,8 +75,8 @@ services:
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ROOT_USER: minio_admin
-      MINIO_ROOT_PASSWORD: minio_secure_password_123
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data
@@ -93,7 +93,7 @@ services:
         condition: service_healthy
     entrypoint: >
       /bin/sh -c "
-      /usr/bin/mc alias set myminio http://minio:9000 minio_admin minio_secure_password_123;
+      /usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
       /usr/bin/mc mb myminio/retrade || true;
       /usr/bin/mc anonymous set public myminio/retrade;
       exit 0;
@@ -116,8 +116,8 @@ services:
     volumes:
       - mongodb_data:/data/db
     environment:
-      MONGO_INITDB_ROOT_USERNAME: retrade_admin
-      MONGO_INITDB_ROOT_PASSWORD: mongo_secure_pass_123
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
       interval: 10s
@@ -149,7 +149,7 @@ services:
       - "7474:7474"
       - "7687:7687"
     environment:
-      NEO4J_AUTH: neo4j/neo4j_password_123
+      NEO4J_AUTH: ${NEO4J_AUTH}
     volumes:
       - neo4j_data:/data
 
@@ -226,7 +226,7 @@ services:
     ports:
       - "3002:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
       - GF_SECURITY_ALLOW_EMBEDDING=true
       - GF_AUTH_ANONYMOUS_ENABLED=true
     volumes:

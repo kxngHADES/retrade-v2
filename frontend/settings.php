@@ -91,6 +91,12 @@ $isLoggedIn = isset($_SESSION['uid']);
 										<i data-lucide="chevron-right" class="w-4 h-4 text-text-secondary" style="width: 16px; height: 16px; color: var(--text-primary);"></i>
 									</span>
 								</a>
+								<a href="https://admin.retrade.ndaedzo.com" target="_blank" rel="noopener noreferrer" class="list-item-btn w-full py-space-3 flex items-center justify-between text-left hover:bg-surface-bright transition-colors px-2 -mx-2">
+									<span class="text-body font-body text-on-surface"><?= trans('Admin Dashboard') ?></span>
+									<span class="text-light-text-secondary">
+										<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+									</span>
+								</a>
 						</div>
 					</section>
 
