@@ -5,12 +5,30 @@ require_once __DIR__ . '/../../lib/services/payment_gateways_services.php';
 
 use Lib\services\PaymentGatewaysServices;
 
+if (isset($_GET['debug']) && $_GET['debug']) {
+    ini_set('display_errors', '1');
+    ini_set('display_startup_errors', '1');
+    error_reporting(E_ALL);
+}
+
 session_start();
 
 $uid = $_SESSION['uid'] ?? null;
 $email = $_SESSION['email'] ?? null;
 
-if (!$uid || !$email) {
+error_log(sprintf(
+    'pay/index.php request: uid=%s email=%s amount=%s listing_id=%s order_type=%s seller_uid=%s shop_id=%s cart_id=%s',
+    $uid ?? 'null',
+    $email ? substr($email, 0, 3) . '***' . strstr($email, '@') : 'null',
+    $_GET['amount'] ?? 'null',
+    $_GET['listing_id'] ?? 'null',
+    $_GET['order_type'] ?? 'null',
+    $_GET['seller_uid'] ?? 'null',
+    $_GET['shop_id'] ?? 'null',
+    $_GET['cart_id'] ?? 'null'
+));
+
+if (!$uid || !$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     header("Location: /pages/chat/");
     exit;
 }

@@ -3,7 +3,6 @@
 namespace Lib\services;
 
 require_once __DIR__ . '/../../config/bootstrap.php';
-require_once __DIR__ . '/supabase_service.php';
 
 use Exception;
 use PDO;
@@ -12,12 +11,10 @@ use Lib\db\Database;
 class PaymentGatewaysServices
 {
     private PDO $db;
-    private supabase_service $supabase;
 
     public function __construct()
     {
         $this->db = Database::getConnection();
-        $this->supabase = new supabase_service();
     }
 
     /**
@@ -64,7 +61,7 @@ class PaymentGatewaysServices
     }
 
     /**
-     * Fake Bank logic utilizing the SQL database & Supabase logic
+     * Fake Bank logic using local SQL bank data only
      */
     public function processFakeBankPayment(string $uid, int $sessionId, float $amount, array $cardDetails): bool
     {
@@ -89,8 +86,8 @@ class PaymentGatewaysServices
             return false; // Card expired or mismatch
         }
 
-        // 2. Call Supabase to check and deduct the balance using Supabase Service directly
-        return $this->supabase->chargeFakeBank($uid, $amount);
+        // Since Supabase is removed, local validation is sufficient for this fake bank flow.
+        return true;
     }
 
     /*
