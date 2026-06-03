@@ -22,12 +22,14 @@ class PaymentGatewaysServices
      */
     public function createPaymentSession(string $email, float $amount, array $metaData = []): string
     {
-        $sql = "INSERT INTO payment_sessions (user_email, amount, status, expiresat) 
-                VALUES (:email, :amount, 'pending', DATE_ADD(NOW(), INTERVAL 15 MINUTE))";
+        $sessionToken = bin2hex(random_bytes(16));
+        $sql = "INSERT INTO payment_sessions (session_token, user_email, amount, status, expiresat) 
+                VALUES (:session_token, :email, :amount, 'pending', DATE_ADD(NOW(), INTERVAL 15 MINUTE))";
         
         try {
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
+                ':session_token' => $sessionToken,
                 ':email' => $email,
                 ':amount' => $amount
             ]);
@@ -35,7 +37,7 @@ class PaymentGatewaysServices
             return (string)$this->db->lastInsertId();
         } catch (\Throwable $e) {
             error_log('createPaymentSession failed: ' . get_class($e) . ' - ' . $e->getMessage());
-            error_log('SQL: ' . $sql . ' | email=' . $email . ' | amount=' . $amount);
+            error_log('SQL: ' . $sql . ' | email=' . $email . ' | amount=' . $amount . ' | session_token=' . $sessionToken);
             throw $e;
         }
     }
