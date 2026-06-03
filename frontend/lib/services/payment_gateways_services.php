@@ -25,13 +25,19 @@ class PaymentGatewaysServices
         $sql = "INSERT INTO payment_sessions (user_email, amount, status, expiresat) 
                 VALUES (:email, :amount, 'pending', DATE_ADD(NOW(), INTERVAL 15 MINUTE))";
         
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([
-            ':email' => $email,
-            ':amount' => $amount
-        ]);
+        try {
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([
+                ':email' => $email,
+                ':amount' => $amount
+            ]);
 
-        return (string)$this->db->lastInsertId();
+            return (string)$this->db->lastInsertId();
+        } catch (\Throwable $e) {
+            error_log('createPaymentSession failed: ' . get_class($e) . ' - ' . $e->getMessage());
+            error_log('SQL: ' . $sql . ' | email=' . $email . ' | amount=' . $amount);
+            throw $e;
+        }
     }
 
     /**
@@ -78,15 +84,13 @@ class PaymentGatewaysServices
         // Compare secure hashes for card number and CVV
         if (!password_verify($cardDetails['number'], $bankRecord['card_number_hash']) ||
             !password_verify($cardDetails['cvv'], $bankRecord['cvv_hash'])) {
-            return false; // Invalid card details
+            return false;
         }
 
         // Expiry Date check
         if ($cardDetails['exp'] !== $bankRecord['exp_date']) {
-            return false; // Card expired or mismatch
+            return false; 
         }
-
-        // Since Supabase is removed, local validation is sufficient for this fake bank flow.
         return true;
     }
 

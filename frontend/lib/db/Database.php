@@ -13,10 +13,19 @@ class Database {
 
 		$dsn = sprintf(
 			"mysql:host=%s;dbname=%s;charset=%s",
-			$_ENV['DB_HOST'],
-			$_ENV['DB_NAME'],
-			$_ENV['DB_CHARSET']
+			$_ENV['DB_HOST'] ?? '',
+			$_ENV['DB_NAME'] ?? '',
+			$_ENV['DB_CHARSET'] ?? 'utf8mb4'
 		);
+
+		if (empty($_ENV['DB_HOST']) || empty($_ENV['DB_NAME']) || empty($_ENV['DB_USER'])) {
+			error_log(sprintf(
+				"Database config incomplete: DB_HOST=%s DB_NAME=%s DB_USER=%s",
+				$_ENV['DB_HOST'] ?? 'missing',
+				$_ENV['DB_NAME'] ?? 'missing',
+				$_ENV['DB_USER'] ?? 'missing'
+			));
+		}
 
 		$options = [
 			PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -33,6 +42,7 @@ class Database {
 			);
 		} catch (PDOException $e) {
 			error_log("Database Connection Failed " . $e->getMessage());
+			error_log("Database DSN: " . $dsn . " user=" . ($_ENV['DB_USER'] ?? 'missing'));
 			error_log("Available PDO drivers: " . implode(',', PDO::getAvailableDrivers()));
 
 			throw new PDOException("Failed to connect to database.", (int)$e->getCode());

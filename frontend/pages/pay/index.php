@@ -68,6 +68,12 @@ if (isset($_GET['payment_session_id']) && is_numeric($_GET['payment_session_id']
             'cart_id'    => $cartId,
         ];
 
+        error_log(sprintf(
+            'pay/index.php createPaymentSession start: email=%s amount=%s',
+            $email,
+            $amount
+        ));
+
         try {
             $paymentSessionId = $pgService->createPaymentSession($email, $amount);
             $sessionId = (int)$paymentSessionId;
@@ -77,7 +83,11 @@ if (isset($_GET['payment_session_id']) && is_numeric($_GET['payment_session_id']
             }
         } catch (\Throwable $e) {
             error_log("Payment Initiation Error: " . get_class($e) . " - " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
-            $errorMessage = "Failed to initialize payment session.";
+            if (isset($_GET['debug']) && $_GET['debug']) {
+                $errorMessage = "Failed to initialize payment session: " . $e->getMessage();
+            } else {
+                $errorMessage = "Failed to initialize payment session.";
+            }
         }
     }
 } else {
