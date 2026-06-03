@@ -92,7 +92,7 @@ $messages = $chatService->getRoomMessages($roomId);
                                 </div>
                                 <strong>Order Proposal Received</strong>
                                 <p>Item: <?= htmlspecialchars($listingName) ?><br>Price: R<?= htmlspecialchars($price) ?></p>
-                                <button onclick="window.location.href='/pages/pay/initiate.php?amount=<?= urlencode($price) ?>&listing_id=<?= urlencode($listingId) ?>&order_type=marketplace&seller_uid=<?= urlencode($msg['sender_id']) ?>'">Pay Now</button>
+                                <button onclick="window.location.href='/pages/pay/index.php?amount=<?= urlencode($price) ?>&listing_id=<?= urlencode($listingId) ?>&order_type=marketplace&seller_uid=<?= urlencode($msg['sender_id']) ?>'">Pay Now</button>
                             </div>
                         <?php endif; ?>
                     <?php else: ?>
@@ -197,7 +197,7 @@ $messages = $chatService->getRoomMessages($roomId);
                     if (isSent) {
                         html += `<div class="order-prompt"><div class="order-prompt-header"><span class="order-prompt-symbol">🛒</span><span class="order-prompt-title">Order</span></div><strong>Order Proposal Sent</strong><p>Item: ${listingName}<br>Price: R${price}</p></div>`;
                     } else {
-                        html += `<div class="order-prompt"><div class="order-prompt-header"><span class="order-prompt-symbol">🛒</span><span class="order-prompt-title">Order</span></div><strong>Order Proposal Received</strong><p>Item: ${listingName}<br>Price: R${price}</p><button onclick="window.location.href='/pages/pay/initiate.php?amount=${price}&listing_id=${listingId}&order_type=marketplace&seller_uid=${msg.sender_id}'">Pay Now</button></div>`;
+                        html += `<div class="order-prompt"><div class="order-prompt-header"><span class="order-prompt-symbol">🛒</span><span class="order-prompt-title">Order</span></div><strong>Order Proposal Received</strong><p>Item: ${listingName}<br>Price: R${price}</p><button onclick="window.location.href='/pages/pay/index.php?amount=${price}&listing_id=${listingId}&order_type=marketplace&seller_uid=${msg.sender_id}'">Pay Now</button></div>`;
                     }
                 } else {
                     const textNode = document.createTextNode(msg.message_text);

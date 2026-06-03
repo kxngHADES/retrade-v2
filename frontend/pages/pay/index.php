@@ -3,20 +3,72 @@
 require_once __DIR__ . '/../../config/bootstrap.php';
 require_once __DIR__ . '/../../lib/services/payment_gateways_services.php';
 
+use Lib\services\PaymentGatewaysServices;
+
 session_start();
 
-$sessionId = $_GET['payment_session_id'] ?? null;
+$uid = $_SESSION['uid'] ?? null;
+$email = $_SESSION['email'] ?? null;
 
-if (!is_numeric($sessionId) || $sessionId <= 0) {
-    echo htmlspecialchars("Invalid or missing session ID.");
+if (!$uid || !$email) {
+    header("Location: /pages/chat/");
     exit;
 }
 
-$pgService = new Lib\services\PaymentGatewaysServices();
-$sessionDetails = $pgService->getPaymentSession((int)$sessionId);
+$pgService = new PaymentGatewaysServices();
+$sessionId = null;
+$sessionDetails = null;
+$errorMessage = null;
 
-if (!$sessionDetails || $sessionDetails['status'] !== 'pending') {
-    echo htmlspecialchars("Payment session expired or closed.");
+if (isset($_GET['payment_session_id']) && is_numeric($_GET['payment_session_id']) && (int)$_GET['payment_session_id'] > 0) {
+    $sessionId = (int)$_GET['payment_session_id'];
+    $sessionDetails = $pgService->getPaymentSession($sessionId);
+    if (!$sessionDetails || $sessionDetails['status'] !== 'pending') {
+        $errorMessage = "Payment session expired or closed.";
+    }
+} elseif (isset($_GET['amount']) && is_numeric($_GET['amount'])) {
+    $amount = (float)$_GET['amount'];
+    $orderType = $_GET['order_type'] ?? 'marketplace';
+    $sellerUid = $_GET['seller_uid'] ?? null;
+    $listingId = $_GET['listing_id'] ?? null;
+    $shopId = $_GET['shop_id'] ?? null;
+    $cartId = $_GET['cart_id'] ?? null;
+
+    if ($amount <= 0 || !$sellerUid) {
+        $errorMessage = "Invalid payment request.";
+    } elseif ($orderType === 'shop' && (!$cartId || !$shopId)) {
+        $errorMessage = "Incomplete shop payment details.";
+    }
+
+    if (!$errorMessage) {
+        $_SESSION['payment_metadata'] = [
+            'listing_id' => $listingId,
+            'order_type' => $orderType,
+            'seller_uid' => $sellerUid,
+            'buyer_uid'  => $uid,
+            'shop_id'    => $shopId,
+            'cart_id'    => $cartId,
+        ];
+
+        try {
+            $paymentSessionId = $pgService->createPaymentSession($email, $amount);
+            $sessionId = (int)$paymentSessionId;
+            $sessionDetails = $pgService->getPaymentSession($sessionId);
+            if (!$sessionDetails) {
+                $errorMessage = "Failed to initialize payment session.";
+            }
+        } catch (\Throwable $e) {
+            error_log("Payment Initiation Error: " . get_class($e) . " - " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
+            $errorMessage = "Failed to initialize payment session.";
+        }
+    }
+} else {
+    $errorMessage = "Invalid payment request.";
+}
+
+if ($errorMessage) {
+    http_response_code(400);
+    echo htmlspecialchars($errorMessage);
     exit;
 }
 ?>

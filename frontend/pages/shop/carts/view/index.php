@@ -96,11 +96,12 @@ if (!empty($shop_id)) {
                         <span>Total</span>
                         <strong>R<?= number_format($total_amount, 2) ?></strong>
                     </div>
-                    <form action="/pages/pay/initiate-shop.php" method="GET" class="shop-cart-pay-form">
+                    <form action="/pages/pay/index.php" method="GET" class="shop-cart-pay-form">
                         <input type="hidden" name="cart_id" value="<?= htmlspecialchars($cart_id) ?>">
                         <input type="hidden" name="shop_id" value="<?= htmlspecialchars($shop_id) ?>">
                         <input type="hidden" name="seller_uid" value="<?= htmlspecialchars($seller_uid) ?>">
                         <input type="hidden" name="amount" value="<?= htmlspecialchars($total_amount) ?>">
+                        <input type="hidden" name="order_type" value="shop">
                         <button type="submit" class="shop-dashboard-button shop-dashboard-button--primary">Pay Now</button>
                     </form>
                 </div>
