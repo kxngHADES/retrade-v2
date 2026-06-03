@@ -25,13 +25,11 @@ class PaymentGatewaysServices
      */
     public function createPaymentSession(string $email, float $amount, array $metaData = []): string
     {
-        $sessionToken = bin2hex(random_bytes(32));
-        $sql = "INSERT INTO payment_sessions (session_token, user_email, amount, status, expiresat) 
-                VALUES (:token, :email, :amount, 'pending', DATE_ADD(NOW(), INTERVAL 15 MINUTE))";
+        $sql = "INSERT INTO payment_sessions (user_email, amount, status, expiresat) 
+                VALUES (:email, :amount, 'pending', DATE_ADD(NOW(), INTERVAL 15 MINUTE))";
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
-            ':token' => $sessionToken,
             ':email' => $email,
             ':amount' => $amount
         ]);
@@ -110,11 +108,11 @@ class PaymentGatewaysServices
      */
     public function fireWebhook(int $sessionId, string $status, array $payloadData): bool
     {
-        $stmt = $this->db->prepare("SELECT session_token FROM payment_sessions WHERE paymentSession_id = :id");
+        $stmt = $this->db->prepare("SELECT paymentSession_id FROM payment_sessions WHERE paymentSession_id = :id");
         $stmt->execute([':id' => $sessionId]);
-        $sessionToken = $stmt->fetchColumn();
+        $psId = $stmt->fetchColumn();
 
-        if (!$sessionToken) return false;
+        if (!$psId) return false;
 
         // Generate Webhook HMAC Signature
         $payloadJson = json_encode($payloadData);
@@ -123,11 +121,11 @@ class PaymentGatewaysServices
         
         // Log the event locally
         $eventType = ($status === 'success') ? 'payment.success' : 'payment.failed';
-        $sql = "INSERT INTO webhook_events (session_token, event_type, payload, signature) 
-                VALUES (:token, :event, :payload, :signature)";
+        $sql = "INSERT INTO webhook_events (paymentSession_id, event_type, payload, signature) 
+                VALUES (:psid, :event, :payload, :signature)";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
-            ':token' => $sessionToken,
+            ':psid' => $psId,
             ':event' => $eventType,
             ':payload' => $payloadJson,
             ':signature' => $signature

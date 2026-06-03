@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST"){
                 </svg>
             </div>
             <h1 class="auth-title"><?= htmlspecialchars(trans('Verify your phone')) ?></h1>
-            <p class="text-body auth-subtitle"><?= htmlspecialchars(trans('We sent a 6-digit code to')) ?> <?= htmlspecialchars($phoneNumber) ?></p>
+            <p class="text-body auth-subtitle"><?= htmlspecialchars(trans('We sent a 6-digit code')) ?></p>
         </div>
 
         <?php if (!empty($error)): ?>

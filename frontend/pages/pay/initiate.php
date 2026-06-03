@@ -42,7 +42,7 @@ try {
     header("Location: /pages/pay/index.php?payment_session_id=" . urlencode($paymentSessionId));
     exit;
 
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     error_log("Payment Initiation Error: " . $e->getMessage());
     ob_end_clean();
     http_response_code(500);

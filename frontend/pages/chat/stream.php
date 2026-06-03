@@ -20,14 +20,22 @@ if (empty($_SESSION['uid'])) {
 $uid = $_SESSION['uid'];
 $channel = "chat_user_" . $uid;
 
-$redis = Redis::getInstance()->getClient();
-$pubsub = $redis->pubSubLoop();
-$pubsub->subscribe($channel);
+// Important: do not let the loop time out
+set_time_limit(0);
 
-foreach ($pubsub as $message) {
-    if ($message->kind === 'message') {
-        echo "data: " . $message->payload . "\n\n";
-        ob_flush();
-        flush();
+$redis = Redis::getInstance()->getClient();
+try {
+    $pubsub = $redis->pubSubLoop();
+    $pubsub->subscribe($channel);
+
+    foreach ($pubsub as $message) {
+        if ($message->kind === 'message') {
+            echo "data: " . $message->payload . "\n\n";
+            ob_flush();
+            flush();
+        }
     }
+} catch (\Throwable $e) {
+    // Redis might throw timeout exception, just exit to let client reconnect
+    exit;
 }
