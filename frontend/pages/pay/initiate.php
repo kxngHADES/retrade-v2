@@ -43,7 +43,7 @@ try {
     exit;
 
 } catch (\Throwable $e) {
-    error_log("Payment Initiation Error: " . $e->getMessage());
+    error_log("Payment Initiation Error: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
     ob_end_clean();
     http_response_code(500);
     echo htmlspecialchars("Failed to initialize payment session.");

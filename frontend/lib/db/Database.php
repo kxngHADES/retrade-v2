@@ -33,6 +33,7 @@ class Database {
 			);
 		} catch (PDOException $e) {
 			error_log("Database Connection Failed " . $e->getMessage());
+			error_log("Available PDO drivers: " . implode(',', PDO::getAvailableDrivers()));
 
 			throw new PDOException("Failed to connect to database.", (int)$e->getCode());
 		}

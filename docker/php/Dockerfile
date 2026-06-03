@@ -6,6 +6,8 @@ RUN apt-get update && apt-get install -y \
 	zip \
 	unzip \
 	curl \
+	default-libmysqlclient-dev \
+	default-mysql-client \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
