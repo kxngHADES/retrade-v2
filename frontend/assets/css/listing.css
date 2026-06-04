@@ -947,3 +947,44 @@
         grid-template-columns: 1fr;
     }
 }
+
+#pending-offline-listings {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: var(--surface);
+    border-radius: 18px;
+    padding: 18px;
+}
+
+.offline-listings-header {
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+.offline-listings-list {
+    display: grid;
+    gap: 12px;
+}
+
+.offline-listings-card {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 16px;
+    padding: 16px;
+    background: var(--background);
+}
+
+.offline-listing-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.offline-listing-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}

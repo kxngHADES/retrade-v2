@@ -153,5 +153,47 @@ if (!$listing) {
             </div>
         </main>
     </div>
+    <script>
+        window.UID = "<?= $_SESSION['uid'] ?>";
+        window.LISTING_ID = "<?= $listing_id ?>";
+    </script>
+    <script src="/assets/js/offline-listings.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const editForm = document.querySelector('.listing-edit-form');
+            if (!editForm) return;
+
+            editForm.addEventListener('submit', async (event) => {
+                if (navigator.onLine) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                const tags = (editForm.tags?.value || "")
+                    .split(",")
+                    .map(t => t.trim())
+                    .filter(Boolean);
+
+                await window.saveOfflineListingUpdate({
+                    uid: window.UID,
+                    listingId: window.LISTING_ID,
+                    fields: {
+                        name: editForm.name.value.trim(),
+                        description: editForm.description.value.trim(),
+                        price: editForm.price.value,
+                        stock: editForm.stock.value,
+                        condition: editForm.condition.value,
+                        category: editForm.category.value,
+                        location: editForm.location.value.trim(),
+                        delivery_method: editForm.delivery_method.value,
+                        tags
+                    }
+                });
+
+                alert('You are offline. Your changes are saved locally and will sync automatically when you are back online.');
+            });
+        });
+    </script>
 </body>
 </html>

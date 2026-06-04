@@ -55,8 +55,12 @@ self.addEventListener('install', event => {
                 '/search.php',
                 '/manifest.json',
                 '/assets/js/index_listings.js',
+                '/assets/js/upload.js',
+                '/assets/js/offline-listings.js',
+                '/assets/js/offline-recommendations.js',
                 '/assets/css/variables.css',
-                '/assets/css/global.css'
+                '/assets/css/global.css',
+                '/assets/css/listing.css'
             ]);
         })
     );

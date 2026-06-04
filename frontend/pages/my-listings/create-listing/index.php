@@ -196,7 +196,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script>
         window.UID = "<?= $_SESSION['uid'] ?>";
     </script>
-
+    <script src="/assets/js/offline-listings.js" defer></script>
 	<script src="/assets/js/upload.js" defer></script>
 </body>
 </html>

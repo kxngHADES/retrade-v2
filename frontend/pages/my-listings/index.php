@@ -47,6 +47,7 @@ $listings = $apiService->get_user_listings($_SESSION['uid']);
                         <span><?= htmlspecialchars(trans('Create Listing')) ?></span>
                     </a>
                 </div>
+                <div id="pending-offline-listings" class="pending-offline-listings" style="display:none; margin-bottom: 1rem;"></div>
 
                 <?php if (empty($listings)): ?>
                     <div class="listings-empty">
@@ -89,5 +90,6 @@ $listings = $apiService->get_user_listings($_SESSION['uid']);
             </div>
         </main>
     </div>
+    <script src="/assets/js/offline-listings.js" defer></script>
 </body>
 </html>

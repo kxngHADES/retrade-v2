@@ -126,6 +126,45 @@ document.querySelector("form").addEventListener("submit", async (e) => {
 			.filter(Boolean);
 
 		const thumbnailFile = thumbnailInput.files[0];
+		const imageFiles = [];
+		secondaryImageInputs.forEach(input => {
+			if (input.files[0]) imageFiles.push(input.files[0]);
+		});
+
+		if (!thumbnailFile) {
+			alert("Thumbnail required");
+			throw new Error("Thumbnail required");
+		}
+
+		if (!navigator.onLine) {
+			await window.saveOfflineListing({
+				type: 'create',
+				uid,
+				fields: {
+					name,
+					description: form.description.value.trim(),
+					price: form.price.value,
+					stock: form.stock.value,
+					category: form.category.value,
+					location: form.location.value.trim(),
+					delivery_method: form.delivery_method.value.trim(),
+					tags
+				},
+				thumbnailFile,
+				imageFiles
+			});
+
+			alert("You are offline. This listing is saved locally and will sync automatically when you are back online.");
+			window.location.href = "/pages/my-listings/";
+			return;
+		}
+
+		const tags = (form.tags?.value || "")
+			.split(",")
+			.map(t => t.trim())
+			.filter(Boolean);
+
+		const thumbnailFile = thumbnailInput.files[0];
 		
 		// Collect all additional images from separate inputs
 		const imageFiles = [];

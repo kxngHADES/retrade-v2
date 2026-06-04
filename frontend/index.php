@@ -8,6 +8,19 @@ $uid = $isLoggedIn ? $_SESSION['uid'] : null;
 
 $apiService = new ApiService();
 $listings = $apiService->get_recommendations_or_latest($uid, 1);
+$offlineListings = array_map(function ($item) {
+    return [
+        '_id' => $item['_id'] ?? $item['id'] ?? '',
+        'name' => $item['name'] ?? '',
+        'price' => isset($item['price']) ? (float)$item['price'] : 0,
+        'location' => $item['location'] ?? '',
+        'category' => $item['category'] ?? '',
+        'condition' => $item['condition'] ?? '',
+        'delivery_method' => $item['delivery_method'] ?? '',
+        'thumbnail_url' => $item['thumbnail_url'] ?? '',
+        'tags' => is_array($item['tags']) ? $item['tags'] : ($item['tags'] ? explode(',', $item['tags']) : []),
+    ];
+}, $listings);
 ?>
 
 <!DOCTYPE html>
@@ -22,6 +35,9 @@ $listings = $apiService->get_recommendations_or_latest($uid, 1);
             if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
             else document.documentElement.removeAttribute('data-theme');
         })();
+    </script>
+    <script>
+        window.recommendationListings = <?= json_encode($offlineListings, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
     </script>
     <link rel="manifest" href="/manifest.json">
     <link rel="stylesheet" href="/assets/css/global.css">
@@ -109,7 +125,7 @@ $listings = $apiService->get_recommendations_or_latest($uid, 1);
                         <?php foreach ($listings as $index => $item): ?>
                             <a href="/view/?listing_id=<?= urlencode($item['_id']) ?>" class="home-card <?= $index >= 20 ? 'hidden' : '' ?>" data-index="<?= $index ?>">
                                 <div class="home-card-image">
-                                    <img src="<?= htmlspecialchars($item['thumbnail_url'] ?? '/assets/placeholder.jpg') ?>" alt="<?= htmlspecialchars($item['name'] ?? trans('Listing')) ?>">
+                                    <img class="lazy-img" src="/assets/placeholder.jpg" data-src="<?= htmlspecialchars($item['thumbnail_url'] ?? '/assets/placeholder.jpg') ?>" alt="<?= htmlspecialchars($item['name'] ?? trans('Listing')) ?>" loading="lazy">
                                 </div>
                                 <div class="home-card-content">
                                     <h3 class="home-card-title"><?= htmlspecialchars($item['name'] ?? trans('Listing')) ?></h3>
@@ -138,6 +154,7 @@ $listings = $apiService->get_recommendations_or_latest($uid, 1);
         </main>
     </div>
 
+    <script src="/assets/js/offline-recommendations.js" defer></script>
     <script src="/assets/js/index_listings.js"></script>
     <script src="/assets/js/search_filters.js"></script>
 </body>
