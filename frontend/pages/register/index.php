@@ -35,6 +35,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="../../assets/css/global.css">
     <link rel="stylesheet" href="../../assets/css/forms.css">
 </head>
+    <!-- Cloudflare Web Analytics -->
+    <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4edfd97585aa43b3b3f063e82176e9fb"}'></script>
+    <!-- End Cloudflare Web Analytics -->
 <body>
     <main class="auth-layout">
         <div class="auth-card">

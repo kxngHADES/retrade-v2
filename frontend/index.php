@@ -39,6 +39,9 @@ $offlineListings = array_map(function ($item) {
     <script>
         window.recommendationListings = <?= json_encode($offlineListings, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
     </script>
+    <!-- Cloudflare Web Analytics -->
+    <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4edfd97585aa43b3b3f063e82176e9fb"}'></script>
+    <!-- End Cloudflare Web Analytics -->
     <link rel="manifest" href="/manifest.json">
     <link rel="stylesheet" href="/assets/css/global.css">
     <link rel="stylesheet" href="/assets/css/home.css">
