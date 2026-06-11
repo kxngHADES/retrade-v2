@@ -5,7 +5,7 @@ require_once __DIR__ . '/../lib/services/monitoring_service.php';
 
 use Lib\services\monitoring_service;
 
-// Handle AJAX request for real-time stats
+
 if (isset($_GET['ajax']) && $_GET['ajax'] === 'stats') {
     header('Content-Type: application/json');
     $monitoring = new monitoring_service();
@@ -73,8 +73,8 @@ $chartData = $monitoring->getChartData();
 
         <div class="tab-menu">
             <a href="?view=overview" class="tab-item <?= $view === 'overview' ? 'active' : '' ?>">Live Metrics</a>
-            <a href="?view=grafana" class="tab-item <?= $view === 'grafana' ? 'active' : '' ?>">Grafana (Metrics)</a>
-            <a href="?view=prometheus" class="tab-item <?= $view === 'prometheus' ? 'active' : '' ?>">Prometheus</a>
+            <!-- <a href="?view=grafana" class="tab-item <?= $view === 'grafana' ? 'active' : '' ?>">Grafana (Metrics)</a> -->
+            <!-- <a href="?view=prometheus" class="tab-item <?= $view === 'prometheus' ? 'active' : '' ?>">Prometheus</a> -->
         </div>
 
         <?php if ($view === 'overview'): ?>
@@ -115,14 +115,6 @@ $chartData = $monitoring->getChartData();
                         </span>
                     </div>
                 </div>
-            </div>
-        <?php else: ?>
-            <div class="iframe-container">
-                <?php if ($view === 'grafana'): ?>
-                    <iframe src="<?= $monitoring->getGrafanaUrl() ?>"></iframe>
-                <?php elseif ($view === 'prometheus'): ?>
-                    <iframe src="<?= $monitoring->getPrometheusUrl() ?>"></iframe>
-                <?php endif; ?>
             </div>
         <?php endif; ?>
     </div>
