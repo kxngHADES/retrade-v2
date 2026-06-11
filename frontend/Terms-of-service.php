@@ -122,7 +122,7 @@
                 <span class="text-xl font-bold tracking-tight text-orange-600">ReTrade</span>
             </div>
             <div class="flex items-center gap-space-4">
-                <a href="/" class="bg-primary-container hover:opacity-80 active:scale-95 transition-all text-white px-space-4 py-space-2 rounded-lg font-medium text-body-sm flex items-center gap-space-2">
+                <a href="/settings.php" class="bg-primary-container hover:opacity-80 active:scale-95 transition-all text-white px-space-4 py-space-2 rounded-lg font-medium text-body-sm flex items-center gap-space-2">
                     <span class="material-symbols-outlined text-[18px]">arrow_back</span>
                     Back to App
                 </a>
