@@ -61,5 +61,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			<a class="text-small" href="/pages/register/"><?= trans("Don't have an account? Register"); ?></a>
 		</div>
 	</main>
+	<!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4edfd97585aa43b3b3f063e82176e9fb"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

@@ -160,5 +160,6 @@ $offlineListings = array_map(function ($item) {
     <script src="/assets/js/offline-recommendations.js" defer></script>
     <script src="/assets/js/index_listings.js"></script>
     <script src="/assets/js/search_filters.js"></script>
+    <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4edfd97585aa43b3b3f063e82176e9fb"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
