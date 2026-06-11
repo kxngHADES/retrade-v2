@@ -280,7 +280,7 @@ class Chat_services {
     public function getRoomOtherUser(string $roomId, string $currentUserId): ?array {
         try {
             $sql = "
-                SELECT u.firstName, u.lastName, u.profile_image_url
+                SELECT BIN_TO_UUID(u.uid) AS uid, u.firstName, u.lastName, u.profile_image_url
                 FROM chat_rooms r
                 JOIN users u ON u.uid = CASE
                     WHEN r.user_one = UUID_TO_BIN(:uid) THEN r.user_two
