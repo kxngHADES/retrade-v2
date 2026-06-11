@@ -266,7 +266,7 @@ $messages = $chatService->getRoomMessages($roomId);
                         try {
                             data = await res.json();
                         } catch (parseError) {
-                            const text = await res.text();
+                            const text = await res.clone().text();
                             console.error('Report submit non-JSON response:', text);
                         }
                         alert("Failed to submit report: " + (data.error || res.statusText || 'Unknown error'));
@@ -355,7 +355,7 @@ $messages = $chatService->getRoomMessages($roomId);
                 try {
                     responseData = await res.json();
                 } catch (parseError) {
-                    const text = await res.text();
+                    const text = await res.clone().text();
                     console.error('Send message non-JSON response:', text);
                 }
 
