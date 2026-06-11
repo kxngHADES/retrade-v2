@@ -263,10 +263,11 @@ $messages = $chatService->getRoomMessages($roomId);
                         document.getElementById('report-description').value = '';
                     } else {
                         let data = {};
+                        const resClone = res.clone();
                         try {
                             data = await res.json();
                         } catch (parseError) {
-                            const text = await res.clone().text();
+                            const text = await resClone.text();
                             console.error('Report submit non-JSON response:', text);
                         }
                         alert("Failed to submit report: " + (data.error || res.statusText || 'Unknown error'));
@@ -352,11 +353,16 @@ $messages = $chatService->getRoomMessages($roomId);
                 });
                 
                 let responseData = {};
+                const resClone = res.clone();
                 try {
                     responseData = await res.json();
                 } catch (parseError) {
-                    const text = await res.clone().text();
-                    console.error('Send message non-JSON response:', text);
+                    try {
+                        responseData = await resClone.json();
+                    } catch (cloneParseError) {
+                        const text = await resClone.text();
+                        console.error('Send message non-JSON response:', text);
+                    }
                 }
 
                 if (res.ok) {
