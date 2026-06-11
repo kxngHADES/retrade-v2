@@ -163,6 +163,7 @@ class Auth_flow {
 		$_SESSION['firstName'] = $user['firstName'];
 		$_SESSION['lastName'] = $user['lastName'];
 		$_SESSION['phoneNumber'] = $user['phoneNumber'];
+		$_SESSION['profile_image_url'] = $user['profile_image_url'] ?? '';
 
 		header('Location: /');
 		exit;

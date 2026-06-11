@@ -115,10 +115,9 @@ class Authentication_service {
 					try {
 						$unbanStmt = $this->db->prepare("UPDATE users SET is_banned = 0, ban_expires_at = NULL WHERE uid = UUID_TO_BIN(:uid)");
 						$unbanStmt->execute(['uid' => $user['uid']]);
-						$user['is_banned'] = 0; // Temporarily update context so login proceeds
+						$user['is_banned'] = 0;
 					} catch (\PDOException $e) {
 						error_log("Failed to unban user: " . $e->getMessage());
-						// Fallback if update fails
 						return [
 							'success' => false,
 							'error' => 'An error occurred verifying your account status. Please contact support.',
@@ -135,7 +134,6 @@ class Authentication_service {
 					];
 				}
 			} else {
-				// Permanent ban (ban_expires_at is NULL)
 				return [
 					'success' => false,
 					'error' => 'Your account has been permanently banned. Please contact support.',
