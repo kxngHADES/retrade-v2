@@ -262,8 +262,14 @@ $messages = $chatService->getRoomMessages($roomId);
                         document.getElementById('report-reason').value = '';
                         document.getElementById('report-description').value = '';
                     } else {
-                        const data = await res.json();
-                        alert("Failed to submit report: " + (data.error || 'Unknown error'));
+                        let data = {};
+                        try {
+                            data = await res.json();
+                        } catch (parseError) {
+                            const text = await res.text();
+                            console.error('Report submit non-JSON response:', text);
+                        }
+                        alert("Failed to submit report: " + (data.error || res.statusText || 'Unknown error'));
                     }
                 } catch(e) {
                     alert('Error: ' + e);
@@ -345,11 +351,18 @@ $messages = $chatService->getRoomMessages($roomId);
                     })
                 });
                 
-                const responseData = await res.json();
+                let responseData = {};
+                try {
+                    responseData = await res.json();
+                } catch (parseError) {
+                    const text = await res.text();
+                    console.error('Send message non-JSON response:', text);
+                }
+
                 if (res.ok) {
                     msgInput.value = '';
                 } else {
-                    alert('Error sending message: ' + (responseData.error || ''));
+                    alert('Error sending message: ' + (responseData.error || res.statusText || 'Unknown error'));
                 }
             } catch (err) {
                 alert(err.message);
