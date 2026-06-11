@@ -25,12 +25,19 @@ if (!$reporterId || !$targetUserId || !$reason) {
 	exit;
 }
 
-$reportService = new Report_service();
-$success = $reportService->report_user($reporterId, $targetUserId, $reason, $description);
 
-if ($success) {
-	echo json_encode(['success' => true]);
-} else {
-	http_response_code(500);
-	echo json_encode(['error' => 'Failed to submit report.']);
+try {
+    $reportService = new Report_service();
+    $success = $reportService->report_user($reporterId, $targetUserId, $reason, $description);
+
+    if ($success) {
+        echo json_encode(['success' => true]);
+    } else {
+        http_response_code(500);
+        echo json_encode(['error' => 'Database operation failed.']);
+    }
+} catch (\Throwable $e) {
+    error_log("Report API Exception: " . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['error' => 'Internal server error: ' . $e->getMessage()]);
 }

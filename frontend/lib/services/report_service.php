@@ -17,9 +17,15 @@ class Report_service {
 
 
 	public function report_user(string $reporterId, string $targetUserId, string $reason, string $description = ''): bool {
+		
+		if (empty($reporterId) || empty($targetUserId)) {
+        	error_log("Report failed: Missing IDs. Reporter: $reporterId, Target: $targetUserId");
+        	return false;
+    	}
+		
 		$sql = "INSERT INTO user_reports (reporter_id, report_type, target_reference_id, reason, description) 
 				VALUES (UUID_TO_BIN(:reporter_id), 'user', :target_user_id, :reason, :description)";
-		
+
 		try {
 			$stmt = $this->db->prepare($sql);
 			$stmt->execute([
@@ -32,8 +38,8 @@ class Report_service {
 			
 			if ($success) {
 				try {
-					$api = new ApiService();
-					$api->send_fraud_report_to_graph($reporterId, $targetUserId, $reason, $description);
+					//$api = new ApiService();
+					//$api->send_fraud_report_to_graph($reporterId, $targetUserId, $reason, $description);
 				} catch (\Throwable $e) {
 					error_log('Graph fraud report failed: ' . $e->getMessage());
 				}
