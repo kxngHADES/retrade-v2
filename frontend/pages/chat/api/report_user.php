@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../../config/bootstrap.php';
 require_once __DIR__ . '/../../../utils/protected_route.php';
-require_once __DIR__ . '/../../../lib/services/Report_service.php'
+require_once __DIR__ . '/../../../lib/services/Report_service.php';
 
 use Lib\services\Report_service;
 
