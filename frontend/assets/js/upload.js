@@ -100,121 +100,110 @@ secondaryImageInputs.forEach(input => {
 });
 
 document.querySelector("form").addEventListener("submit", async (e) => {
-	e.preventDefault();
+    e.preventDefault();
 
-	const form = e.target;
-	const submitButton = form.querySelector(".listing-submit-btn");
+    const form = e.target;
+    const submitButton = form.querySelector(".listing-submit-btn");
 
-	if (submitButton) {
-		submitButton.disabled = true;
-		submitButton.classList.add("listing-submit-btn--loading");
-		submitButton.setAttribute("aria-busy", "true");
-	}
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.classList.add("listing-submit-btn--loading");
+        submitButton.setAttribute("aria-busy", "true");
+    }
 
-	try {
-		const uid = window.UID;
-		const name = form.name.value.trim();
+    try {
+        const uid = window.UID;
+        const name = form.name.value.trim();
 
-		if (!name) {
-			alert("Listing name is required");
-			throw new Error("Missing listing name");
-		}
+        if (!name) {
+            alert("Listing name is required");
+            throw new Error("Missing listing name");
+        }
 
-		const tags = (form.tags?.value || "")
-			.split(",")
-			.map(t => t.trim())
-			.filter(Boolean);
+        let tags = (form.tags?.value || "")
+            .split(",")
+            .map(t => t.trim())
+            .filter(Boolean);
 
-		const thumbnailFile = thumbnailInput.files[0];
-		const imageFiles = [];
-		secondaryImageInputs.forEach(input => {
-			if (input.files[0]) imageFiles.push(input.files[0]);
-		});
+        const thumbnailFile = thumbnailInput.files[0];
+        const imageFiles = [];
+        secondaryImageInputs.forEach(input => {
+            if (input.files[0]) imageFiles.push(input.files[0]);
+        });
 
-		if (!thumbnailFile) {
-			alert("Thumbnail required");
-			throw new Error("Thumbnail required");
-		}
+        if (!thumbnailFile) {
+            alert("Thumbnail required");
+            throw new Error("Thumbnail required");
+        }
 
-		if (!navigator.onLine) {
-			await window.saveOfflineListing({
-				type: 'create',
-				uid,
-				fields: {
-					name,
-					description: form.description.value.trim(),
-					price: form.price.value,
-					stock: form.stock.value,
-					category: form.category.value,
-					location: form.location.value.trim(),
-					delivery_method: form.delivery_method.value.trim(),
-					tags
-				},
-				thumbnailFile,
-				imageFiles
-			});
+        // --- offline handling ---
+        if (!navigator.onLine) {
+            await window.saveOfflineListing({
+                type: 'create',
+                uid,
+                fields: {
+                    name,
+                    description: form.description.value.trim(),
+                    price: form.price.value,
+                    stock: form.stock.value,
+                    category: form.category.value,
+                    location: form.location.value.trim(),
+                    delivery_method: form.delivery_method.value.trim(),
+                    tags
+                },
+                thumbnailFile,
+                imageFiles
+            });
 
-			alert("You are offline. This listing is saved locally and will sync automatically when you are back online.");
-			window.location.href = "/pages/my-listings/";
-			return;
-		}
+            alert("You are offline. This listing is saved locally and will sync automatically when you are back online.");
+            window.location.href = "/pages/my-listings/";
+            return;
+        }
 
-		const tags = (form.tags?.value || "")
-			.split(",")
-			.map(t => t.trim())
-			.filter(Boolean);
+        // --- online upload ---
+        // Upload thumbnail
+        const thumbnailAvif = await convertToAvif(thumbnailFile);
+        const thumbPath = `${uid}/${name}_thumbnail.avif`;
+        const thumbnailUrl = await uploadToMinio(thumbnailAvif, thumbPath);
 
-		const thumbnailFile = thumbnailInput.files[0];
-		
-		// Collect all additional images from separate inputs
-		const imageFiles = [];
-		secondaryImageInputs.forEach(input => {
-			if (input.files[0]) imageFiles.push(input.files[0]);
-		});
+        // Upload additional images
+        const imageUrls = [];
+        for (let i = 0; i < imageFiles.length; i++) {
+            const avif = await convertToAvif(imageFiles[i]);
+            const path = `${uid}/${name}/${Date.now()}_${i}.avif`;
+            const url = await uploadToMinio(avif, path);
+            if (url) imageUrls.push(url);
+        }
 
-		if (!thumbnailFile) {
-			alert("Thumbnail required");
-			throw new Error("Thumbnail required");
-		}
+        // Set hidden fields
+        document.getElementById("thumbnail_url").value = thumbnailUrl || "";
+        document.getElementById("list_of_image_url").value = JSON.stringify(imageUrls);
 
-		// Upload thumbnail
-		const thumbnailAvif = await convertToAvif(thumbnailFile);
-		const thumbPath = `${uid}/${name}_thumbnail.avif`;
-		const thumbnailUrl = await uploadToMinio(thumbnailAvif, thumbPath);
+        let tagsInput = document.getElementById("tags_input");
+        if (!tagsInput) {
+            tagsInput = document.createElement("input");
+            tagsInput.type = "hidden";
+            tagsInput.name = "tags";
+            tagsInput.id = "tags_input";
+            form.appendChild(tagsInput);
+        }
+        tagsInput.value = JSON.stringify(tags);
 
-		// Upload images
-		const imageUrls = [];
-		for (let i = 0; i < imageFiles.length; i++) {
-			const avif = await convertToAvif(imageFiles[i]);
-			const path = `${uid}/${name}/${Date.now()}_${i}.avif`;
-			const url = await uploadToMinio(avif, path);
-			if (url) imageUrls.push(url);
-		}
+        // Clear file inputs to avoid sending raw files to the server
+        thumbnailInput.value = '';
+        secondaryImageInputs.forEach(input => { input.value = ''; });
 
-		// Populate hidden fields
-		document.getElementById("thumbnail_url").value = thumbnailUrl || "";
-		document.getElementById("list_of_image_url").value = JSON.stringify(imageUrls);
+        // Submit the form
+        form.submit();
 
-		let tagsInput = document.getElementById("tags_input");
-		if (!tagsInput) {
-			tagsInput = document.createElement("input");
-			tagsInput.type = "hidden";
-			tagsInput.name = "tags";
-			tagsInput.id = "tags_input";
-			form.appendChild(tagsInput);
-		}
-		tagsInput.value = JSON.stringify(tags);
+    } catch (err) {
+        console.error("Upload failed:", err);
+        alert("Upload failed: " + err.message);
 
-		form.submit();
-
-	} catch (err) {
-		console.error("Upload failed:", err);
-		alert("Upload failed: " + err.message);
-
-		if (submitButton) {
-			submitButton.disabled = false;
-			submitButton.classList.remove("listing-submit-btn--loading");
-			submitButton.removeAttribute("aria-busy");
-		}
-	}
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.classList.remove("listing-submit-btn--loading");
+            submitButton.removeAttribute("aria-busy");
+        }
+    }
 });
