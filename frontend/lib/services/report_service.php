@@ -39,8 +39,8 @@ class Report_service {
 			
 			if ($success) {
 				try {
-					//$api = new ApiService();
-					//$api->send_fraud_report_to_graph($reporterId, $targetUserId, $reason, $description);
+					$api = new ApiService();
+					$api->send_fraud_report_to_graph($reporterId, $targetUserId, $reason, $description);
 				} catch (\Throwable $e) {
 					error_log('Graph fraud report failed: ' . $e->getMessage());
 				}
